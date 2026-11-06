@@ -1,0 +1,1360 @@
+/* ==========================================================================
+   PetCare Vinh - Homepage Stylesheet (Matching Main.svg Figma Design)
+   ========================================================================== */
+
+:root {
+    --bg-page: #F8F9FF;
+    --bg-soft: #EFF4FF;
+    --bg-white: #FFFFFF;
+    --text-primary: #0D1C2F;
+    --text-secondary: #475569;
+    --text-muted: #64748B;
+
+    --brand-green: #006C49;
+    --brand-emerald: #10B981;
+    --brand-mint: #6FFBBE;
+    --brand-orange: #FD933D;
+    --brand-orange-hover: #F08024;
+    --brand-amber: #9A4A00;
+    --brand-sky: #004B70;
+    --brand-sky-btn: #0EA5E9;
+    --brand-red: #BA1A1A;
+
+    --badge-indigo-bg: #DAE2FF;
+    --badge-sky-bg: #CBE6FF;
+    --badge-peach-bg: #FFDBC8;
+    --badge-mint-bg: #6FFBBE;
+
+    --border-soft: #E2E8F0;
+    --border-blue: #DCE6F7;
+
+    --shadow-sm: 0 4px 12px rgba(13, 28, 47, 0.04);
+    --shadow-card: 0 6px 20px rgba(13, 28, 47, 0.05);
+    --shadow-hover: 0 14px 30px rgba(13, 28, 47, 0.09);
+    --shadow-hero-img: 0 25px 50px -12px rgba(13, 28, 47, 0.22);
+    --shadow-orange: 0 8px 20px rgba(253, 147, 61, 0.35);
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-pill: 999px;
+
+    --container-width: 1280px;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Be Vietnam Pro', 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+ul {
+    list-style: none;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+.container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 32px;
+}
+
+/* ==========================================================================
+   Header / Navbar (80px height matching top slot of Main.svg)
+   ========================================================================== */
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.header-inner {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.brand-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 1.35rem;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.brand-logo-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, var(--brand-green), var(--brand-emerald));
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 108, 73, 0.25);
+}
+
+.brand-logo span {
+    color: var(--brand-green);
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.main-nav a {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 6px 2px;
+    position: relative;
+}
+
+.main-nav a:hover,
+.main-nav a.active {
+    color: var(--brand-green);
+}
+
+.main-nav a.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 2.5px;
+    border-radius: 2px;
+    background: var(--brand-green);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.header-hotline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--brand-green);
+    background: rgba(0, 108, 73, 0.08);
+    padding: 8px 14px;
+    border-radius: var(--radius-pill);
+}
+
+.btn-header-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--radius-pill);
+    background: var(--brand-orange);
+    color: #FFFFFF;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 14px rgba(253, 147, 61, 0.3);
+}
+
+.btn-header-cta:hover {
+    background: var(--brand-orange-hover);
+    transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   1. Hero Section
+   ========================================================================== */
+.hero-section {
+    background: linear-gradient(180deg, #EFF4FF 0%, #F8F9FF 55%, #F8F9FF 100%);
+    padding: 72px 0 64px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 512px;
+    gap: 48px;
+    align-items: center;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 14px;
+    border-radius: var(--radius-pill);
+    background: rgba(0, 108, 73, 0.1);
+    color: var(--brand-green);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+}
+
+.hero-badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--brand-emerald);
+}
+
+.hero-title {
+    font-size: 3.35rem;
+    line-height: 1.12;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.025em;
+    margin-bottom: 20px;
+}
+
+.hero-title .text-highlight {
+    display: block;
+    color: var(--brand-green);
+}
+
+.hero-desc {
+    font-size: 1.04rem;
+    line-height: 1.68;
+    color: var(--text-secondary);
+    max-width: 580px;
+    margin-bottom: 28px;
+}
+
+.hero-cta-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.btn-primary-orange {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 48px;
+    padding: 0 24px;
+    border-radius: var(--radius-pill);
+    background: var(--brand-orange);
+    color: #FFFFFF;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-orange);
+    transition: all 0.2s ease;
+}
+
+.btn-primary-orange:hover {
+    background: var(--brand-orange-hover);
+    transform: translateY(-1px);
+}
+
+.btn-secondary-white {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 48px;
+    padding: 0 24px;
+    border-radius: var(--radius-pill);
+    background: #FFFFFF;
+    color: var(--brand-green);
+    font-weight: 700;
+    font-size: 0.95rem;
+    border: 1px solid rgba(13, 28, 47, 0.06);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary-white:hover {
+    background: #F1F5F9;
+    transform: translateY(-1px);
+}
+
+.hero-mini-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 192px);
+    gap: 12px;
+}
+
+.hero-mini-card {
+    background: #FFFFFF;
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.hero-mini-card-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.hero-mini-card-head.green {
+    color: var(--brand-green);
+}
+
+.hero-mini-card-head.amber {
+    color: var(--brand-amber);
+}
+
+.hero-mini-card p {
+    font-size: 0.7rem;
+    line-height: 1.38;
+    color: var(--text-secondary);
+}
+
+.hero-visual {
+    position: relative;
+}
+
+.hero-image-frame {
+    width: 100%;
+    height: 384px;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    background: #E6EEFF;
+    box-shadow: var(--shadow-hero-img);
+}
+
+.hero-image-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hero-floating-badge {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius-lg);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 10px 25px rgba(13, 28, 47, 0.14);
+    max-width: 310px;
+}
+
+.hero-floating-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--brand-emerald);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.hero-floating-text strong {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.hero-floating-text span {
+    display: block;
+    font-size: 0.73rem;
+    color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Section Common Headers
+   ========================================================================== */
+.section-header-center {
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto 44px;
+}
+
+.section-eyebrow {
+    display: inline-block;
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+}
+
+.eyebrow-amber {
+    color: var(--brand-amber);
+}
+
+.eyebrow-green {
+    color: var(--brand-green);
+}
+
+.section-title {
+    font-size: 2.15rem;
+    line-height: 1.2;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+}
+
+.section-subtitle {
+    font-size: 0.96rem;
+    color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   2. Services Grid Section (Các dịch vụ PetCare đang nhận)
+   ========================================================================== */
+.services-section {
+    padding: 64px 0 80px;
+    background: var(--bg-page);
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.service-card {
+    background: #FFFFFF;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    border: 1px solid rgba(226, 232, 240, 0.7);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+}
+
+.service-card-media {
+    position: relative;
+    height: 208px;
+    background: #E6EEFF;
+    overflow: hidden;
+}
+
+.service-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s ease;
+}
+
+.service-card:hover .service-card-media img {
+    transform: scale(1.04);
+}
+
+.service-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 4px 11px;
+    border-radius: var(--radius-pill);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.badge-green {
+    background: var(--brand-emerald);
+    color: #FFFFFF;
+}
+
+.badge-orange {
+    background: var(--brand-orange);
+    color: #FFFFFF;
+}
+
+.badge-indigo {
+    background: var(--badge-indigo-bg);
+    color: var(--text-primary);
+}
+
+.badge-sky {
+    background: var(--badge-sky-bg);
+    color: var(--brand-sky);
+}
+
+.badge-peach {
+    background: var(--badge-peach-bg);
+    color: var(--brand-amber);
+}
+
+.badge-mint {
+    background: var(--badge-mint-bg);
+    color: #005236;
+}
+
+.service-price-pill {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 4px 12px;
+    border-radius: var(--radius-pill);
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(6px);
+    font-size: 0.74rem;
+    font-weight: 800;
+    box-shadow: 0 2px 8px rgba(13, 28, 47, 0.08);
+}
+
+.price-orange {
+    color: var(--brand-amber);
+}
+
+.price-dark {
+    color: var(--text-primary);
+}
+
+.price-sky {
+    color: var(--brand-sky);
+}
+
+.price-green {
+    color: var(--brand-green);
+}
+
+.service-card-body {
+    padding: 22px 24px 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.service-card-title {
+    font-size: 1.22rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.service-card-desc {
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.service-bullet-list {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.service-bullet-list li {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+.bullet-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.bullet-green .bullet-dot {
+    background: var(--brand-green);
+}
+
+.bullet-orange .bullet-dot {
+    background: var(--brand-amber);
+}
+
+.bullet-slate .bullet-dot {
+    background: #475569;
+}
+
+.bullet-sky .bullet-dot {
+    background: var(--brand-sky);
+}
+
+.service-card-footer {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.service-card-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 0.84rem;
+    font-weight: 700;
+}
+
+.link-green {
+    color: var(--brand-green);
+}
+
+.link-orange {
+    color: var(--brand-amber);
+}
+
+.link-dark {
+    color: var(--text-primary);
+}
+
+.link-sky {
+    color: var(--brand-sky);
+}
+
+.service-card-link:hover {
+    opacity: 0.82;
+}
+
+/* ==========================================================================
+   3. Scope Section (Phạm vi dịch vụ PetCare)
+   ========================================================================== */
+.scope-section {
+    background: var(--bg-soft);
+    padding: 72px 0;
+}
+
+.scope-grid {
+    display: grid;
+    grid-template-columns: 384px 1fr;
+    gap: 32px;
+    align-items: stretch;
+}
+
+.scope-intro-title {
+    font-size: 2rem;
+    line-height: 1.22;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+}
+
+.scope-intro-desc {
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+.scope-priority-box {
+    background: #FFFFFF;
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--brand-green);
+    box-shadow: var(--shadow-sm);
+}
+
+.scope-cards-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.scope-card {
+    background: #FFFFFF;
+    border-radius: var(--radius-lg);
+    padding: 24px 22px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+}
+
+.scope-card-num {
+    font-size: 2.1rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 12px;
+}
+
+.scope-card-num.num-green {
+    color: var(--brand-green);
+}
+
+.scope-card-num.num-amber {
+    color: var(--brand-amber);
+}
+
+.scope-card-num.num-red {
+    color: var(--brand-red);
+}
+
+.scope-card h3 {
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.38;
+    margin-bottom: 10px;
+}
+
+.scope-card p {
+    font-size: 0.83rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 18px;
+    flex: 1;
+}
+
+.scope-card-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.76rem;
+    font-weight: 700;
+}
+
+.tag-green {
+    color: var(--brand-green);
+}
+
+.tag-amber {
+    color: var(--brand-amber);
+}
+
+.tag-red {
+    color: var(--brand-red);
+}
+
+/* ==========================================================================
+   4. Comparison Table Section (Nên chọn dịch vụ nào?)
+   ========================================================================== */
+.comparison-section {
+    padding: 76px 0;
+    background: var(--bg-page);
+}
+
+.comparison-table-card {
+    background: #FFFFFF;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.comparison-table thead tr {
+    background: var(--bg-soft);
+}
+
+.comparison-table th {
+    padding: 16px 22px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.comparison-table th:last-child,
+.comparison-table td:last-child {
+    text-align: right;
+}
+
+.comparison-table tbody tr {
+    border-top: 1px solid #EEF2F9;
+    transition: background-color 0.15s ease;
+}
+
+.comparison-table tbody tr:hover {
+    background-color: #FAFBFD;
+}
+
+.comparison-table td {
+    padding: 22px;
+    vertical-align: middle;
+    font-size: 0.84rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+}
+
+.comparison-table td.service-col {
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    width: 19%;
+}
+
+.comparison-table td.when-col,
+.comparison-table td.include-col,
+.comparison-table td.ask-col {
+    width: 23.5%;
+}
+
+.btn-table-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 0.78rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-table-green {
+    background: var(--brand-emerald);
+    color: #FFFFFF;
+}
+
+.btn-table-orange {
+    background: var(--brand-orange);
+    color: #FFFFFF;
+}
+
+.btn-table-soft {
+    background: var(--badge-indigo-bg);
+    color: var(--text-primary);
+}
+
+.btn-table-sky {
+    background: var(--brand-sky-btn);
+    color: #FFFFFF;
+}
+
+.btn-table-darkgreen {
+    background: var(--brand-green);
+    color: #FFFFFF;
+}
+
+.btn-table-action:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   5. Process & Checklist Section (Quy trình chăm sóc & Cần báo gì trước)
+   ========================================================================== */
+.process-section {
+    background: var(--bg-soft);
+    padding: 76px 0 80px;
+}
+
+.process-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 18px;
+    margin-bottom: 36px;
+}
+
+.process-step-card {
+    background: #FFFFFF;
+    border-radius: var(--radius-md);
+    padding: 20px 18px;
+    box-shadow: var(--shadow-sm);
+}
+
+.process-step-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: var(--brand-emerald);
+    color: #FFFFFF;
+    font-size: 1.05rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+}
+
+.process-step-card h3 {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.38;
+    margin-bottom: 8px;
+}
+
+.process-step-card p {
+    font-size: 0.75rem;
+    line-height: 1.48;
+    color: var(--text-secondary);
+}
+
+.before-visit-card {
+    background: #FFFFFF;
+    border-radius: var(--radius-xl);
+    padding: 36px 36px;
+    box-shadow: var(--shadow-sm);
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 36px;
+    align-items: start;
+}
+
+.before-visit-left h3 {
+    font-size: 1.85rem;
+    line-height: 1.22;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.before-visit-left p {
+    font-size: 0.88rem;
+    line-height: 1.62;
+    color: var(--text-secondary);
+}
+
+.before-visit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.before-visit-item {
+    background: var(--bg-soft);
+    border-radius: var(--radius-md);
+    padding: 15px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: var(--text-primary);
+}
+
+.before-visit-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.icon-green {
+    color: var(--brand-green);
+}
+
+.icon-amber {
+    color: var(--brand-amber);
+}
+
+.icon-red {
+    color: var(--brand-red);
+}
+
+/* ==========================================================================
+   6. Quick Pricing & Booking Form Section
+   ========================================================================== */
+.booking-section {
+    padding: 76px 0 88px;
+    background: var(--bg-page);
+}
+
+.booking-grid {
+    display: grid;
+    grid-template-columns: 488px 1fr;
+    gap: 32px;
+    align-items: start;
+}
+
+.pricing-title {
+    font-size: 2rem;
+    line-height: 1.22;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.pricing-desc {
+    font-size: 0.86rem;
+    line-height: 1.62;
+    color: var(--text-secondary);
+    margin-bottom: 22px;
+}
+
+.pricing-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.pricing-item {
+    background: #FFFFFF;
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(226, 232, 240, 0.7);
+}
+
+.pricing-item-info h4 {
+    font-size: 0.96rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+}
+
+.pricing-item-info p {
+    font-size: 0.74rem;
+    color: var(--text-secondary);
+}
+
+.pricing-item-value {
+    font-size: 1.02rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.val-green {
+    color: var(--brand-green);
+}
+
+.val-amber {
+    color: var(--brand-amber);
+}
+
+.val-dark {
+    color: var(--text-primary);
+}
+
+.val-sky {
+    color: var(--brand-sky);
+}
+
+.hotline-banner-card {
+    background: linear-gradient(135deg, #006C49 0%, #059669 100%);
+    border-radius: var(--radius-lg);
+    padding: 22px 24px;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 12px 25px rgba(0, 108, 73, 0.22);
+}
+
+.hotline-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.9;
+    margin-bottom: 4px;
+}
+
+.hotline-number {
+    display: block;
+    font-size: 1.85rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+}
+
+.hotline-sub {
+    font-size: 0.74rem;
+    opacity: 0.9;
+}
+
+.hotline-phone-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Booking Form Card */
+.booking-form-card {
+    background: #FFFFFF;
+    border-radius: var(--radius-xl);
+    padding: 36px 34px;
+    box-shadow: 0 10px 32px rgba(13, 28, 47, 0.06);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.booking-form-card h3 {
+    font-size: 1.48rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.booking-form-sub {
+    font-size: 0.86rem;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+}
+
+.booking-alert-success {
+    background: #ECFDF5;
+    border: 1px solid #A7F3D0;
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    color: #065F46;
+    font-size: 0.86rem;
+}
+
+.booking-alert-success strong {
+    display: block;
+    font-size: 0.94rem;
+    margin-bottom: 4px;
+}
+
+.form-row-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.form-row-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-group.full-width {
+    margin-bottom: 22px;
+}
+
+.form-group label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.form-control {
+    height: 46px;
+    padding: 0 15px;
+    border-radius: var(--radius-md);
+    background: var(--bg-soft);
+    border: 1.5px solid transparent;
+    font-family: inherit;
+    font-size: 0.86rem;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: #94A3B8;
+}
+
+.form-control:focus {
+    background: #FFFFFF;
+    border-color: var(--brand-green);
+    box-shadow: 0 0 0 3px rgba(0, 108, 73, 0.12);
+}
+
+textarea.form-control {
+    height: 92px;
+    padding: 12px 15px;
+    resize: vertical;
+}
+
+.btn-submit-booking {
+    width: 100%;
+    height: 52px;
+    border-radius: var(--radius-md);
+    background: var(--brand-orange);
+    color: #FFFFFF;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: var(--shadow-orange);
+    transition: all 0.2s ease;
+}
+
+.btn-submit-booking:hover {
+    background: var(--brand-orange-hover);
+    transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   Site Footer
+   ========================================================================== */
+.site-footer {
+    background: #0D1C2F;
+    color: #CBD5E1;
+    padding: 48px 0 32px;
+    font-size: 0.85rem;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+    gap: 32px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-brand {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    margin-bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.footer-brand span {
+    color: var(--brand-emerald);
+}
+
+.footer-col h4 {
+    color: #FFFFFF;
+    font-size: 0.92rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.footer-col ul {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.footer-col a:hover {
+    color: #FFFFFF;
+}
+
+.footer-bottom {
+    padding-top: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: #94A3B8;
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+@media (max-width: 1140px) {
+    .hero-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-image-frame {
+        max-width: 640px;
+    }
+
+    .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .scope-grid,
+    .before-visit-card,
+    .booking-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .process-steps-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .main-nav {
+        display: none;
+    }
+
+    .hero-title {
+        font-size: 2.4rem;
+    }
+
+    .hero-mini-cards,
+    .services-grid,
+    .scope-cards-row,
+    .process-steps-grid,
+    .form-row-2,
+    .form-row-3,
+    .footer-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .comparison-table-card {
+        overflow-x: auto;
+    }
+
+    .comparison-table {
+        min-width: 780px;
+    }
+}
+
