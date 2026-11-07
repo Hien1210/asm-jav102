@@ -1,8 +1,8 @@
 package com.petcare.controller;
 
 import com.petcare.model.BookingRequest;
+import com.petcare.model.ReviewItem;
 import com.petcare.model.ServiceCard;
-import com.petcare.model.ServiceComparison;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -21,161 +21,96 @@ public class HomeServlet extends HttpServlet {
         List<ServiceCard> list = new ArrayList<>();
 
         list.add(new ServiceCard(
-                "tam-cho-meo",
-                "SPA VỆ SINH", "badge-green",
-                "Từ 60.000đ", "price-orange",
-                "Tắm chó mèo",
-                "Làm sạch lông, khử mùi, sấy khô kỹ và kiểm tra da lông trong một lần chăm sóc nhẹ nhàng.",
-                "assets/images/service-bath.jpg",
-                Arrays.asList(
-                        "Tắm bọt thảo dược, sấy khô chải tơ lông",
-                        "Vệ sinh tai, bấm mài móng, cạo bàn",
-                        "Vắt tuyến hôi và kiểm tra da lông cơ bản"
-                ),
-                "bullet-green",
-                "Xem chi tiết & Đặt lịch", "#dat-lich-section", "link-green", false
+                "tam-spa",
+                "tam-spa",
+                "Tắm & Spa Vệ Sinh", "badge-mint",
+                "4.9 (840+)",
+                "Tắm Spa Thảo Mộc & Vệ Sinh Toàn Diện",
+                "Vệ sinh tai, vắt tuyến hôi, bấm mài móng êm ái, ngâm bồn tắm thảo mộc dưỡng ẩm lông và sấy phồng thơm...",
+                Arrays.asList("Sữa tắm hữu cơ Organic", "Thời lượng: 45 phút", "Vắt tuyến hôi sạch sẽ"),
+                "Chi phí niêm yết", "150.000 đ", ""
         ));
 
         list.add(new ServiceCard(
+                "grooming-cat-tia",
                 "grooming",
-                "TẠO KIỂU CHO CHÓ", "badge-orange",
-                "Từ 250.000đ", "price-orange",
-                "Grooming / cắt tỉa lông chó",
-                "Cắt tỉa gọn đẹp, xử lý lông rối và tư vấn kiểu lông phù hợp dáng chó, mùa nóng và thói quen chăm sóc.",
-                "assets/images/service-grooming.jpg",
-                Arrays.asList(
-                        "Tư vấn dáng lông chuẩn breed trước khi làm",
-                        "Bao gồm trọn gói dịch vụ tắm sấy spa",
-                        "Có nhuộm lông theo yêu cầu an toàn"
-                ),
-                "bullet-orange",
-                "Xem chi tiết & Đặt lịch", "#dat-lich-section", "link-orange", false
+                "Grooming & Cắt Tỉa", "badge-sky",
+                "5.0 (1.200+)",
+                "Grooming & Cắt Tỉa Lông Tạo Kiểu",
+                "Cắt tỉa theo form dáng chuẩn (Teddy bear, sư tử, gấu tròn...), gỡ rối lông, tỉa gọn chân và mắt, tạo phồng...",
+                Arrays.asList("Tạo kiểu theo yêu cầu", "Kéo cắt chuyên nghiệp"),
+                "Chi phí niêm yết", "280.000 đ", ""
         ));
 
         list.add(new ServiceCard(
-                "cao-long",
-                "DỊCH VỤ THEO TÌNH TRẠNG", "badge-indigo",
-                "Theo cân nặng", "price-dark",
-                "Cạo lông chó mèo",
-                "Cạo hoặc tỉa ngắn khi lông rối bết, khó vệ sinh hoặc có nhu cầu chăm sóc phù hợp; trao đổi tình trạng da lông trước khi làm.",
-                "assets/images/service-shaving.jpg",
-                Arrays.asList(
-                        "Kiểm tra bề mặt da trước khi tiến hành",
-                        "Độ dài lưỡi cạo an toàn, không phạm da",
-                        "Cân nhắc kỹ với mèo hoặc pet khó hợp tác"
-                ),
-                "bullet-slate",
-                "Xem chi tiết & Đặt lịch", "#dat-lich-section", "link-dark", false
+                "spa-nhuom-long",
+                "grooming",
+                "Spa & Thẩm Mỹ Cao Cấp", "badge-peach",
+                "4.9 (650+)",
+                "Spa Cắt Tỉa & Nhuộm Lông Thẩm Mỹ Cao Cấp",
+                "Dưỡng lông tơ bóng mượt với collagen organic, tạo kiểu tai/đuôi thời thượng, xịt nước hoa cao cấp an toàn",
+                Arrays.asList("Collagen dưỡng mượt lông", "Thuốc nhuộm thảo mộc tự nhiên"),
+                "Chi phí từ", "350.000 đ", ""
         ));
 
         list.add(new ServiceCard(
-                "ve-ran",
-                "TƯ VẤN SẢN PHẨM", "badge-sky",
-                "Theo sản phẩm", "price-sky",
-                "Ve rận, bọ chét",
-                "Tư vấn sản phẩm nhỏ gáy hoặc xịt phù hợp, hướng dẫn dùng đúng cách và nhắc vệ sinh môi trường sống để hạn chế tái xuất hiện.",
-                "assets/images/service-flea.jpg",
-                Arrays.asList(
-                        "Kiểm tra phân tích da lông ban đầu",
-                        "Hướng dẫn nhỏ gáy / xịt đúng cân nặng",
-                        "Nhắc nhở vệ sinh ổ nằm và thảm lót"
-                ),
-                "bullet-sky",
-                "Tư vấn dùng thuốc", "#dat-lich-section", "link-sky", false
+                "cao-long-phuc-hoi",
+                "tam-spa",
+                "Phục Hồi & Vệ Sinh", "badge-mint",
+                "4.8 (390+)",
+                "Cạo Lông Mát Mẻ & Phục Hồi Lông Rối",
+                "Cạo lông sạch sẽ thoáng mát mùa nóng, gỡ búi lông rối bết không đau rát, vệ sinh kẽ móng và massage nhẹ...",
+                Arrays.asList("Tông-đơ êm không ồn", "Massage tinh dầu thư giãn"),
+                "Chi phí niêm yết", "180.000 đ", ""
         ));
 
         list.add(new ServiceCard(
-                "noi-tru",
-                "NỘI TRÚ", "badge-peach",
-                "Từ 60.000đ/ngày", "price-orange",
-                "Nội trú chó mèo",
-                "Trông giữ ngắn ngày tại cơ sở, có chỗ nghỉ riêng, cho ăn theo lịch và ghi chú thói quen cần lưu ý.",
-                "assets/images/service-boarding.jpg",
-                Arrays.asList(
-                        "Khẩu phần ăn 2 lần/ngày đúng giờ",
-                        "Có thể gửi đồ ăn và đồ chơi riêng của pet",
-                        "Cập nhật video sinh hoạt hằng ngày cho chủ"
-                ),
-                "bullet-orange",
-                "Đặt phòng nội trú", "#dat-lich-section", "link-orange", false
-        ));
-
-        list.add(new ServiceCard(
-                "pet-shop",
-                "CỬA HÀNG", "badge-mint",
-                "Mua online", "price-green",
-                "Pet shop tại Vinh",
-                "Gợi ý thức ăn, phụ kiện và sản phẩm chăm sóc hằng ngày; kênh mua online đặt tại petshopvinh.vn.",
-                "assets/images/service-petshop.jpg",
-                Arrays.asList(
-                        "Thức ăn hạt, pate dinh dưỡng, phụ kiện",
-                        "Sữa tắm, lược chải, cát vệ sinh chuyên dụng",
-                        "Giao hàng nhanh nội thành TP. Vinh"
-                ),
-                "bullet-green",
-                "Đến petshopvinh.vn", "https://petshopvinh.vn", "link-green", true
+                "khach-san-vip",
+                "khach-san",
+                "Khách Sạn & Lưu Trú", "badge-peach",
+                "5.0 (420+)",
+                "Khách Sạn Thú Cưng Lưu Trú VIP",
+                "Phòng riêng điều hòa 24/7, camera theo dõi trực tiếp cho chủ qua app, sân chơi vui nhộn 2 lần/ngày, khẩu...",
+                Arrays.asList("Camera 24/7 trực tiếp", "Sân chơi tương tác riêng"),
+                "Chi phí từ", "200.000 đ", "/ngày"
         ));
 
         return list;
     }
 
-    public static List<ServiceComparison> buildDefaultComparisons() {
-        List<ServiceComparison> list = new ArrayList<>();
+    public static List<ReviewItem> buildDefaultReviews() {
+        List<ReviewItem> reviews = new ArrayList<>();
 
-        list.add(new ServiceComparison(
-                "Tắm chó mèo",
-                "Pet có mùi, lông bết, lâu chưa vệ sinh hoặc khó tự tắm tại nhà.",
-                "Tắm, sấy khô, chải lông, vệ sinh tai, móng và kiểm tra da lông cơ bản.",
-                "Pet đang mệt, ho, tiêu hóa bất thường, da đỏ hoặc từng rất sợ tắm/sấy.",
-                "Đặt lịch", "btn-table-green", "Tắm chó mèo (Spa vệ sinh)"
+        reviews.add(new ReviewItem(
+                "2 ngày trước",
+                "\"Bé Miu nhà mình lông dày và hay rụng nhiều. Đưa đến Pet care làm gói tắm thảo mộc và chải lông tơ, về nhà lông mượt mà thơm nức mũi cả tuần. Các bạn chuyên viên cực kỳ cưng và nhẹ nhàng với mèo.\"",
+                "assets/images/review-cat-miu.jpg",
+                "Chị Thảo My & Bé Miu (Mèo Anh)",
+                "Cơ sở Nguyễn Đình Chiểu, Q.3"
         ));
 
-        list.add(new ServiceComparison(
-                "Grooming / cắt tỉa",
-                "Chó lông rối, dày, nóng, mất form hoặc chủ nuôi muốn tạo kiểu rõ hơn.",
-                "Tư vấn form, gỡ rối, tắm sấy, cắt tỉa, tạo kiểu hoặc nhuộm khi phù hợp.",
-                "Lông rối sát da, cần giữ form đặc biệt, nhuộm màu hoặc khó hợp tác.",
-                "Đặt lịch", "btn-table-orange", "Grooming / cắt tỉa lông chó"
+        reviews.add(new ReviewItem(
+                "1 tuần trước",
+                "\"Quy trình đặt lịch giữ chỗ 15 phút rất tiện. Đưa bé Bơ đến là được vào bồn tắm sấy ngay không cần chờ đợi. Kỹ thuật viên mài móng không làm bé giật mình, form mông trái tim cắt siêu đáng yêu!\"",
+                "assets/images/review-dog-bo.jpg",
+                "Anh Tuấn Khang & Bé Bơ (Corgi)",
+                "Cơ sở Hoàng Cầu, Hà Nội"
         ));
 
-        list.add(new ServiceComparison(
-                "Cạo lông chó mèo",
-                "Chó mèo rối bết nặng hoặc cần cạo gọn theo tình trạng da lông; cạo lông máu Poodle không bắt buộc.",
-                "Kiểm tra lông da, cạo theo phạm vi thống nhất, có thể kết hợp tắm sấy theo combo.",
-                "Mèo/chó khó tính, lông rối sát da, da đỏ kích ứng hoặc chủ chỉ muốn cạo vì sợ nóng.",
-                "Đặt lịch", "btn-table-soft", "Cạo lông chó mèo"
+        reviews.add(new ReviewItem(
+                "3 tuần trước",
+                "\"Gói Spa cắt tỉa ở đây là số 1! Các bạn kỹ thuật viên rất kiên nhẫn với các bé nhút nhát. Tắm xong thơm tho sạch sẽ và cắt tỉa form gấu bông siêu cưng. Lại còn được tặng 100 điểm tích lũy thành viên nữa.\"",
+                "assets/images/review-dog-may.jpg",
+                "Chị Lan Phương & Bé Mây (Poodle)",
+                "Cơ sở Nguyễn Đình Chiểu, Q.3"
         ));
 
-        list.add(new ServiceComparison(
-                "Ve rận, bọ chét",
-                "Pet ngứa gãi, thấy ve/bọ chét hoặc cần chọn nhỏ gáy/xịt đúng cân nặng.",
-                "Kiểm tra da lông, tư vấn sản phẩm phù hợp và nhắc vệ sinh ổ nằm, khăn, thảm.",
-                "Pet còn nhỏ, già yếu, da trầy đỏ hoặc đã dùng sản phẩm ve rận gần đây.",
-                "Tư vấn", "btn-table-sky", "Tư vấn sản phẩm ve rận, bọ chét"
-        ));
-
-        list.add(new ServiceComparison(
-                "Nội trú chó mèo",
-                "Chủ nuôi đi vắng, cần gửi pet theo ngày và muốn có nơi theo dõi ăn uống.",
-                "Cho ăn, nước uống, ghi chú thói quen, đồ ăn riêng và liên hệ khi phát sinh.",
-                "Pet đang bệnh, rất nhát, hung dữ, kén ăn hoặc cần dùng thuốc/sản phẩm riêng.",
-                "Đặt chỗ", "btn-table-orange", "Nội trú chó mèo"
-        ));
-
-        list.add(new ServiceComparison(
-                "Pet shop tại Vinh",
-                "Cần mua thức ăn, vệ sinh, phụ kiện hoặc hỏi sản phẩm phù hợp theo từng pet.",
-                "Gợi ý nhóm hàng và dẫn sang petshopvinh.vn để xem sản phẩm, giá, đặt hàng.",
-                "Pet đang đổi thức ăn, da lông nhạy cảm hoặc cần chọn sản phẩm theo cân nặng.",
-                "Xem shop", "btn-table-darkgreen", "Pet shop tại Vinh"
-        ));
-
-        return list;
+        return reviews;
     }
 
     private void loadHomePageData(HttpServletRequest req) {
         req.setAttribute("services", buildDefaultServices());
-        req.setAttribute("comparisons", buildDefaultComparisons());
+        req.setAttribute("reviews", buildDefaultReviews());
     }
 
     @Override
@@ -213,4 +148,3 @@ public class HomeServlet extends HttpServlet {
         req.getRequestDispatcher("/index.jsp").forward(req, resp);
     }
 }
-
