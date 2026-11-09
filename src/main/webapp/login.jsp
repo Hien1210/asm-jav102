@@ -210,10 +210,6 @@
                         Hệ thống Salon &amp; Spa Chăm Sóc Thú Cưng Tiêu Chuẩn Cao Cấp. Mang đến trải nghiệm
                         làm đẹp thư giãn tuyệt vời, lông mềm mượt thơm lâu với mỹ phẩm thảo mộc organic 100%.
                     </p>
-                    <div class="footer-cert-badges">
-                        <span class="footer-cert-pill">&#10003; Pro Grooming Certified</span>
-                        <span class="footer-cert-pill">&#127807; 100% Organic Products</span>
-                    </div>
                 </div>
 
                 <div class="footer-col">
@@ -237,18 +233,11 @@
                 </div>
 
                 <div class="footer-col">
-                    <h4>Giờ Hoạt Động &amp; Hotline</h4>
+                    <h4>Giờ Hoạt Động &amp; Liên Hệ</h4>
                     <div class="footer-info-list">
                         <div class="footer-info-item">
                             <span>&#128337;</span>
                             <span>Dịch vụ Spa &amp; Salon: 08:00 - 20:30 (Thứ 2 - CN)</span>
-                        </div>
-                        <div class="footer-info-item">
-                            <span>&#127911;</span>
-                            <div>
-                                <strong class="amber">Tư vấn Grooming &amp; Đặt lịch:</strong>
-                                <span>Hotline: 1900 8899 - Máy lẻ 1</span>
-                            </div>
                         </div>
                         <div class="footer-info-item">
                             <span>&#9993;</span>

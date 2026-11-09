@@ -26,7 +26,7 @@ public class HomeServlet extends HttpServlet {
                 "Tắm & Spa Vệ Sinh", "badge-mint",
                 "4.9 (840+)",
                 "Tắm Spa Thảo Mộc & Vệ Sinh Toàn Diện",
-                "Vệ sinh tai, vắt tuyến hôi, bấm mài móng êm ái, ngâm bồn tắm thảo mộc dưỡng ẩm lông và sấy phồng thơm...",
+                "Vệ sinh tai, vắt tuyến hôi, bấm mài móng êm ái, ngâm bồn tắm thảo mộc dưỡng ẩm lông và sấy phồng thơm mát lâu ngày.",
                 Arrays.asList("Sữa tắm hữu cơ Organic", "Thời lượng: 45 phút", "Vắt tuyến hôi sạch sẽ"),
                 "Chi phí niêm yết", "150.000 đ", ""
         ));
@@ -37,7 +37,7 @@ public class HomeServlet extends HttpServlet {
                 "Grooming & Cắt Tỉa", "badge-sky",
                 "5.0 (1.200+)",
                 "Grooming & Cắt Tỉa Lông Tạo Kiểu",
-                "Cắt tỉa theo form dáng chuẩn (Teddy bear, sư tử, gấu tròn...), gỡ rối lông, tỉa gọn chân và mắt, tạo phồng...",
+                "Cắt tỉa theo form dáng chuẩn (Teddy bear, sư tử, gấu tròn...), gỡ rối lông, tỉa gọn chân và mắt, tạo phồng chuẩn salon.",
                 Arrays.asList("Tạo kiểu theo yêu cầu", "Kéo cắt chuyên nghiệp"),
                 "Chi phí niêm yết", "280.000 đ", ""
         ));
@@ -48,7 +48,7 @@ public class HomeServlet extends HttpServlet {
                 "Spa & Thẩm Mỹ Cao Cấp", "badge-peach",
                 "4.9 (650+)",
                 "Spa Cắt Tỉa & Nhuộm Lông Thẩm Mỹ Cao Cấp",
-                "Dưỡng lông tơ bóng mượt với collagen organic, tạo kiểu tai/đuôi thời thượng, xịt nước hoa cao cấp an toàn",
+                "Dưỡng lông tơ bóng mượt với collagen organic, tạo kiểu tai/đuôi thời thượng, xịt nước hoa cao cấp an toàn cho da nhạy cảm.",
                 Arrays.asList("Collagen dưỡng mượt lông", "Thuốc nhuộm thảo mộc tự nhiên"),
                 "Chi phí từ", "350.000 đ", ""
         ));
@@ -59,7 +59,7 @@ public class HomeServlet extends HttpServlet {
                 "Phục Hồi & Vệ Sinh", "badge-mint",
                 "4.8 (390+)",
                 "Cạo Lông Mát Mẻ & Phục Hồi Lông Rối",
-                "Cạo lông sạch sẽ thoáng mát mùa nóng, gỡ búi lông rối bết không đau rát, vệ sinh kẽ móng và massage nhẹ...",
+                "Cạo lông sạch sẽ thoáng mát mùa nóng, gỡ búi lông rối bết không đau rát, vệ sinh kẽ móng và massage nhẹ nhàng.",
                 Arrays.asList("Tông-đơ êm không ồn", "Massage tinh dầu thư giãn"),
                 "Chi phí niêm yết", "180.000 đ", ""
         ));
@@ -70,7 +70,7 @@ public class HomeServlet extends HttpServlet {
                 "Khách Sạn & Lưu Trú", "badge-peach",
                 "5.0 (420+)",
                 "Khách Sạn Thú Cưng Lưu Trú VIP",
-                "Phòng riêng điều hòa 24/7, camera theo dõi trực tiếp cho chủ qua app, sân chơi vui nhộn 2 lần/ngày, khẩu...",
+                "Phòng riêng điều hòa 24/7, camera theo dõi trực tiếp cho chủ qua app, sân chơi vui nhộn 2 lần/ngày, khẩu phần dinh dưỡng riêng.",
                 Arrays.asList("Camera 24/7 trực tiếp", "Sân chơi tương tác riêng"),
                 "Chi phí từ", "200.000 đ", "/ngày"
         ));

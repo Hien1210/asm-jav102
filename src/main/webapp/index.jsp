@@ -141,64 +141,6 @@
                             <span>Đăng nhập tài khoản</span>
                         </a>
                     </div>
-
-                    <div class="hero-gift-strip">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                            <polyline points="20 12 20 22 4 22 4 12"></polyline>
-                            <rect x="2" y="7" width="20" height="5"></rect>
-                            <line x1="12" y1="22" x2="12" y2="7"></line>
-                            <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
-                            <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
-                        </svg>
-                        <span>Tặng ngay 100 PetPoints &amp; Miễn phí dịch vụ sấy thơm khử mùi cho lần đầu ghé thăm!</span>
-                    </div>
-
-                    <div class="hero-stats-row">
-                        <div class="hero-stat-card">
-                            <span class="stat-icon-box mint">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                                    <circle cx="7" cy="7.5" r="2.1"/>
-                                    <circle cx="12" cy="5.5" r="2.1"/>
-                                    <circle cx="17" cy="7.5" r="2.1"/>
-                                    <circle cx="19" cy="12" r="1.8"/>
-                                    <circle cx="5" cy="12" r="1.8"/>
-                                    <path d="M12 11.5c-3 0-5.5 2.1-5.5 4.8 0 1.8 1.5 3.2 3.3 3.2.9 0 1.5-.3 2.2-.3s1.3.3 2.2.3c1.8 0 3.3-1.4 3.3-3.2 0-2.7-2.5-4.8-5.5-4.8z"/>
-                                </svg>
-                            </span>
-                            <div>
-                                <strong>15.000+ Thú cưng</strong>
-                                <span>Được chăm sóc chu đáo</span>
-                            </div>
-                        </div>
-
-                        <div class="hero-stat-card">
-                            <span class="stat-icon-box sky">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                                    <circle cx="6" cy="6" r="3"></circle>
-                                    <circle cx="6" cy="18" r="3"></circle>
-                                    <line x1="20" y1="4" x2="8.12" y2="15.88"></line>
-                                    <line x1="14.47" y1="14.48" x2="20" y2="20"></line>
-                                    <line x1="8.12" y1="8.12" x2="12" y2="12"></line>
-                                </svg>
-                            </span>
-                            <div>
-                                <strong>Pro Groomer</strong>
-                                <span>Chứng chỉ tạo kiểu quốc tế</span>
-                            </div>
-                        </div>
-
-                        <div class="hero-stat-card">
-                            <span class="stat-icon-box peach">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
-                                </svg>
-                            </span>
-                            <div>
-                                <strong>Organic 100%</strong>
-                                <span>Phòng spa thơm mát, sạch khuẩn</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="hero-right">
@@ -395,7 +337,7 @@
             <div class="container">
                 <div class="section-header-center">
                     <span class="section-eyebrow eyebrow-amber">THAO TÁC THUẬN TIỆN &amp; NHANH CHÓNG</span>
-                    <h2 class="section-main-title">Đặt Lịch Hẹn Dễ Dàng Chỉ Với 4 Bước</h2>
+                    <h2 class="section-main-title">Đặt Lịch Hẹn Dễ Dàng Chỉ Với 3 Bước</h2>
                     <p>
                         Giao diện tối ưu cho người bận rộn. Bạn hoàn toàn có thể kiểm tra lịch trống
                         và giữ slot trước khi đến cơ sở.
@@ -436,18 +378,6 @@
                         </p>
                         <div class="step-foot-pill sky">
                             <span>&#128197; Lịch trống thực tế 100%</span>
-                        </div>
-                    </div>
-
-                    <div class="step-item-card">
-                        <div class="step-num-box emerald">4</div>
-                        <h3>Tạm giữ chỗ 15 phút</h3>
-                        <p>
-                            Hệ thống tự động khóa lịch chuyên viên cho bé trong 15 phút, bạn có thể thong thả
-                            đến đúng giờ mà không phải đợi lâu.
-                        </p>
-                        <div class="step-foot-pill green">
-                            <span>&#9201; Nhận mã QR check-in quầy</span>
                         </div>
                     </div>
                 </div>
@@ -501,7 +431,6 @@
                             Nhắc hẹn tắm sấy, cắt tỉa lông hoặc bấm móng tự động theo chu kỳ 2 - 3 tuần
                             để bé cưng luôn sạch thơm rạng rỡ.
                         </p>
-                        <div class="benefit-foot green">&#10003; Tích hợp qua Zalo OA &amp; SMS</div>
                     </div>
 
                     <div class="benefit-card">
@@ -517,7 +446,6 @@
                             Lưu trữ toàn bộ ảnh chụp xinh xắn trước và sau khi làm đẹp của bé sau mỗi buổi spa.
                             Tải về máy sắc nét bất kỳ lúc nào.
                         </p>
-                        <div class="benefit-foot green">&#10003; Lưu trữ vĩnh viễn chất lượng cao</div>
                     </div>
                 </div>
             </div>
@@ -572,10 +500,6 @@
                         Hệ thống Salon &amp; Spa Chăm Sóc Thú Cưng Tiêu Chuẩn Cao Cấp. Mang đến trải nghiệm
                         làm đẹp thư giãn tuyệt vời, lông mềm mượt thơm lâu với mỹ phẩm thảo mộc organic 100%.
                     </p>
-                    <div class="footer-cert-badges">
-                        <span class="footer-cert-pill">&#10003; Pro Grooming Certified</span>
-                        <span class="footer-cert-pill">&#127807; 100% Organic Products</span>
-                    </div>
                 </div>
 
                 <div class="footer-col">
@@ -599,18 +523,11 @@
                 </div>
 
                 <div class="footer-col">
-                    <h4>Giờ Hoạt Động &amp; Hotline</h4>
+                    <h4>Giờ Hoạt Động &amp; Liên Hệ</h4>
                     <div class="footer-info-list">
                         <div class="footer-info-item">
                             <span>&#128337;</span>
                             <span>Dịch vụ Spa &amp; Salon: 08:00 - 20:30 (Thứ 2 - CN)</span>
-                        </div>
-                        <div class="footer-info-item">
-                            <span>&#127911;</span>
-                            <div>
-                                <strong class="amber">Tư vấn Grooming &amp; Đặt lịch:</strong>
-                                <span>Hotline: 1900 8899 - Máy lẻ 1</span>
-                            </div>
                         </div>
                         <div class="footer-info-item">
                             <span>&#9993;</span>
