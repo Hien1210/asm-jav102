@@ -60,14 +60,14 @@
             </nav>
 
             <div class="header-auth-actions">
-                <button type="button" class="btn-login-outline" data-open-booking="Đăng nhập">Đăng nhập</button>
-                <button type="button" class="btn-register-solid" data-open-booking="Đăng ký tài khoản">Đăng ký tài khoản</button>
-                <button type="button" class="btn-user-avatar" aria-label="Tài khoản" data-open-booking="Hồ sơ">
+                <a href="${pageContext.request.contextPath}/login" class="btn-login-outline">Đăng nhập</a>
+                <a href="${pageContext.request.contextPath}/register" class="btn-register-solid">Đăng ký tài khoản</a>
+                <a href="${pageContext.request.contextPath}/login" class="btn-user-avatar" aria-label="Tài khoản">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                         <circle cx="12" cy="7" r="4"></circle>
                     </svg>
-                </button>
+                </a>
             </div>
         </div>
     </header>
@@ -88,8 +88,8 @@
                 </span>
             </div>
             <div class="guest-alert-btns">
-                <button type="button" class="btn-guest-white" data-open-booking="Đăng nhập">Đăng nhập ngay</button>
-                <button type="button" class="btn-guest-green" data-open-booking="Tạo tài khoản">Tạo tài khoản miễn phí</button>
+                <a href="${pageContext.request.contextPath}/login" class="btn-guest-white">Đăng nhập ngay</a>
+                <a href="${pageContext.request.contextPath}/register" class="btn-guest-green">Tạo tài khoản miễn phí</a>
             </div>
         </div>
     </div>
@@ -124,22 +124,22 @@
                     </p>
 
                     <div class="hero-cta-row">
-                        <button type="button" class="btn-hero-primary" data-open-booking="Tắm Spa Thảo Mộc & Vệ Sinh Toàn Diện">
+                        <a href="${pageContext.request.contextPath}/register" class="btn-hero-primary">
                             <span>Đăng ký thành viên mới</span>
                             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                                 <polyline points="12 5 19 12 12 19"></polyline>
                             </svg>
-                        </button>
+                        </a>
 
-                        <button type="button" class="btn-hero-secondary" data-open-booking="Đăng nhập">
+                        <a href="${pageContext.request.contextPath}/login" class="btn-hero-secondary">
                             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                                 <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
                                 <polyline points="10 17 15 12 10 7"></polyline>
                                 <line x1="15" y1="12" x2="3" y2="12"></line>
                             </svg>
                             <span>Đăng nhập tài khoản</span>
-                        </button>
+                        </a>
                     </div>
 
                     <div class="hero-gift-strip">
@@ -384,43 +384,6 @@
                             </div>
                         </article>
                     </c:forEach>
-
-                    <!-- Card 6: Featured Combo Card -->
-                    <article class="combo-featured-card" data-category="all">
-                        <div class="combo-top-row">
-                            <span class="combo-pill">Combo Làm Đẹp Tiết Kiệm</span>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 2l2.2 6.2L20.4 10l-6.2 2.2L12 18.4l-2.2-6.2L3.6 10l6.2-1.8L12 2z"/>
-                            </svg>
-                        </div>
-
-                        <h3>Đặt Lịch Combo Spa &amp; Grooming Trọn Gói</h3>
-                        <p>
-                            Gói tắm thảo mộc kết hợp cắt tỉa form chuẩn tiết kiệm đến 20%,
-                            tặng kèm sấy tinh dầu thơm tho lâu ngày.
-                        </p>
-
-                        <div class="combo-hotline-box">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFDCC5" stroke-width="2.2">
-                                <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
-                                <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
-                            </svg>
-                            <div>
-                                <small>Hotline đặt lịch &amp; tư vấn kiểu dáng:</small>
-                                <strong>1900 8899 (Nhánh 1)</strong>
-                            </div>
-                        </div>
-
-                        <button type="button" class="btn-combo-white" data-open-booking="Combo Spa & Grooming Trọn Gói">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                                <line x1="3" y1="10" x2="21" y2="10"></line>
-                            </svg>
-                            <span>Đặt hẹn combo làm đẹp ngay</span>
-                        </button>
-                    </article>
                 </div>
             </div>
         </section>
@@ -520,9 +483,9 @@
                             Đăng ký chỉ mất 30 giây bằng số điện thoại, mở khóa trọn đời hệ sinh thái chăm sóc chuẩn quốc tế.
                         </p>
                     </div>
-                    <button type="button" class="btn-card-green" data-open-booking="Đăng ký tài khoản miễn phí">
+                    <a href="${pageContext.request.contextPath}/register" class="btn-card-green" style="width: auto;">
                         Đăng ký tài khoản miễn phí
-                    </button>
+                    </a>
                 </div>
 
                 <div class="benefits-4-grid">
@@ -573,12 +536,12 @@
                     </p>
                 </div>
                 <div class="cta-bottom-actions">
-                    <button type="button" class="btn-cta-white" data-open-booking="Đăng ký tài khoản mới">
+                    <a href="${pageContext.request.contextPath}/register" class="btn-cta-white">
                         Đăng ký tài khoản mới
-                    </button>
-                    <button type="button" class="btn-cta-outline" data-open-booking="Đăng nhập">
+                    </a>
+                    <a href="${pageContext.request.contextPath}/login" class="btn-cta-outline">
                         Đã có tài khoản? Đăng nhập
-                    </button>
+                    </a>
                 </div>
             </div>
         </section>
