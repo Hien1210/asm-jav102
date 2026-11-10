@@ -2375,12 +2375,13 @@ textarea.modal-input {
     }
 
     .header-inner {
-        padding: 0 18px;
+        padding: 0 16px;
+        gap: 8px;
     }
 
     .brand-icon-box {
-        width: 58px;
-        height: 58px;
+        width: 54px;
+        height: 54px;
     }
 
     .brand-sub {
@@ -2389,6 +2390,18 @@ textarea.modal-input {
 
     .btn-login-outline {
         display: none;
+    }
+
+    .btn-register-solid {
+        height: 38px;
+        padding: 0 14px;
+        font-size: 0.80rem;
+    }
+
+    .btn-user-avatar,
+    .mobile-menu-toggle {
+        width: 38px;
+        height: 38px;
     }
 
     .hero-section {
