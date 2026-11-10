@@ -23,56 +23,67 @@ public class HomeServlet extends HttpServlet {
         list.add(new ServiceCard(
                 "tam-spa",
                 "tam-spa",
-                "Tắm & Spa Vệ Sinh", "badge-mint",
+                "Grooming & Tắm sấy", "badge-mint",
                 "4.9 (840+)",
-                "Tắm Spa Thảo Mộc & Vệ Sinh Toàn Diện",
-                "Vệ sinh tai, vắt tuyến hôi, bấm mài móng êm ái, ngâm bồn tắm thảo mộc dưỡng ẩm lông và sấy phồng thơm...",
-                Arrays.asList("Sữa tắm hữu cơ Organic", "Thời lượng: 45 phút", "Vắt tuyến hôi sạch sẽ"),
-                "Chi phí niêm yết", "150.000 đ", ""
+                "Grooming & Tắm Sấy Thảo Mộc Toàn Diện",
+                "Làm sạch sâu với sữa tắm thảo mộc hữu cơ, ngâm bồn sục thư giãn, sấy phồng tơi mượt và xịt dưỡng tinh dầu thơm mát dài lâu.",
+                Arrays.asList("Sữa tắm Organic", "Thời lượng: 45 phút", "Khử mùi & Dưỡng ẩm"),
+                "Giá dịch vụ từ", "150.000 đ", "/lần"
         ));
 
         list.add(new ServiceCard(
                 "grooming-cat-tia",
                 "grooming",
-                "Grooming & Cắt Tỉa", "badge-sky",
+                "Cắt tỉa tạo kiểu", "badge-sky",
                 "5.0 (1.200+)",
-                "Grooming & Cắt Tỉa Lông Tạo Kiểu",
-                "Cắt tỉa theo form dáng chuẩn (Teddy bear, sư tử, gấu tròn...), gỡ rối lông, tỉa gọn chân và mắt, tạo phồng...",
-                Arrays.asList("Tạo kiểu theo yêu cầu", "Kéo cắt chuyên nghiệp"),
-                "Chi phí niêm yết", "280.000 đ", ""
+                "Cắt Tỉa Tạo Kiểu Chuẩn Salon",
+                "Tạo form dáng chuẩn quốc tế (Teddy Bear, Gấu tròn, Bichon, Sư tử...) bởi chuyên viên Master Groomer giàu kinh nghiệm.",
+                Arrays.asList("Tạo kiểu theo yêu cầu", "Thời lượng: 90 phút", "Kéo cắt chuyên sâu"),
+                "Giá dịch vụ từ", "280.000 đ", "/lần"
         ));
 
         list.add(new ServiceCard(
-                "spa-nhuom-long",
-                "grooming",
-                "Spa & Thẩm Mỹ Cao Cấp", "badge-peach",
-                "4.9 (650+)",
-                "Spa Cắt Tỉa & Nhuộm Lông Thẩm Mỹ Cao Cấp",
-                "Dưỡng lông tơ bóng mượt với collagen organic, tạo kiểu tai/đuôi thời thượng, xịt nước hoa cao cấp an toàn",
-                Arrays.asList("Collagen dưỡng mượt lông", "Thuốc nhuộm thảo mộc tự nhiên"),
-                "Chi phí từ", "350.000 đ", ""
-        ));
-
-        list.add(new ServiceCard(
-                "cao-long-phuc-hoi",
+                "spa-cham-soc-da",
                 "tam-spa",
-                "Phục Hồi & Vệ Sinh", "badge-mint",
-                "4.8 (390+)",
-                "Cạo Lông Mát Mẻ & Phục Hồi Lông Rối",
-                "Cạo lông sạch sẽ thoáng mát mùa nóng, gỡ búi lông rối bết không đau rát, vệ sinh kẽ móng và massage nhẹ...",
-                Arrays.asList("Tông-đơ êm không ồn", "Massage tinh dầu thư giãn"),
-                "Chi phí niêm yết", "180.000 đ", ""
+                "Spa & Chăm sóc da", "badge-peach",
+                "4.9 (650+)",
+                "Spa Thảo Dược & Phục Hồi Da Lông",
+                "Liệu trình ủ bùn khoáng và tinh chất Collagen giúp làm dịu làn da nhạy cảm, giảm rụng lông và phục hồi độ bóng mượt tự nhiên.",
+                Arrays.asList("Ủ Collagen & Argan", "Thời lượng: 60 phút", "Da nhạy cảm"),
+                "Giá dịch vụ từ", "350.000 đ", "/lần"
         ));
 
         list.add(new ServiceCard(
-                "khach-san-vip",
+                "ve-sinh-tai-mong",
+                "tam-spa",
+                "Vệ sinh tai / móng", "badge-mint",
+                "4.9 (520+)",
+                "Vệ Sinh Tai, Móng & Tuyến Hôi Chuyên Sâu",
+                "Nhổ lông tai êm ái, làm sạch ống tai bằng dung dịch thảo dược, cắt và mài nhẵn móng, cạo vệ sinh bàn chân và vắt tuyến hôi.",
+                Arrays.asList("Dụng cụ tiệt trùng UV", "Thời lượng: 30 phút", "Êm ái không đau"),
+                "Giá dịch vụ từ", "120.000 đ", "/lần"
+        ));
+
+        list.add(new ServiceCard(
+                "cham-soc-suc-khoe",
+                "grooming",
+                "Chăm sóc sức khỏe cơ bản", "badge-sky",
+                "4.8 (430+)",
+                "Kiểm Tra Sức Khỏe Cơ Bản & Gỡ Rối Lông",
+                "Tầm soát da lông, kiểm tra răng miệng, gỡ rối lông bết bằng xịt dưỡng Keratin và massage thư giãn giảm căng thẳng cho bé.",
+                Arrays.asList("Tầm soát da & tai", "Gỡ rối không đau", "Massage tinh dầu"),
+                "Giá dịch vụ từ", "180.000 đ", "/lần"
+        ));
+
+        list.add(new ServiceCard(
+                "combo-cham-soc",
                 "khach-san",
-                "Khách Sạn & Lưu Trú", "badge-peach",
-                "5.0 (420+)",
-                "Khách Sạn Thú Cưng Lưu Trú VIP",
-                "Phòng riêng điều hòa 24/7, camera theo dõi trực tiếp cho chủ qua app, sân chơi vui nhộn 2 lần/ngày, khẩu...",
-                Arrays.asList("Camera 24/7 trực tiếp", "Sân chơi tương tác riêng"),
-                "Chi phí từ", "200.000 đ", "/ngày"
+                "Combo tiết kiệm -20%", "badge-peach",
+                "5.0 (910+)",
+                "Combo Chăm Sóc Toàn Diện & Lưu Trú VIP",
+                "Trọn gói Tắm sấy thảo mộc, Cắt tỉa tạo kiểu, Vệ sinh 7 bước kết hợp ủ dưỡng Collagen hoặc nghỉ dưỡng phòng VIP có camera 24/7.",
+                Arrays.asList("Trọn gói 9 bước", "Ưu đãi thành viên", "Tặng phụ kiện xinh"),
+                "Trọn gói ưu đãi", "390.000 đ", "/combo"
         ));
 
         return list;
