@@ -1,0 +1,381 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cơ sở Đống Đa (Hà Nội) — Pet care | Pet Spa &amp; Grooming Lounge</title>
+    <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/assets/images/logo.png?v=4" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css?v=5" />
+</head>
+
+<body>
+
+    <!-- ====================================================================
+         1. STICKY HEADER
+         ==================================================================== -->
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="${pageContext.request.contextPath}/home" class="brand-wrap" aria-label="Pet care — Trang chủ">
+                <span class="brand-icon-box">
+                    <img src="${pageContext.request.contextPath}/assets/images/logo.png?v=4" alt="PetCare Logo" class="brand-logo-img" />
+                </span>
+            </a>
+
+            <nav class="main-nav" aria-label="Điều hướng chính">
+                <a href="${pageContext.request.contextPath}/home">Trang chủ</a>
+                <a href="${pageContext.request.contextPath}/branches.jsp" class="active">Giới thiệu &amp; Cơ sở</a>
+                <a href="${pageContext.request.contextPath}/services.jsp">Bảng giá &amp; Dịch vụ</a>
+                <a href="${pageContext.request.contextPath}/home#quy-trinh-section">Quy trình chăm sóc</a>
+                <a href="${pageContext.request.contextPath}/home#quyen-loi-section">Tra cứu &amp; Hướng dẫn</a>
+            </nav>
+
+            <div class="header-auth-actions">
+                <a href="${pageContext.request.contextPath}/login" class="btn-login-outline">Đăng nhập</a>
+                <a href="${pageContext.request.contextPath}/register" class="btn-register-solid">Đăng ký tài khoản</a>
+                <a href="${pageContext.request.contextPath}/login" class="btn-user-avatar" aria-label="Tài khoản thành viên">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.1">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- ================================================================
+             2. HERO CHI TIẾT CƠ SỞ ĐỐNG ĐA (HÀ NỘI)
+             ================================================================ -->
+        <section class="subpage-hero">
+            <div class="container">
+                <div class="subpage-breadcrumb">
+                    <a href="${pageContext.request.contextPath}/home">Trang chủ</a>
+                    <span>/</span>
+                    <a href="${pageContext.request.contextPath}/branches.jsp">Giới thiệu &amp; Cơ sở</a>
+                    <span>/</span>
+                    <span>Cơ sở Hoàng Cầu, Đống Đa</span>
+                </div>
+
+                <!-- Chuyển nhanh giữa các trang cơ sở riêng -->
+                <div class="branch-switcher-pills" aria-label="Chuyển đổi giữa các cơ sở">
+                    <a href="${pageContext.request.contextPath}/branch-q3.jsp" class="branch-switch-pill">&#128205; Cơ sở Quận 3 (TP.HCM)</a>
+                    <a href="${pageContext.request.contextPath}/branch-dongda.jsp" class="branch-switch-pill active">&#128205; Cơ sở Đống Đa (Hà Nội)</a>
+                    <a href="${pageContext.request.contextPath}/branch-thaodien.jsp" class="branch-switch-pill">&#128205; Cơ sở Thảo Điền (TP.HCM)</a>
+                    <a href="${pageContext.request.contextPath}/branch-caugiay.jsp" class="branch-switch-pill">&#128205; Cơ sở Cầu Giấy (Hà Nội)</a>
+                </div>
+
+                <div class="branch-detail-block" style="margin-bottom: 0;">
+                    <div class="branch-detail-top">
+                        <div class="branch-detail-photo">
+                            <img src="${pageContext.request.contextPath}/assets/images/branch-hn.jpg"
+                                alt="Pet care Spa 45 Hoàng Cầu Đống Đa Hà Nội" />
+                            <span class="branch-detail-badge">Flagship Hà Nội &bull; Spa &amp; VIP Pet Hotel</span>
+                        </div>
+                        <div class="branch-detail-content">
+                            <div>
+                                <div class="section-eyebrow" style="margin-bottom: 10px;">
+                                    <span>CHI NHÁNH TRUNG TÂM THỦ ĐÔ HÀ NỘI</span>
+                                </div>
+                                <h1 class="branch-detail-title">Pet care Spa &mdash; 45 Hoàng Cầu, Quận Đống Đa</h1>
+                                <p class="branch-detail-desc">
+                                    Nằm ngay mặt phố Hoàng Cầu thoáng đãng nhìn ra hồ Hoàng Cầu, cơ sở Flagship Hà Nội
+                                    sở hữu diện tích <strong>290m²</strong> với hệ thống điều hòa &amp; đèn sưởi ấm
+                                    4 mùa, phòng Grooming cách âm riêng biệt cho mèo và tổ hợp lưu trú Boutique Pet
+                                    Hotel chuẩn 5 sao.
+                                </p>
+
+                                <div class="branch-specs-grid">
+                                    <div class="branch-spec-item">
+                                        <strong>Địa chỉ chi nhánh</strong>
+                                        <span>45 Hoàng Cầu, P. Ô Chợ Dừa, Quận Đống Đa, Hà Nội</span>
+                                    </div>
+                                    <div class="branch-spec-item">
+                                        <strong>Giờ mở cửa phục vụ</strong>
+                                        <span>08:00 &ndash; 20:30 (Thứ 2 &ndash; Chủ Nhật)</span>
+                                    </div>
+                                    <div class="branch-spec-item">
+                                        <strong>Quy mô &amp; Công suất</strong>
+                                        <span>Diện tích 290m² &bull; 7 bàn Grooming &bull; 20 phòng Hotel</span>
+                                    </div>
+                                    <div class="branch-spec-item">
+                                        <strong>Hotline chi nhánh Đống Đa</strong>
+                                        <span>024 3944 8989 &bull; Vỉa hè rộng đỗ ô tô thoải mái</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="branch-actions">
+                                <a href="${pageContext.request.contextPath}/branches.jsp" class="btn-branch-outline">&larr; Tất cả cơ sở</a>
+                                <a href="${pageContext.request.contextPath}/login" class="btn-branch-solid">
+                                    <span>Đặt lịch tại Cơ sở Đống Đa</span>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.3">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="branch-zones-row">
+                        <div class="branch-zones-list">
+                            <span class="branch-zone-chip">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.4">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Hệ Thống Nước Ấm &amp; Sưởi Hồng Ngoại
+                            </span>
+                            <span class="branch-zone-chip">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.4">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Khu Grooming Mèo Cách Âm Riêng
+                            </span>
+                            <span class="branch-zone-chip">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.4">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Sân Cỏ Vận Động Trong Nhà
+                            </span>
+                            <span class="branch-zone-chip">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.4">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Tủ Khử Trùng Dụng Cụ Tia UV-C
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================
+             3. 4 PHÂN KHU CHỨC NĂNG TẠI CƠ SỞ ĐỐNG ĐA
+             ================================================================ -->
+        <section style="padding: 72px 0; background: var(--white);">
+            <div class="container">
+                <div class="section-header-center">
+                    <div class="section-eyebrow">
+                        <span>KHÔNG GIAN CHUYÊN BIỆT TẠI CƠ SỞ ĐỐNG ĐA</span>
+                    </div>
+                    <h2 class="section-title">4 Phân Khu Chăm Sóc &amp; Lưu Trú 4 Mùa</h2>
+                    <p class="section-subtitle">
+                        Được thiết kế tối ưu cho khí hậu miền Bắc với hệ thống sưởi ấm mùa đông và kiểm soát độ ẩm tiêu
+                        chuẩn.
+                    </p>
+                </div>
+
+                <div class="branch-zones-4-grid">
+                    <article class="branch-zone-card">
+                        <span class="branch-zone-num">01</span>
+                        <h3>Khu Lounge Đón Tiếp &amp; Tầm Soát Sức Khỏe</h3>
+                        <p>
+                            Sảnh đón ngập ánh sáng tự nhiên với tầm nhìn hướng ra mặt phố Hoàng Cầu. Bé được kiểm tra
+                            nhiệt độ, da liễu, tai và tư vấn mẫu lông phù hợp trước khi vào phòng Spa.
+                        </p>
+                    </article>
+
+                    <article class="branch-zone-card">
+                        <span class="branch-zone-num">02</span>
+                        <h3>Phòng Tắm Sưởi Hồng Ngoại &amp; Spa Thảo Dược</h3>
+                        <p>
+                            Trang bị hệ thống đèn sưởi ấm hồng ngoại ngay trên bồn tắm sục giúp bé không bao giờ bị
+                            lạnh trong những ngày mùa đông Hà Nội.
+                        </p>
+                    </article>
+
+                    <article class="branch-zone-card">
+                        <span class="branch-zone-num">03</span>
+                        <h3>Phòng Grooming Mèo &amp; Chó Tách Biệt</h3>
+                        <p>
+                            Khu vực tắm sấy và cắt tỉa cho các bé Mèo được bố trí tại phòng kính cách âm hoàn toàn với
+                            khu vực của Chó, giúp mèo cưng luôn bình tĩnh, êm ái.
+                        </p>
+                    </article>
+
+                    <article class="branch-zone-card">
+                        <span class="branch-zone-num">04</span>
+                        <h3>Boutique Pet Hotel &amp; Sân Chơi Trong Nhà</h3>
+                        <p>
+                            20 phòng lưu trú rộng rãi lát sàn chống trượt ấm áp cùng khu vận động cỏ nhân tạo trong nhà
+                            để các bé vui chơi mỗi ngày 2 khung giờ.
+                        </p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================
+             4. ĐỘI NGŨ CHUYÊN VIÊN TẠI CƠ SỞ ĐỐNG ĐA
+             ================================================================ -->
+        <section style="padding: 72px 0; background: var(--light-mint); border-top: 1px solid var(--border-subtle);">
+            <div class="container">
+                <div class="section-header-center">
+                    <div class="section-eyebrow">
+                        <span>ĐỘI NGŨ CHUYÊN VIÊN CƠ SỞ ĐỐNG ĐA</span>
+                    </div>
+                    <h2 class="section-title">Master Groomer Phụ Trách Tại Chi Nhánh</h2>
+                    <p class="section-subtitle">
+                        Đội ngũ chuyên viên tận tâm, giàu kinh nghiệm tại cơ sở 45 Hoàng Cầu, Đống Đa.
+                    </p>
+                </div>
+
+                <div class="branch-team-3-grid">
+                    <article class="groomer-card">
+                        <div class="groomer-avatar-badge">ĐA</div>
+                        <span class="groomer-role-tag">Master Groomer &bull; Quản Lý Cơ Sở</span>
+                        <h3>Chuyên viên Đức Anh</h3>
+                        <p>
+                            8 năm kinh nghiệm Grooming chuyên nghiệp, đạt giải Nhì cuộc thi VietPet Grooming
+                            Championship hạng mục Poodle Creative Styling.
+                        </p>
+                    </article>
+
+                    <article class="groomer-card">
+                        <div class="groomer-avatar-badge">MH</div>
+                        <span class="groomer-role-tag">Senior Stylist Groomer</span>
+                        <h3>Chuyên viên Mai Hương</h3>
+                        <p>
+                            6 năm kinh nghiệm tạo kiểu Bichon, Phốc Sóc (Pomeranian), Schnauzer và phục hồi lông hư tổn
+                            bằng liệu trình ủ Collagen thảo mộc.
+                        </p>
+                    </article>
+
+                    <article class="groomer-card">
+                        <div class="groomer-avatar-badge">QT</div>
+                        <span class="groomer-role-tag">Chuyên Viên Spa &amp; Lưu Trú VIP</span>
+                        <h3>Chuyên viên Quốc Trung</h3>
+                        <p>
+                            Bác sĩ thú y đào tạo chuyên sâu về chăm sóc da liễu thú cưng, trực tiếp giám sát quy trình
+                            vệ sinh và dinh dưỡng tại khu Pet Hotel.
+                        </p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================
+             5. BOOKING CTA SECTION
+             ================================================================ -->
+        <section class="booking-cta-section">
+            <div class="container">
+                <div class="booking-cta-card">
+                    <div class="booking-cta-left">
+                        <div class="booking-cta-badge">
+                            <span>&#10024; CƠ SỞ ĐỐNG ĐA &bull; 45 HOÀNG CẦU</span>
+                        </div>
+                        <h2 class="booking-cta-title">
+                            Đặt lịch hẹn tại Pet care Spa Đống Đa
+                        </h2>
+                        <p class="booking-cta-desc">
+                            Chọn khung giờ phù hợp để đội ngũ chuyên viên tại 45 Hoàng Cầu chuẩn bị sẵn phòng tắm ấm và
+                            đón bé ngay khi tới nơi.
+                        </p>
+                    </div>
+
+                    <div class="booking-cta-panel">
+                        <h4>Thông tin đặt lịch Cơ sở Đống Đa</h4>
+                        <p>45 Hoàng Cầu, P. Ô Chợ Dừa, Quận Đống Đa, Hà Nội</p>
+
+                        <div class="booking-cta-perks">
+                            <div class="booking-cta-perk">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>Phòng tắm sưởi ấm hồng ngoại &amp; nước lọc RO</span>
+                            </div>
+                            <div class="booking-cta-perk">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>Khu Grooming Mèo tách biệt êm ái 100%</span>
+                            </div>
+                        </div>
+
+                        <a href="${pageContext.request.contextPath}/login" class="btn-cta-book-now">
+                            <span>Đặt lịch tại Cơ sở Đống Đa &rarr;</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ====================================================================
+         6. FOOTER
+         ==================================================================== -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand-row">
+                        <span class="footer-brand-icon">
+                            <img src="${pageContext.request.contextPath}/assets/images/logo.png?v=4" alt="PetCare Logo" />
+                        </span>
+                    </div>
+                    <p class="footer-desc">
+                        Hệ thống Salon &amp; Spa Chăm Sóc Thú Cưng Tiêu Chuẩn Cao Cấp. Mang đến trải nghiệm làm đẹp thư
+                        giãn, an toàn với mỹ phẩm thảo mộc organic 100%.
+                    </p>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Hệ Thống Cơ Sở</h4>
+                    <ul class="footer-links-list">
+                        <li><a href="${pageContext.request.contextPath}/branch-q3.jsp">Cơ sở Quận 3, TP.HCM</a></li>
+                        <li><a href="${pageContext.request.contextPath}/branch-dongda.jsp">Cơ sở Đống Đa, Hà Nội</a></li>
+                        <li><a href="${pageContext.request.contextPath}/branch-thaodien.jsp">Cơ sở Thảo Điền, TP.HCM</a></li>
+                        <li><a href="${pageContext.request.contextPath}/branch-caugiay.jsp">Cơ sở Cầu Giấy, Hà Nội</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Dịch Vụ Chăm Sóc</h4>
+                    <ul class="footer-links-list">
+                        <li><a href="${pageContext.request.contextPath}/services.jsp">Grooming &amp; Tắm sấy thảo mộc</a></li>
+                        <li><a href="${pageContext.request.contextPath}/services.jsp">Cắt tỉa tạo kiểu chuẩn Salon</a></li>
+                        <li><a href="${pageContext.request.contextPath}/services.jsp">Spa thảo dược &amp; Chăm sóc da</a></li>
+                        <li><a href="${pageContext.request.contextPath}/services.jsp">Combo chăm sóc &amp; Lưu trú VIP</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Thông Tin Liên Hệ</h4>
+                    <div class="footer-info-list">
+                        <div class="footer-info-item">
+                            <span><strong>TP.HCM:</strong> 128 Nguyễn Đình Chiểu, Q.3</span>
+                        </div>
+                        <div class="footer-info-item">
+                            <span><strong>Hà Nội:</strong> 45 Hoàng Cầu, Q. Đống Đa</span>
+                        </div>
+                        <div class="footer-info-item">
+                            <span>08:00 &ndash; 20:30 &bull; contact@petcare.vn</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <span>&copy; 2025 Pet care Pet Grooming &amp; Spa Salon. Toàn bộ quyền được bảo lưu.</span>
+                <span class="footer-verified">&#10003; Chứng nhận Salon Grooming Chuyên Nghiệp Việt Nam</span>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>

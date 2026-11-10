@@ -1,32 +1,77 @@
 /* ==========================================================================
-   Pet care - Login Page Stylesheet (Synced 100% with Homepage Theme)
+   Pet care — Pure CSS Premium Auth (Login & Register) Stylesheet
+   Synced 100% with Modern Premium Pet Care Palette:
+   - Deep Forest Green: #075C45
+   - Emerald Green:     #008F68
+   - Mint Green:        #D9F7EC
+   - Very Light Mint:   #F1FBF7
+   - White:             #FFFFFF
+   - Dark Navy:         #102235
+   - Text Gray:         #607080
    ========================================================================== */
 
-/* Active state for Login / Register button on the header */
+/* Native Cross-Document CSS View Transitions (Pure CSS, Zero JS) */
+@view-transition {
+    navigation: auto;
+}
+
+::view-transition-old(auth-card) {
+    animation: authViewOut 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+::view-transition-new(auth-card) {
+    animation: authViewIn 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes authViewOut {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.98);
+    }
+}
+
+@keyframes authViewIn {
+    from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.985);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Active state for Login / Register button in the header */
 .header-auth-actions .btn-login-outline.active-auth {
-    background: #ECFDF5;
-    border-color: #10B981;
-    color: var(--brand-green);
-    box-shadow: inset 0 0 0 1px rgba(0, 108, 73, 0.15);
+    background: #F1FBF7;
+    border-color: #075C45;
+    color: #075C45;
+    box-shadow: inset 0 0 0 1px rgba(7, 92, 69, 0.14);
 }
 
 .header-auth-actions .btn-register-solid.active-auth {
-    background: var(--brand-green-dark);
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+    background: #054735;
+    border-color: #054735;
+    color: #FFFFFF;
+    box-shadow: 0 0 0 3px #D9F7EC;
 }
 
 /* ==========================================================================
-   Main Login Stage & Soft Mint Glow Background (Matches Hero Section)
+   Main Auth Stage
    ========================================================================== */
 .login-main {
-    flex: 1;
+    min-height: calc(100vh - 76px);
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 52px 20px 64px;
-    background: linear-gradient(180deg, #EAFBF3 0%, #F3FBF7 55%, #F6FBF9 100%);
+    padding: 48px 20px 64px;
+    background: linear-gradient(180deg, #F1FBF7 0%, #E7F7F0 52%, #FFFFFF 100%);
     overflow: hidden;
 }
 
@@ -35,142 +80,117 @@
     top: -120px;
     left: 50%;
     transform: translateX(-50%);
-    width: 960px;
-    height: 460px;
-    background: radial-gradient(ellipse at center, rgba(111, 251, 190, 0.32) 0%, rgba(16, 185, 129, 0.08) 45%, rgba(111, 251, 190, 0) 72%);
+    width: 820px;
+    height: 360px;
+    background: radial-gradient(ellipse at center, rgba(217, 247, 236, 0.7) 0%, rgba(0, 143, 104, 0.05) 55%, rgba(255, 255, 255, 0) 75%);
     pointer-events: none;
     z-index: 0;
 }
 
 /* ==========================================================================
-   Login Card (Matches Homepage Cards & Modal Styling)
+   Login & Register Card Container (.login-card, .register-card, .auth-card-shell)
    ========================================================================== */
-.login-card {
+.login-card,
+.auth-card-shell {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     width: 100%;
-    max-width: 516px;
+    max-width: 500px;
     background: #FFFFFF;
-    border: 1.5px solid #D1FAE5;
-    border-radius: 22px;
-    padding: 36px 34px 32px;
-    box-shadow: 0 18px 42px -12px rgba(0, 108, 73, 0.1), 0 4px 16px rgba(0, 108, 73, 0.04);
+    border: 1px solid #C5ECE0;
+    border-radius: 24px;
+    padding: 34px 36px 32px;
+    box-shadow: 0 22px 50px -12px rgba(16, 34, 53, 0.10), 0 4px 18px rgba(7, 92, 69, 0.05);
+    view-transition-name: auth-card;
+    animation: authCardEnter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.login-card.register-card {
-    max-width: 610px;
-    border-top: 4px solid var(--brand-green);
+.login-card.register-card,
+.auth-card-shell.is-register-mode {
+    max-width: 600px;
 }
 
-.login-title .brand-accent {
-    color: var(--brand-green);
+@keyframes authCardEnter {
+    0% {
+        opacity: 0;
+        transform: translateY(16px) scale(0.985);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
-.form-grid-2 {
+/* ==========================================================================
+   Pure CSS Segmented Mode Switcher (Đăng nhập <-> Tạo tài khoản)
+   ========================================================================== */
+.auth-mode-switcher {
+    position: relative;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-.form-label-hint {
-    font-size: 0.72rem;
-    font-weight: 500;
-    color: var(--text-muted);
-}
-
-/* Password Strength Bar */
-.pw-strength-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 8px;
-}
-
-.pw-bar {
-    flex: 1;
-    height: 4px;
-    border-radius: 999px;
-    background: #D1FAE5;
-    transition: background 0.25s ease;
-}
-
-.pw-bar.active-weak {
-    background: #F59E0B;
-}
-
-.pw-bar.active-medium {
-    background: #10B981;
-}
-
-.pw-bar.active-strong {
-    background: var(--brand-green);
-}
-
-.pw-strength-label {
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    margin-left: 4px;
-    white-space: nowrap;
-}
-
-.terms-row {
-    align-items: flex-start;
-    margin: 6px 0 22px;
-}
-
-.terms-row input[type="checkbox"] {
-    margin-top: 3px;
-    flex-shrink: 0;
-}
-
-.terms-row span {
-    line-height: 1.45;
-}
-
-.terms-row a {
-    color: var(--brand-green);
-    font-weight: 700;
-}
-
-.terms-row a:hover {
-    text-decoration: underline;
-}
-
-.login-card-top {
-    text-align: center;
+    background: #F1FBF7;
+    border: 1px solid #E2ECE8;
+    border-radius: 14px;
+    padding: 5px;
     margin-bottom: 26px;
 }
 
-.portal-member-badge {
+.auth-mode-tab {
+    position: relative;
+    z-index: 1;
+    height: 40px;
+    border: none;
+    background: transparent;
+    color: #607080;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border-radius: 999px;
-    background: #D1FAE5;
-    border: 1px solid #A7F3D0;
-    color: var(--brand-green);
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.4px;
-    text-transform: uppercase;
-    margin-bottom: 14px;
+    justify-content: center;
+    gap: 7px;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.auth-mode-tab:hover {
+    color: #075C45;
+}
+
+.auth-mode-tab.active {
+    background: #075C45;
+    color: #FFFFFF;
+    box-shadow: 0 4px 12px rgba(7, 92, 69, 0.2);
+}
+
+/* ==========================================================================
+   Card Headers & Titles
+   ========================================================================== */
+.login-card-top {
+    text-align: center;
+    margin-bottom: 24px;
 }
 
 .login-title {
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 1.72rem;
     font-weight: 800;
-    color: var(--text-primary);
-    letter-spacing: -0.4px;
+    color: #102235;
+    letter-spacing: -0.025em;
     margin-bottom: 8px;
+    line-height: 1.22;
+}
+
+.login-title .brand-accent {
+    color: #075C45;
 }
 
 .login-subtitle {
-    font-size: 0.86rem;
-    line-height: 1.55;
-    color: var(--text-secondary);
-    max-width: 400px;
+    font-size: 0.88rem;
+    line-height: 1.58;
+    color: #607080;
+    max-width: 440px;
     margin: 0 auto;
 }
 
@@ -179,9 +199,9 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 12px 15px;
+    padding: 13px 16px;
     border-radius: 12px;
-    font-size: 0.83rem;
+    font-size: 0.84rem;
     font-weight: 600;
     margin-bottom: 18px;
 }
@@ -193,32 +213,40 @@
 }
 
 .login-alert-success {
-    background: #ECFDF5;
-    border: 1.5px solid #A7F3D0;
-    color: var(--brand-green);
+    background: #F1FBF7;
+    border: 1.5px solid #C5ECE0;
+    color: #075C45;
 }
 
-/* Form Controls (Matches Homepage Modal Mint Inputs) */
+/* ==========================================================================
+   Form Controls
+   ========================================================================== */
 .login-form {
     display: flex;
     flex-direction: column;
 }
 
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
 .form-group {
-    margin-bottom: 18px;
+    margin-bottom: 16px;
 }
 
 .form-label-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 7px;
 }
 
 .form-label {
     font-size: 0.82rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: #102235;
 }
 
 .form-label .req {
@@ -226,14 +254,21 @@
     margin-left: 2px;
 }
 
+.form-label-hint {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: #7A8B9B;
+}
+
 .forgot-link {
     font-size: 0.78rem;
     font-weight: 700;
-    color: var(--brand-green);
+    color: #075C45;
+    text-decoration: none;
 }
 
 .forgot-link:hover {
-    color: var(--brand-emerald);
+    color: #008F68;
     text-decoration: underline;
 }
 
@@ -246,7 +281,7 @@
 .input-icon-left {
     position: absolute;
     left: 15px;
-    color: var(--brand-green);
+    color: #075C45;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -257,54 +292,60 @@
 .form-control {
     width: 100%;
     height: 48px;
-    padding: 0 44px 0 42px;
-    background: #EEFAF4;
-    border: 1.5px solid #C6F0DC;
+    padding: 0 16px 0 42px;
+    background: #F1FBF7;
+    border: 1.5px solid #E2ECE8;
     border-radius: 12px;
     font-family: inherit;
-    font-size: 0.86rem;
-    color: var(--text-primary);
+    font-size: 0.88rem;
+    color: #102235;
     outline: none;
-    transition: all 0.2s ease;
+    transition: all 0.22s ease;
 }
 
 .form-control::placeholder {
-    color: #64748B;
+    color: #7C8B99;
 }
 
 .form-control:focus {
     background: #FFFFFF;
-    border-color: var(--brand-emerald);
-    box-shadow: 0 0 0 3.5px rgba(16, 185, 129, 0.15);
+    border-color: #075C45;
+    box-shadow: 0 0 0 3.5px rgba(7, 92, 69, 0.12);
 }
 
-.btn-toggle-pw {
-    position: absolute;
-    right: 12px;
-    background: none;
-    border: none;
-    color: #475569;
-    cursor: pointer;
-    padding: 6px;
+/* Pure CSS Password Strength Indicator (uses :valid / :placeholder-shown) */
+.pw-strength-row {
     display: flex;
     align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    transition: all 0.2s ease;
+    gap: 6px;
+    margin-top: 8px;
 }
 
-.btn-toggle-pw:hover {
-    color: var(--brand-green);
-    background: #D1FAE5;
+.pw-bar {
+    flex: 1;
+    height: 4px;
+    border-radius: 999px;
+    background: #E2ECE8;
+    transition: background 0.25s ease;
 }
 
-.form-helper {
-    margin-top: 6px;
-    font-size: 0.73rem;
-    color: var(--text-secondary);
+.input-wrapper:has(input:not(:placeholder-shown):invalid) + .pw-strength-row .pw-bar:first-child {
+    background: #F59E0B;
 }
 
-/* Remember Me Checkbox */
+.input-wrapper:has(input:valid) + .pw-strength-row .pw-bar {
+    background: #008F68;
+}
+
+.pw-strength-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #607080;
+    margin-left: 4px;
+    white-space: nowrap;
+}
+
+/* Checkboxes */
 .remember-row {
     display: flex;
     align-items: center;
@@ -317,150 +358,126 @@
 .remember-row input[type="checkbox"] {
     width: 16px;
     height: 16px;
-    accent-color: var(--brand-green);
+    accent-color: #075C45;
     border-radius: 4px;
     cursor: pointer;
 }
 
 .remember-row span {
-    font-size: 0.82rem;
-    color: var(--text-secondary);
+    font-size: 0.83rem;
+    color: #607080;
     font-weight: 500;
 }
 
-/* Submit Button (Matches Homepage Primary CTA) */
+.terms-row {
+    align-items: flex-start;
+    margin: 4px 0 20px;
+}
+
+.terms-row input[type="checkbox"] {
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+.terms-row span {
+    line-height: 1.5;
+}
+
+.terms-row a {
+    color: #075C45;
+    font-weight: 700;
+}
+
+.terms-row a:hover {
+    text-decoration: underline;
+}
+
+/* Submit Button */
 .btn-login-submit {
     width: 100%;
-    height: 48px;
+    height: 50px;
     border: none;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #006C49 0%, #059669 100%);
+    border-radius: 13px;
+    background: #075C45;
     color: #FFFFFF;
     font-family: inherit;
-    font-size: 0.92rem;
+    font-size: 0.94rem;
     font-weight: 700;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     cursor: pointer;
-    box-shadow: 0 6px 18px rgba(0, 108, 73, 0.24);
-    transition: all 0.2s ease;
+    box-shadow: 0 6px 18px rgba(7, 92, 69, 0.22);
+    transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .btn-login-submit:hover {
-    background: linear-gradient(135deg, #005236 0%, #006C49 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 8px 22px rgba(0, 108, 73, 0.32);
+    background: #054735;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(7, 92, 69, 0.26);
 }
 
 .btn-login-submit:active {
     transform: translateY(0);
 }
 
-/* Divider & Register Link */
+/* Divider & Prompt */
 .login-divider {
     height: 1px;
-    background: #D1FAE5;
+    background: #E2ECE8;
     margin: 22px 0 18px;
 }
 
 .register-prompt {
     text-align: center;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    margin-bottom: 20px;
+    font-size: 0.86rem;
+    color: #607080;
 }
 
 .register-prompt a {
-    color: var(--brand-green);
+    color: #075C45;
+    font-size: 0.86rem;
     font-weight: 800;
     margin-left: 4px;
     display: inline-flex;
     align-items: center;
     gap: 3px;
+    text-decoration: none;
 }
 
 .register-prompt a:hover {
-    color: var(--brand-emerald);
-    text-decoration: underline;
-}
-
-/* Card Bottom Support Box */
-.support-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 46px;
-    padding: 0 16px;
-    background: #ECFDF5;
-    border: 1px solid #A7F3D0;
-    border-radius: 12px;
-    font-size: 0.78rem;
-}
-
-.support-hotline {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    color: var(--text-secondary);
-}
-
-.support-hotline svg {
-    color: var(--brand-green);
-    flex-shrink: 0;
-}
-
-.support-hotline strong {
-    color: var(--brand-green);
-    font-weight: 800;
-}
-
-.support-chat-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--brand-green);
-    font-weight: 700;
-}
-
-.support-chat-link:hover {
-    color: var(--brand-emerald);
+    color: #008F68;
     text-decoration: underline;
 }
 
 /* Below-Card Security Note */
 .security-note {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     display: inline-flex;
     align-items: center;
     gap: 7px;
     margin-top: 22px;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    color: var(--text-secondary);
+    color: #607080;
 }
 
 .security-note svg {
-    color: var(--brand-green);
+    color: #075C45;
     flex-shrink: 0;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
     .login-card,
-    .login-card.register-card {
+    .login-card.register-card,
+    .auth-card-shell {
         padding: 26px 20px;
     }
+
     .form-grid-2 {
         grid-template-columns: 1fr;
         gap: 0;
-    }
-    .support-bar {
-        flex-direction: column;
-        height: auto;
-        padding: 10px 14px;
-        gap: 6px;
-        align-items: flex-start;
     }
 }
