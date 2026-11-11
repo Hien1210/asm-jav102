@@ -28,3 +28,7 @@ target/
 out/
 .env
 application-local.properties
+
+# Local database truststores
+certs/*.p12
+certs/*.jks
