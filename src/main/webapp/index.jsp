@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="com.petcare.controller.HomeServlet" %>
+<%@ page import="com.petcare.controllers.HomeServlet" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%
     if (request.getAttribute("services") == null) {
