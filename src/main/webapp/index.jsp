@@ -43,8 +43,19 @@
             </nav>
 
             <div class="header-auth-actions">
-                <a href="${pageContext.request.contextPath}/login" class="btn-login-outline">Đăng nhập</a>
-                <a href="${pageContext.request.contextPath}/register" class="btn-register-solid">Đăng ký tài khoản</a>
+                <c:choose>
+                    <c:when test="${not empty sessionScope.loggedInUser}">
+                        <span class="btn-login-outline" style="cursor:default;">
+                            Xin chào, <strong>${sessionScope.loggedInUser}</strong>
+                            <c:if test="${not empty sessionScope.loggedInRole}">(${sessionScope.loggedInRole})</c:if>
+                        </span>
+                        <a href="${pageContext.request.contextPath}/logout" class="btn-register-solid">Đăng xuất</a>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="${pageContext.request.contextPath}/login" class="btn-login-outline">Đăng nhập</a>
+                        <a href="${pageContext.request.contextPath}/register" class="btn-register-solid">Đăng ký tài khoản</a>
+                    </c:otherwise>
+                </c:choose>
                 <a href="${pageContext.request.contextPath}/login" class="btn-user-avatar" aria-label="Tài khoản">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>

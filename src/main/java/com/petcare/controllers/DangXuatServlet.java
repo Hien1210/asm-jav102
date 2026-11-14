@@ -1,8 +1,27 @@
 package com.petcare.controllers;
 
+import com.petcare.utils.SessionUtil;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
-/** Scaffold only; URL mapping and request handling are not implemented. */
+@WebServlet(name = "DangXuatServlet", urlPatterns = {"/logout", "/dang-xuat"})
 public class DangXuatServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        SessionUtil.clearSession(request);
+        response.sendRedirect(request.getContextPath() + "/login");
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doGet(request, response);
+    }
 }

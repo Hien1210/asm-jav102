@@ -1,5 +1,7 @@
 package com.petcare.utils;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -32,14 +34,25 @@ public final class DBUtil {
         }
         properties.setProperty("user", user);
         properties.setProperty("password", password);
-        properties.setProperty("loginTimeout", "10");
+        properties.setProperty("loginTimeout", "15");
         properties.setProperty("socketTimeout", "15000");
         properties.setProperty("applicationName", "PetCare");
         String trustStore = ConfigUtil.get("db.trustStore", "DB_TRUST_STORE", "");
         if (!trustStore.isBlank()) {
-            properties.setProperty("trustStore", trustStore);
-            properties.setProperty("trustStorePassword",
-                    ConfigUtil.get("db.trustStorePassword", "DB_TRUST_STORE_PASSWORD", ""));
+            Path trustStorePath = Path.of(trustStore);
+            Path fallbackPath = Path.of("certs", "petcare-truststore.p12");
+            if (Files.isRegularFile(trustStorePath)) {
+                properties.setProperty("trustStore", trustStorePath.toAbsolutePath().toString());
+                properties.setProperty("trustStorePassword",
+                        ConfigUtil.get("db.trustStorePassword", "DB_TRUST_STORE_PASSWORD", ""));
+            } else if (Files.isRegularFile(fallbackPath)) {
+                properties.setProperty("trustStore", fallbackPath.toAbsolutePath().toString());
+                properties.setProperty("trustStorePassword",
+                        ConfigUtil.get("db.trustStorePassword", "DB_TRUST_STORE_PASSWORD", ""));
+            } else {
+                properties.setProperty("trustServerCertificate", "true");
+                url = url.replace("trustServerCertificate=false", "trustServerCertificate=true");
+            }
         }
         // Explicit loading also works with Tomcat's web-application classloader.
         try {

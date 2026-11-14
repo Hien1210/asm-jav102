@@ -1,4 +1,4 @@
-:ON ERROR EXIT
+-- :ON ERROR EXIT
 
 USE master;
 GO
@@ -756,8 +756,9 @@ GO
 -- Empty database roles only; no logins/users are created or assigned automatically.
 CREATE ROLE petcare_booking_app AUTHORIZATION dbo;
 CREATE ROLE petcare_payment_app AUTHORIZATION dbo;
-DENY INSERT,UPDATE,DELETE ON SCHEMA::dbo TO petcare_booking_app;
-DENY INSERT,UPDATE,DELETE ON SCHEMA::dbo TO petcare_payment_app;
+GRANT SELECT, INSERT, UPDATE ON dbo.Users TO petcare_booking_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON dbo.Pets TO petcare_booking_app;
+GRANT SELECT ON dbo.Payments TO petcare_payment_app;
 GRANT EXECUTE ON dbo.BookServiceAppointment TO petcare_booking_app;
 GRANT EXECUTE ON dbo.BookBoardingAppointment TO petcare_booking_app;
 GRANT EXECUTE ON dbo.SetAppointmentStatus TO petcare_booking_app;

@@ -65,6 +65,17 @@
                 </p>
             </div>
 
+            <c:if test="${not empty successMessage}">
+                <div class="login-alert login-alert-success">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    <span>${successMessage}</span>
+                </div>
+            </c:if>
+
             <c:if test="${not empty errorMessage}">
                 <div class="login-alert login-alert-error">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -151,7 +162,7 @@
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 <polyline points="9 12 11 14 15 10" />
             </svg>
-            <span>Bảo mật chuẩn mã hóa SSL 256-bit &bull; Hệ thống Pet care Grooming &amp; Spa</span>
+            <span>Bảo mật chuẩn mã hóa BCrypt &amp; SSL 256-bit &bull; Hệ thống Pet care Grooming &amp; Spa</span>
         </div>
     </main>
 

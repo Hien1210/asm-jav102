@@ -120,8 +120,7 @@
 
                     <div class="form-group">
                         <div class="form-label-row">
-                            <label for="email" class="form-label">Email</label>
-                            <span class="form-label-hint">Tùy chọn</span>
+                            <label for="email" class="form-label">Email <span class="req">*</span></label>
                         </div>
                         <div class="input-wrapper">
                             <span class="input-icon-left">
@@ -133,7 +132,7 @@
                                 </svg>
                             </span>
                             <input type="email" id="email" name="email" class="form-control"
-                                placeholder="VD: thuytrang@gmail.com" value="${email}" autocomplete="email" />
+                                placeholder="VD: thuytrang@gmail.com" value="${email}" required autocomplete="email" />
                         </div>
                     </div>
                 </div>
@@ -221,7 +220,7 @@
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 <polyline points="9 12 11 14 15 10" />
             </svg>
-            <span>Bảo mật chuẩn mã hóa SSL 256-bit &bull; Hệ thống Pet care Grooming &amp; Spa</span>
+            <span>Bảo mật chuẩn mã hóa BCrypt &amp; SSL 256-bit &bull; Hệ thống Pet care Grooming &amp; Spa</span>
         </div>
     </main>
 

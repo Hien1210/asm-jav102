@@ -1,5 +1,7 @@
 package com.petcare.controller;
 
+import com.petcare.models.Users;
+import com.petcare.services.AuthService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -7,9 +9,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.sql.SQLException;
 
 @WebServlet(name = "RegisterServlet", urlPatterns = {"/register", "/dang-ky"})
 public class RegisterServlet extends HttpServlet {
+
+    private final AuthService authService = new AuthService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -59,11 +64,30 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-        HttpSession session = request.getSession(true);
-        session.setAttribute("loggedInUser", fullName);
-        session.setAttribute("loggedInPhone", phone);
+        try {
+            Users createdUser = authService.registerCustomer(fullName, phone, email, password);
 
-        response.sendRedirect(request.getContextPath() + "/login");
+            HttpSession session = request.getSession(true);
+            session.setAttribute("successMessage",
+                    "Đăng ký tài khoản thành công! Mật khẩu đã được mã hóa bảo mật. Vui lòng đăng nhập.");
+            session.setAttribute("registeredIdentifier",
+                    !email.isEmpty() ? createdUser.getEmail() : createdUser.getPhone());
+
+            response.sendRedirect(request.getContextPath() + "/login");
+        } catch (IllegalArgumentException e) {
+            request.setAttribute("errorMessage", e.getMessage());
+            request.getRequestDispatcher("/register.jsp").forward(request, response);
+        } catch (SQLException e) {
+            if (e.getErrorCode() == 229) {
+                request.setAttribute("errorMessage",
+                        "Tài khoản SQL 'petcare_backend' chưa được cấp quyền SELECT/INSERT trên bảng dbo.Users. "
+                        + "Vui lòng chạy file database/grant_auth_permissions.sql trên SQL Server.");
+            } else if (e.getErrorCode() == 2627 || e.getErrorCode() == 2601) {
+                request.setAttribute("errorMessage", "Email hoặc số điện thoại này đã được đăng ký.");
+            } else {
+                request.setAttribute("errorMessage", "Lỗi kết nối cơ sở dữ liệu SQL Server: " + e.getMessage());
+            }
+            request.getRequestDispatcher("/register.jsp").forward(request, response);
+        }
     }
 }
-
