@@ -13,8 +13,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
         rel="stylesheet" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css?v=6" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/login.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css?v=9" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/login.css?v=2" />
 </head>
 
 <body>
@@ -66,6 +66,17 @@
                     quyền.
                 </p>
             </div>
+
+            <c:if test="${not empty successMessage}">
+                <div class="login-alert login-alert-success">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    <span>${successMessage}</span>
+                </div>
+            </c:if>
 
             <c:if test="${not empty errorMessage}">
                 <div class="login-alert login-alert-error">
@@ -150,8 +161,24 @@
                                     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                                 </svg>
                             </span>
-                            <input type="password" id="password" name="password" class="form-control"
+                            <input type="password" id="password" name="password" class="form-control has-pw-toggle"
                                 placeholder="Tối thiểu 8 ký tự" minlength="8" required autocomplete="new-password" />
+                            <button type="button" class="pw-toggle-btn" aria-label="Hiện mật khẩu" title="Hiện mật khẩu"
+                                aria-pressed="false">
+                                <svg class="icon-eye" width="17" height="17" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                <svg class="icon-eye-off" width="17" height="17" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" aria-hidden="true">
+                                    <path
+                                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                                    <line x1="1" y1="1" x2="23" y2="23" />
+                                </svg>
+                            </button>
                         </div>
                         <div class="pw-strength-row" aria-hidden="true">
                             <span class="pw-bar"></span>
@@ -174,9 +201,25 @@
                                     <polyline points="9 12 11 14 15 10" />
                                 </svg>
                             </span>
-                            <input type="password" id="confirmPassword" name="confirmPassword" class="form-control"
-                                placeholder="Khớp với mật khẩu trên" minlength="8" required
-                                autocomplete="new-password" />
+                            <input type="password" id="confirmPassword" name="confirmPassword"
+                                class="form-control has-pw-toggle" placeholder="Khớp với mật khẩu trên" minlength="8"
+                                required autocomplete="new-password" />
+                            <button type="button" class="pw-toggle-btn" aria-label="Hiện mật khẩu" title="Hiện mật khẩu"
+                                aria-pressed="false">
+                                <svg class="icon-eye" width="17" height="17" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                <svg class="icon-eye-off" width="17" height="17" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" aria-hidden="true">
+                                    <path
+                                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                                    <line x1="1" y1="1" x2="23" y2="23" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -287,6 +330,7 @@
         </div>
     </footer>
 
+    <script src="${pageContext.request.contextPath}/assets/js/pw-toggle.js?v=1"></script>
 </body>
 
 </html>

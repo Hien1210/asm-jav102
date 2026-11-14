@@ -21,5 +21,9 @@ public interface AccountDAO {
 
     boolean updateRoleAndStatus(int userId, String role, boolean isActive) throws SQLException;
 
+    boolean updateProfile(Users user) throws SQLException;
+
+    boolean updatePassword(int userId, String passwordHash) throws SQLException;
+
     List<Users> findAll() throws SQLException;
 }

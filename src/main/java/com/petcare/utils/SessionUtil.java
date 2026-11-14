@@ -20,17 +20,29 @@ public final class SessionUtil {
             oldSession.invalidate();
         }
         HttpSession session = request.getSession(true);
+        writeUserAttributes(session, user);
+        if (rememberMe) {
+            session.setMaxInactiveInterval(7 * 24 * 60 * 60); // 7 ngày
+        } else {
+            session.setMaxInactiveInterval(30 * 60); // 30 phút
+        }
+    }
+
+    public static void refreshSessionUser(HttpServletRequest request, Users user) {
+        if (user == null) {
+            return;
+        }
+        HttpSession session = request.getSession(true);
+        writeUserAttributes(session, user);
+    }
+
+    private static void writeUserAttributes(HttpSession session, Users user) {
         session.setAttribute(ATTR_CURRENT_USER, user);
         session.setAttribute(ATTR_USER_ID, user.getUserId());
         session.setAttribute(ATTR_USER_NAME, user.getFullName());
         session.setAttribute(ATTR_USER_EMAIL, user.getEmail());
         session.setAttribute(ATTR_USER_PHONE, user.getPhone());
         session.setAttribute(ATTR_USER_ROLE, user.getRole());
-        if (rememberMe) {
-            session.setMaxInactiveInterval(7 * 24 * 60 * 60); // 7 ngày
-        } else {
-            session.setMaxInactiveInterval(30 * 60); // 30 phút
-        }
     }
 
     public static Users getCurrentUser(HttpServletRequest request) {

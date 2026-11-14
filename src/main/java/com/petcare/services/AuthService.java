@@ -96,4 +96,65 @@ public class AuthService {
         }
         return user;
     }
+
+    public Users getUserById(int userId) throws SQLException {
+        return accountDAO.findById(userId);
+    }
+
+    public Users updateProfile(int userId, String fullName, String phone, String email) throws SQLException {
+        String cleanName = fullName != null ? fullName.trim() : "";
+        String cleanPhone = ValidationUtil.normalizePhone(phone);
+        String cleanEmail = ValidationUtil.normalizeEmail(email);
+
+        if (cleanName.isEmpty()) {
+            throw new IllegalArgumentException("Vui lòng nhập họ và tên.");
+        }
+        if (!ValidationUtil.isValidPhone(cleanPhone)) {
+            throw new IllegalArgumentException("Số điện thoại không hợp lệ (ví dụ: 0912345678).");
+        }
+        if (cleanEmail.isEmpty() || !ValidationUtil.isValidEmail(cleanEmail)) {
+            throw new IllegalArgumentException("Địa chỉ Email không đúng định dạng.");
+        }
+
+        Users current = accountDAO.findById(userId);
+        if (current == null) {
+            throw new IllegalArgumentException("Không tìm thấy thông tin tài khoản.");
+        }
+
+        String existingPhone = ValidationUtil.normalizePhone(current.getPhone());
+        if (!cleanPhone.equals(existingPhone)) {
+            Users byPhone = accountDAO.findByPhone(cleanPhone);
+            if (byPhone != null && byPhone.getUserId() != userId) {
+                throw new IllegalArgumentException("Số điện thoại này đã được sử dụng bởi tài khoản khác.");
+            }
+        }
+
+        String existingEmail = ValidationUtil.normalizeEmail(current.getEmail());
+        if (!cleanEmail.equals(existingEmail)) {
+            Users byEmail = accountDAO.findByEmail(cleanEmail);
+            if (byEmail != null && byEmail.getUserId() != userId) {
+                throw new IllegalArgumentException("Địa chỉ Email này đã được sử dụng bởi tài khoản khác.");
+            }
+        }
+
+        current.setFullName(cleanName);
+        current.setPhone(cleanPhone);
+        current.setEmail(cleanEmail);
+        accountDAO.updateProfile(current);
+        return current;
+    }
+
+    public void changePassword(int userId, String currentPassword, String newPassword) throws SQLException {
+        Users current = accountDAO.findById(userId);
+        if (current == null) {
+            throw new IllegalArgumentException("Không tìm thấy thông tin tài khoản.");
+        }
+        if (currentPassword == null || !verifyPassword(currentPassword, current.getPasswordHash())) {
+            throw new IllegalArgumentException("Mật khẩu hiện tại không chính xác.");
+        }
+        if (newPassword == null || newPassword.length() < 8) {
+            throw new IllegalArgumentException("Mật khẩu mới phải có tối thiểu 8 ký tự.");
+        }
+        accountDAO.updatePassword(userId, hashPassword(newPassword));
+    }
 }

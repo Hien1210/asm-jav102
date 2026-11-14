@@ -68,8 +68,7 @@ public class RegisterServlet extends HttpServlet {
             Users createdUser = authService.registerCustomer(fullName, phone, email, password);
 
             HttpSession session = request.getSession(true);
-            session.setAttribute("successMessage",
-                    "Đăng ký tài khoản thành công! Mật khẩu đã được mã hóa bảo mật. Vui lòng đăng nhập.");
+            session.setAttribute("successMessage", "Đăng ký tài khoản thành công!");
             session.setAttribute("registeredIdentifier",
                     !email.isEmpty() ? createdUser.getEmail() : createdUser.getPhone());
 

@@ -313,6 +313,59 @@
     box-shadow: 0 0 0 3.5px rgba(7, 92, 69, 0.12);
 }
 
+.form-control.has-pw-toggle {
+    padding-right: 44px;
+}
+
+.form-control.has-pw-toggle::-ms-reveal,
+.form-control.has-pw-toggle::-ms-clear {
+    display: none;
+}
+
+.pw-toggle-btn {
+    position: absolute;
+    right: 10px;
+    z-index: 2;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #607080;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.18s ease, background-color 0.18s ease;
+}
+
+.pw-toggle-btn:hover {
+    color: #075C45;
+    background: rgba(7, 92, 69, 0.08);
+}
+
+.pw-toggle-btn:focus-visible {
+    outline: 2px solid rgba(0, 143, 104, 0.35);
+    outline-offset: 1px;
+}
+
+.pw-toggle-btn .icon-eye-off {
+    display: none;
+}
+
+.pw-toggle-btn.is-visible {
+    color: #075C45;
+}
+
+.pw-toggle-btn.is-visible .icon-eye {
+    display: none;
+}
+
+.pw-toggle-btn.is-visible .icon-eye-off {
+    display: block;
+}
+
 /* Pure CSS Password Strength Indicator (uses :valid / :placeholder-shown) */
 .pw-strength-row {
     display: flex;

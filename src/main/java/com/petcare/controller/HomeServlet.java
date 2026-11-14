@@ -8,6 +8,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -128,6 +129,21 @@ public class HomeServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         resp.setCharacterEncoding("UTF-8");
+
+        HttpSession session = req.getSession(false);
+        if (session != null) {
+            Object profileSuccess = session.getAttribute("profileSuccess");
+            if (profileSuccess != null) {
+                req.setAttribute("profileSuccess", profileSuccess);
+                session.removeAttribute("profileSuccess");
+            }
+            Object profileError = session.getAttribute("profileError");
+            if (profileError != null) {
+                req.setAttribute("profileError", profileError);
+                session.removeAttribute("profileError");
+            }
+        }
+
         loadHomePageData(req);
         req.getRequestDispatcher("/index.jsp").forward(req, resp);
     }
