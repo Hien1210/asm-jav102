@@ -1,5 +1,10 @@
 package com.petcare.controllers;
 
+import com.petcare.daos.AccountDAO;
+import com.petcare.daos.AccountDAOImpl;
+import com.petcare.models.Users;
+import com.petcare.services.AuthService;
+import com.petcare.utils.ValidationUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -7,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.sql.SQLException;
 
 @WebServlet(name = "RegisterServlet", urlPatterns = {"/register", "/dang-ky"})
 public class RegisterServlet extends HttpServlet {
@@ -55,6 +61,30 @@ public class RegisterServlet extends HttpServlet {
 
         if (!password.equals(confirmPassword)) {
             request.setAttribute("errorMessage", "Mật khẩu nhập lại không khớp với mật khẩu vừa tạo.");
+            request.getRequestDispatcher("/register.jsp").forward(request, response);
+            return;
+        }
+
+        if (!email.isEmpty() && !ValidationUtil.isValidEmail(email)) {
+            request.setAttribute("errorMessage", "Email không hợp lệ.");
+            request.getRequestDispatcher("/register.jsp").forward(request, response);
+            return;
+        }
+
+        Users account = new Users();
+        account.setFullName(fullName);
+        account.setEmail(email.isEmpty() ? phone + "@petcare.local" : email);
+        account.setPhone(phone);
+        account.setPasswordHash(AuthService.hashPassword(password));
+        account.setRole("CUSTOMER");
+
+        AccountDAO accountDAO = new AccountDAOImpl();
+        try {
+            accountDAO.create(account);
+        } catch (SQLException e) {
+            request.setAttribute("errorMessage", e.getErrorCode() == 51050
+                    ? "Email hoặc số điện thoại này đã được đăng ký."
+                    : "Không thể tạo tài khoản. Vui lòng thử lại.");
             request.getRequestDispatcher("/register.jsp").forward(request, response);
             return;
         }

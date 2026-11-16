@@ -1,5 +1,54 @@
 package com.petcare.daos;
 
-/** Scaffold; database methods will be implemented later. */
+import com.petcare.models.Services;
+import com.petcare.utils.DBUtil;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class ServiceDAOImpl implements ServiceDAO {
+
+    private Services mapRow(ResultSet rs) throws SQLException {
+        Services service = new Services();
+        service.setServiceId(rs.getInt("service_id"));
+        service.setName(rs.getString("name"));
+        service.setDescription(rs.getString("description"));
+        service.setCategory(rs.getString("category"));
+        service.setDurationMinutes(rs.getInt("duration_minutes"));
+        service.setPrice(rs.getBigDecimal("price"));
+        service.setActive(rs.getBoolean("is_active"));
+        return service;
+    }
+
+    @Override
+    public List<Services> findActiveBookable() throws SQLException {
+        List<Services> services = new ArrayList<>();
+        String sql = "SELECT service_id, name, description, category, duration_minutes, price, is_active "
+                + "FROM dbo.Services WHERE is_active = 1 AND category <> 'BOARDING' ORDER BY name";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                services.add(mapRow(rs));
+            }
+        }
+        return services;
+    }
+
+    @Override
+    public Services findById(int serviceId) throws SQLException {
+        String sql = "SELECT service_id, name, description, category, duration_minutes, price, is_active "
+                + "FROM dbo.Services WHERE service_id = ?";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, serviceId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() ? mapRow(rs) : null;
+            }
+        }
+    }
 }
