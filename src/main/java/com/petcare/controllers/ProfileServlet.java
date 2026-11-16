@@ -1,4 +1,4 @@
-package com.petcare.controller;
+package com.petcare.controllers;
 
 import com.petcare.models.Users;
 import com.petcare.services.AuthService;

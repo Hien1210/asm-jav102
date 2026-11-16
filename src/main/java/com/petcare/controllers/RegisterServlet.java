@@ -1,15 +1,7 @@
 package com.petcare.controllers;
 
-<<<<<<< HEAD:src/main/java/com/petcare/controllers/RegisterServlet.java
-import com.petcare.daos.AccountDAO;
-import com.petcare.daos.AccountDAOImpl;
 import com.petcare.models.Users;
 import com.petcare.services.AuthService;
-import com.petcare.utils.ValidationUtil;
-=======
-import com.petcare.models.Users;
-import com.petcare.services.AuthService;
->>>>>>> bao:src/main/java/com/petcare/controller/RegisterServlet.java
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -72,38 +64,8 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-<<<<<<< HEAD:src/main/java/com/petcare/controllers/RegisterServlet.java
-        if (!email.isEmpty() && !ValidationUtil.isValidEmail(email)) {
-            request.setAttribute("errorMessage", "Email không hợp lệ.");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
-            return;
-        }
-
-        Users account = new Users();
-        account.setFullName(fullName);
-        account.setEmail(email.isEmpty() ? phone + "@petcare.local" : email);
-        account.setPhone(phone);
-        account.setPasswordHash(AuthService.hashPassword(password));
-        account.setRole("CUSTOMER");
-
-        AccountDAO accountDAO = new AccountDAOImpl();
-        try {
-            accountDAO.create(account);
-        } catch (SQLException e) {
-            request.setAttribute("errorMessage", e.getErrorCode() == 51050
-                    ? "Email hoặc số điện thoại này đã được đăng ký."
-                    : "Không thể tạo tài khoản. Vui lòng thử lại.");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
-            return;
-        }
-
-        HttpSession session = request.getSession(true);
-        session.setAttribute("loggedInUser", fullName);
-        session.setAttribute("loggedInPhone", phone);
-=======
         try {
             Users createdUser = authService.registerCustomer(fullName, phone, email, password);
->>>>>>> bao:src/main/java/com/petcare/controller/RegisterServlet.java
 
             HttpSession session = request.getSession(true);
             session.setAttribute("successMessage", "Đăng ký tài khoản thành công!");

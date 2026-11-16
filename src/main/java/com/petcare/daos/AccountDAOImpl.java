@@ -2,14 +2,6 @@ package com.petcare.daos;
 
 import com.petcare.models.Users;
 import com.petcare.utils.DBUtil;
-<<<<<<< HEAD
-
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-=======
 import com.petcare.utils.ValidationUtil;
 
 import java.sql.CallableStatement;
@@ -21,40 +13,11 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDateTime;
->>>>>>> bao
 import java.util.ArrayList;
 import java.util.List;
 
 public class AccountDAOImpl implements AccountDAO {
 
-<<<<<<< HEAD
-    private Users mapRow(ResultSet rs, boolean includePasswordHash) throws SQLException {
-        Users user = new Users();
-        user.setUserId(rs.getInt("user_id"));
-        user.setFullName(rs.getString("full_name"));
-        user.setEmail(rs.getString("email"));
-        user.setPhone(rs.getString("phone"));
-        if (includePasswordHash) {
-            user.setPasswordHash(rs.getString("password_hash"));
-        }
-        user.setRole(rs.getString("role"));
-        user.setActive(rs.getBoolean("is_active"));
-        user.setCreatedAt(rs.getTimestamp("created_at"));
-        return user;
-    }
-
-    @Override
-    public List<Users> findAll() throws SQLException {
-        List<Users> accounts = new ArrayList<>();
-        try (Connection conn = DBUtil.getConnection();
-             CallableStatement stmt = conn.prepareCall("{call dbo.ListAccounts}");
-             ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                accounts.add(mapRow(rs, false));
-            }
-        }
-        return accounts;
-=======
     private static final String BASE_SELECT =
             "SELECT user_id, full_name, email, phone, password_hash, role, is_active, created_at FROM dbo.Users ";
 
@@ -87,30 +50,10 @@ public class AccountDAOImpl implements AccountDAO {
                 active,
                 createdAt
         );
->>>>>>> bao
     }
 
     @Override
     public Users findById(int userId) throws SQLException {
-<<<<<<< HEAD
-        try (Connection conn = DBUtil.getConnection();
-             CallableStatement stmt = conn.prepareCall("{call dbo.GetAccountById(?)}")) {
-            stmt.setInt(1, userId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next() ? mapRow(rs, false) : null;
-            }
-        }
-    }
-
-    @Override
-    public Users findByIdentifierWithPasswordHash(String identifier) throws SQLException {
-        try (Connection conn = DBUtil.getConnection();
-             CallableStatement stmt = conn.prepareCall("{call dbo.FindAccountByIdentifier(?)}")) {
-            stmt.setString(1, identifier);
-            try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next() ? mapRow(rs, true) : null;
-            }
-=======
         try (Connection conn = DBUtil.getConnection()) {
             try (CallableStatement cs = conn.prepareCall("{call dbo.GetAccountById(?)}")) {
                 cs.setInt(1, userId);
@@ -137,24 +80,10 @@ public class AccountDAOImpl implements AccountDAO {
                 return rows.isEmpty() ? null : mapLocalRow(rows.get(0));
             }
             throw e;
->>>>>>> bao
         }
     }
 
     @Override
-<<<<<<< HEAD
-    public int create(Users account) throws SQLException {
-        try (Connection conn = DBUtil.getConnection();
-             CallableStatement stmt = conn.prepareCall("{call dbo.CreateAccount(?,?,?,?,?,?)}")) {
-            stmt.setString(1, account.getFullName());
-            stmt.setString(2, account.getEmail());
-            stmt.setString(3, account.getPhone());
-            stmt.setString(4, account.getPasswordHash());
-            stmt.setString(5, account.getRole());
-            stmt.registerOutParameter(6, Types.INTEGER);
-            stmt.execute();
-            return stmt.getInt(6);
-=======
     public Users findByEmail(String email) throws SQLException {
         String normalized = ValidationUtil.normalizeEmail(email);
         if (normalized.isEmpty()) {
@@ -239,22 +168,10 @@ public class AccountDAOImpl implements AccountDAO {
                 return rows.isEmpty() ? null : mapLocalRow(rows.get(0));
             }
             throw e;
->>>>>>> bao
         }
     }
 
     @Override
-<<<<<<< HEAD
-    public void update(Users account) throws SQLException {
-        try (Connection conn = DBUtil.getConnection();
-             CallableStatement stmt = conn.prepareCall("{call dbo.UpdateAccount(?,?,?,?,?)}")) {
-            stmt.setInt(1, account.getUserId());
-            stmt.setString(2, account.getFullName());
-            stmt.setString(3, account.getEmail());
-            stmt.setString(4, account.getPhone());
-            stmt.setString(5, account.getRole());
-            stmt.execute();
-=======
     public boolean existsByEmail(String email) throws SQLException {
         return findByEmail(email) != null;
     }
@@ -321,19 +238,10 @@ public class AccountDAOImpl implements AccountDAO {
                 return user;
             }
             throw e;
->>>>>>> bao
         }
     }
 
     @Override
-<<<<<<< HEAD
-    public void setActive(int userId, boolean active) throws SQLException {
-        try (Connection conn = DBUtil.getConnection();
-             CallableStatement stmt = conn.prepareCall("{call dbo.SetAccountActive(?,?)}")) {
-            stmt.setInt(1, userId);
-            stmt.setBoolean(2, active);
-            stmt.execute();
-=======
     public boolean updateRoleAndStatus(int userId, String role, boolean isActive) throws SQLException {
         try (Connection conn = DBUtil.getConnection()) {
             try {
@@ -365,19 +273,10 @@ public class AccountDAOImpl implements AccountDAO {
                 return affected > 0;
             }
             throw e;
->>>>>>> bao
         }
     }
 
     @Override
-<<<<<<< HEAD
-    public void resetPassword(int userId, String passwordHash) throws SQLException {
-        try (Connection conn = DBUtil.getConnection();
-             CallableStatement stmt = conn.prepareCall("{call dbo.ResetAccountPassword(?,?)}")) {
-            stmt.setInt(1, userId);
-            stmt.setString(2, passwordHash);
-            stmt.execute();
-=======
     public boolean updateProfile(Users user) throws SQLException {
         String role = user.getRole() != null ? user.getRole() : Users.ROLE_CUSTOMER;
         try (Connection conn = DBUtil.getConnection()) {
@@ -482,7 +381,6 @@ public class AccountDAOImpl implements AccountDAO {
                 return list;
             }
             throw e;
->>>>>>> bao
         }
     }
 }

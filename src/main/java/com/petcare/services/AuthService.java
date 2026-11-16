@@ -4,17 +4,6 @@ import at.favre.lib.crypto.bcrypt.BCrypt;
 import com.petcare.daos.AccountDAO;
 import com.petcare.daos.AccountDAOImpl;
 import com.petcare.models.Users;
-<<<<<<< HEAD
-
-import java.sql.SQLException;
-
-public class AuthService {
-
-    private final AccountDAO accountDAO;
-
-    public AuthService() {
-        this.accountDAO = new AccountDAOImpl();
-=======
 import com.petcare.utils.ValidationUtil;
 
 import java.nio.charset.StandardCharsets;
@@ -27,7 +16,6 @@ public class AuthService {
 
     public AuthService() {
         this(new AccountDAOImpl());
->>>>>>> bao
     }
 
     public AuthService(AccountDAO accountDAO) {
@@ -35,19 +23,6 @@ public class AuthService {
     }
 
     public static String hashPassword(String rawPassword) {
-<<<<<<< HEAD
-        return BCrypt.withDefaults().hashToString(12, rawPassword.toCharArray());
-    }
-
-    /** Returns the authenticated account, or null if the identifier/password/active state does not match. */
-    public Users authenticate(String identifier, String rawPassword) throws SQLException {
-        Users user = accountDAO.findByIdentifierWithPasswordHash(identifier);
-        if (user == null || !user.isActive()) {
-            return null;
-        }
-        BCrypt.Result result = BCrypt.verifyer().verify(rawPassword.toCharArray(), user.getPasswordHash());
-        return result.verified ? user : null;
-=======
         if (rawPassword == null || rawPassword.isEmpty()) {
             throw new IllegalArgumentException("Mật khẩu không được để trống.");
         }
@@ -181,6 +156,5 @@ public class AuthService {
             throw new IllegalArgumentException("Mật khẩu mới phải có tối thiểu 8 ký tự.");
         }
         accountDAO.updatePassword(userId, hashPassword(newPassword));
->>>>>>> bao
     }
 }

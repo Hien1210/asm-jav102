@@ -1,11 +1,5 @@
 package com.petcare.models;
 
-<<<<<<< HEAD
-import java.sql.Timestamp;
-
-public class Users {
-    private Integer userId;
-=======
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -17,25 +11,11 @@ public class Users implements Serializable {
     public static final String ROLE_ADMIN = "ADMIN";
 
     private int userId;
->>>>>>> bao
     private String fullName;
     private String email;
     private String phone;
     private String passwordHash;
     private String role;
-<<<<<<< HEAD
-    private boolean active;
-    private Timestamp createdAt;
-
-    public Users() {
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-=======
     private boolean isActive;
     private LocalDateTime createdAt;
 
@@ -61,7 +41,6 @@ public class Users implements Serializable {
     }
 
     public void setUserId(int userId) {
->>>>>>> bao
         this.userId = userId;
     }
 
@@ -106,22 +85,6 @@ public class Users implements Serializable {
     }
 
     public boolean isActive() {
-<<<<<<< HEAD
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
-=======
         return isActive;
     }
 
@@ -148,5 +111,4 @@ public class Users implements Serializable {
     public boolean isCustomer() {
         return ROLE_CUSTOMER.equalsIgnoreCase(this.role);
     }
->>>>>>> bao
 }

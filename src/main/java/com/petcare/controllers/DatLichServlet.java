@@ -9,6 +9,7 @@ import com.petcare.daos.StaffDAOImpl;
 import com.petcare.models.Pets;
 import com.petcare.models.Services;
 import com.petcare.models.StaffOption;
+import com.petcare.models.Users;
 import com.petcare.services.BookingService;
 import com.petcare.utils.SessionUtil;
 import com.petcare.utils.ValidationUtil;
@@ -61,7 +62,7 @@ public class DatLichServlet extends HttpServlet {
         }
 
         String action = request.getParameter("action");
-        int customerId = SessionUtil.getUserId(request);
+        int customerId = SessionUtil.getCurrentUser(request).getUserId();
 
         try {
             if ("addPet".equals(action)) {
@@ -84,7 +85,7 @@ public class DatLichServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/login");
             return false;
         }
-        if (!"CUSTOMER".equals(SessionUtil.getRole(request))) {
+        if (!SessionUtil.hasRole(request, Users.ROLE_CUSTOMER)) {
             response.sendRedirect(request.getContextPath() + "/home");
             return false;
         }
@@ -92,7 +93,7 @@ public class DatLichServlet extends HttpServlet {
     }
 
     private void loadFormData(HttpServletRequest request) {
-        int customerId = SessionUtil.getUserId(request);
+        int customerId = SessionUtil.getCurrentUser(request).getUserId();
         try {
             request.setAttribute("pets", petDAO.findByOwner(customerId));
 

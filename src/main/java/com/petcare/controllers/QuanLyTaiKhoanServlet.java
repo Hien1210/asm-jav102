@@ -94,7 +94,7 @@ public class QuanLyTaiKhoanServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/login");
             return false;
         }
-        if (!SessionUtil.isAdmin(request)) {
+        if (!SessionUtil.hasRole(request, Users.ROLE_ADMIN)) {
             response.sendRedirect(request.getContextPath() + "/home");
             return false;
         }
@@ -128,6 +128,11 @@ public class QuanLyTaiKhoanServlet extends HttpServlet {
         accountDAO.create(account);
     }
 
+    private int currentUserId(HttpServletRequest request) {
+        Users current = SessionUtil.getCurrentUser(request);
+        return current != null ? current.getUserId() : -1;
+    }
+
     private void handleUpdate(HttpServletRequest request) throws SQLException {
         int userId = parseUserId(request);
         String fullName = trim(request.getParameter("fullName"));
@@ -141,8 +146,7 @@ public class QuanLyTaiKhoanServlet extends HttpServlet {
         if (!VALID_ROLES.contains(role)) {
             throw new IllegalArgumentException("Vai trò không hợp lệ.");
         }
-        Integer currentUserId = SessionUtil.getUserId(request);
-        if (currentUserId != null && currentUserId == userId && !"ADMIN".equals(role)) {
+        if (currentUserId(request) == userId && !"ADMIN".equals(role)) {
             throw new IllegalArgumentException("Không thể tự bỏ quyền quản trị của chính mình.");
         }
 
@@ -152,18 +156,21 @@ public class QuanLyTaiKhoanServlet extends HttpServlet {
         account.setEmail(email);
         account.setPhone(phone);
         account.setRole(role);
-        accountDAO.update(account);
+        accountDAO.updateProfile(account);
     }
 
     private void handleToggleActive(HttpServletRequest request) throws SQLException {
         int userId = parseUserId(request);
         boolean active = "true".equals(request.getParameter("active"));
 
-        Integer currentUserId = SessionUtil.getUserId(request);
-        if (currentUserId != null && currentUserId == userId && !active) {
+        if (currentUserId(request) == userId && !active) {
             throw new IllegalArgumentException("Không thể tự khóa tài khoản của chính mình.");
         }
-        accountDAO.setActive(userId, active);
+        Users target = accountDAO.findById(userId);
+        if (target == null) {
+            throw new IllegalArgumentException("Tài khoản không tồn tại.");
+        }
+        accountDAO.updateRoleAndStatus(userId, target.getRole(), active);
     }
 
     private void handleResetPassword(HttpServletRequest request) throws SQLException {
@@ -172,7 +179,7 @@ public class QuanLyTaiKhoanServlet extends HttpServlet {
         if (newPassword == null || newPassword.length() < 8) {
             throw new IllegalArgumentException("Mật khẩu mới phải có tối thiểu 8 ký tự.");
         }
-        accountDAO.resetPassword(userId, AuthService.hashPassword(newPassword));
+        accountDAO.updatePassword(userId, AuthService.hashPassword(newPassword));
     }
 
     private int parseUserId(HttpServletRequest request) {
@@ -188,11 +195,11 @@ public class QuanLyTaiKhoanServlet extends HttpServlet {
     }
 
     private String friendlySqlMessage(SQLException e) {
-        if (e.getErrorCode() == 51050) {
+        if (e.getErrorCode() == 2627 || e.getErrorCode() == 2601) {
             return "Email đã được sử dụng bởi tài khoản khác.";
         }
-        if (e.getErrorCode() == 51051) {
-            return "Tài khoản không tồn tại.";
+        if (e.getErrorCode() == 229) {
+            return "Tài khoản SQL 'petcare_backend' chưa được cấp đủ quyền trên bảng dbo.Users.";
         }
         return "Không thể lưu thay đổi. Vui lòng thử lại.";
     }
