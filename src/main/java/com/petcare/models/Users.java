@@ -1,14 +1,29 @@
 package com.petcare.models;
 
+<<<<<<< HEAD
 import java.sql.Timestamp;
 
 public class Users {
     private Integer userId;
+=======
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
+public class Users implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    public static final String ROLE_CUSTOMER = "CUSTOMER";
+    public static final String ROLE_STAFF = "STAFF";
+    public static final String ROLE_ADMIN = "ADMIN";
+
+    private int userId;
+>>>>>>> bao
     private String fullName;
     private String email;
     private String phone;
     private String passwordHash;
     private String role;
+<<<<<<< HEAD
     private boolean active;
     private Timestamp createdAt;
 
@@ -20,6 +35,33 @@ public class Users {
     }
 
     public void setUserId(Integer userId) {
+=======
+    private boolean isActive;
+    private LocalDateTime createdAt;
+
+    public Users() {
+        this.role = ROLE_CUSTOMER;
+        this.isActive = true;
+    }
+
+    public Users(int userId, String fullName, String email, String phone,
+                 String passwordHash, String role, boolean isActive, LocalDateTime createdAt) {
+        this.userId = userId;
+        this.fullName = fullName;
+        this.email = email;
+        this.phone = phone;
+        this.passwordHash = passwordHash;
+        this.role = role;
+        this.isActive = isActive;
+        this.createdAt = createdAt;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+>>>>>>> bao
         this.userId = userId;
     }
 
@@ -64,6 +106,7 @@ public class Users {
     }
 
     public boolean isActive() {
+<<<<<<< HEAD
         return active;
     }
 
@@ -78,4 +121,32 @@ public class Users {
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
+=======
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public boolean isAdmin() {
+        return ROLE_ADMIN.equalsIgnoreCase(this.role);
+    }
+
+    public boolean isStaff() {
+        return ROLE_STAFF.equalsIgnoreCase(this.role);
+    }
+
+    public boolean isCustomer() {
+        return ROLE_CUSTOMER.equalsIgnoreCase(this.role);
+    }
+>>>>>>> bao
 }
