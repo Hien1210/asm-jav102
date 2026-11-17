@@ -42,6 +42,15 @@ out/
 # VS Code
 .vscode/
 
+# Maven and local configuration
+target/
+.env
+application-local.properties
+
+# Local database truststores
+certs/*.p12
+certs/*.jks
+
 # OS generated files
 .DS_Store
 Thumbs.db
