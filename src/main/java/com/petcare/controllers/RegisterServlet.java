@@ -1,4 +1,4 @@
-package com.petcare.controller;
+package com.petcare.controllers;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

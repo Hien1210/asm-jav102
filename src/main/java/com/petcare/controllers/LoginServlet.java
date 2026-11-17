@@ -1,5 +1,7 @@
-package com.petcare.controller;
+package com.petcare.controllers;
 
+import com.petcare.models.Users;
+import com.petcare.services.AuthService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -7,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.sql.SQLException;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login", "/dang-nhap"})
 public class LoginServlet extends HttpServlet {
@@ -46,14 +49,37 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
+        Users user;
+        try {
+            user = new AuthService().authenticate(identifier, password);
+        } catch (SQLException e) {
+            request.setAttribute("errorMessage", "Không thể kết nối hệ thống. Vui lòng thử lại sau.");
+            request.setAttribute("identifier", identifier);
+            request.getRequestDispatcher("/login.jsp").forward(request, response);
+            return;
+        }
+
+        if (user == null) {
+            request.setAttribute("errorMessage", "Email hoặc mật khẩu không đúng, hoặc tài khoản đã bị khóa.");
+            request.setAttribute("identifier", identifier);
+            request.getRequestDispatcher("/login.jsp").forward(request, response);
+            return;
+        }
+
         // Lưu thông tin đăng nhập vào session
         HttpSession session = request.getSession(true);
-        session.setAttribute("loggedInUser", identifier);
+        session.setAttribute("loggedInUserId", user.getUserId());
+        session.setAttribute("loggedInUser", user.getFullName());
+        session.setAttribute("loggedInRole", user.getRole());
         if ("on".equals(remember) || "true".equals(remember)) {
             session.setMaxInactiveInterval(7 * 24 * 60 * 60); // 7 ngày
         }
 
-        response.sendRedirect(request.getContextPath() + "/home");
+        if ("ADMIN".equals(user.getRole())) {
+            response.sendRedirect(request.getContextPath() + "/admin/tai-khoan");
+        } else {
+            response.sendRedirect(request.getContextPath() + "/home");
+        }
     }
 }
 

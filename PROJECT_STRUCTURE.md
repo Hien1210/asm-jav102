@@ -106,3 +106,7 @@
 | Payments | Payments.java |
 | Reviews | Reviews.java |
 | Notifications | Notifications.java |
+
+## Controllers consolidation
+HomeServlet.java, LoginServlet.java and RegisterServlet.java now use com.petcare.controllers.
+The singular controller package was removed. Existing servlet URL mappings are unchanged.
