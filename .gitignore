@@ -46,6 +46,7 @@ out/
 target/
 .env
 application-local.properties
+/application.properties
 
 # Local database truststores
 certs/*.p12
