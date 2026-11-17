@@ -1,5 +1,12 @@
 # PetCare (asm-jav102) — Tổng hợp hiện trạng dự án
 
+## Cập nhật 2026-11-17: lỗi kết nối khi đăng ký
+
+- Tái hiện bằng `DatabaseConnectionTest`: cấu hình resource mặc định gây `UnrecoverableKeyException` (mật khẩu truststore không khớp), sau đó DAO/test chuyển sang SQL Server local qua Windows Authentication. Đây là lý do có thể thấy lỗi login Windows như `MSI\Admin` thay vì tài khoản SQL của server chung.
+- Chạy cùng test với `-Dpetcare.config=F:/asm-jav102/application-local.properties` kết nối JDBC thành công tới `PetCare`, đọc được 6 tài khoản; chỉ kiểm tra đọc dữ liệu.
+- `ConfigUtil` nay tự đọc `application-local.properties` trong thư mục làm việc nếu không chỉ định `-Dpetcare.config`. File này đã được gitignore. Tham số `-Dpetcare.config` vẫn được ưu tiên.
+- Với Tomcat có thư mục làm việc khác, thêm VM option `-Dpetcare.config=F:/asm-jav102/application-local.properties`, build/deploy lại và restart Tomcat. Không cần tạo DB local hay cấp quyền cho tài khoản Windows để dùng DB chung.
+
 Ghi lại ngày 2026-11-16, sau khi đọc lại toàn bộ source hiện tại trên nhánh `GiaHung`.
 Đây là bản ghi hiện trạng thực tế (đã đọc code, không suy đoán), để cả nhóm dùng làm mốc đối chiếu.
 
