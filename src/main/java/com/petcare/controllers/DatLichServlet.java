@@ -13,6 +13,7 @@ import com.petcare.models.Users;
 import com.petcare.services.BookingService;
 import com.petcare.utils.SessionUtil;
 import com.petcare.utils.ValidationUtil;
+import com.petcare.websocket.NotificationEndpoint;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -159,6 +160,13 @@ public class DatLichServlet extends HttpServlet {
         int appointmentId = bookingService.bookService(customerId, petId, serviceId, staffId, start);
         request.setAttribute("successMessage",
                 "Đặt lịch thành công! Mã lịch hẹn của bạn là #" + appointmentId + ".");
+
+        String customerName = SessionUtil.getCurrentUser(request).getFullName();
+        NotificationEndpoint.notifyUser(customerId, "booking_success", "Đặt lịch thành công",
+                "Lịch hẹn #" + appointmentId + " của bạn đã được ghi nhận, vui lòng chờ xác nhận.");
+        NotificationEndpoint.notifyRoles(new String[]{Users.ROLE_ADMIN, Users.ROLE_STAFF}, "new_booking",
+                "Lịch hẹn mới",
+                customerName + " vừa đặt lịch hẹn mới #" + appointmentId + ".");
     }
 
     private String trim(String value) {

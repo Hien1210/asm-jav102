@@ -29,7 +29,7 @@
         .empty-note { color: #94a3b8; font-size: 13px; }
     </style>
 </head>
-<body>
+<body data-ctx="${pageContext.request.contextPath}" data-user-id="${sessionScope.loggedInUserId}">
     <div class="topbar">
         <a href="${pageContext.request.contextPath}/home">PetCare</a>
         <span>Xin chào, ${loggedInUser}</span>
@@ -115,5 +115,6 @@
             </div>
         </c:if>
     </main>
+    <script src="${pageContext.request.contextPath}/assets/js/notifications.js"></script>
 </body>
 </html>

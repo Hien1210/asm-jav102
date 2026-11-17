@@ -22,7 +22,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css?v=15" />
 </head>
-<body>
+<body data-ctx="${pageContext.request.contextPath}" data-user-id="${sessionScope.loggedInUserId}">
 
     <!-- ====================================================================
          1. TOP HEADER / NAVBAR (Sticky, 76px, Modern Premium)
@@ -998,5 +998,6 @@
     </div>
 
     <script src="${pageContext.request.contextPath}/assets/js/home.js"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/notifications.js"></script>
 </body>
 </html>

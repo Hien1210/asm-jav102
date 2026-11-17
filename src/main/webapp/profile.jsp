@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/login.css?v=2" />
 </head>
 
-<body>
+<body data-ctx="${pageContext.request.contextPath}" data-user-id="${sessionScope.loggedInUserId}">
 
     <header class="site-header">
         <div class="header-inner">
@@ -547,6 +547,7 @@
     </footer>
 
     <script src="${pageContext.request.contextPath}/assets/js/pw-toggle.js?v=1"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/notifications.js"></script>
 </body>
 
 </html>

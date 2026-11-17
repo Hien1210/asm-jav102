@@ -45,7 +45,7 @@
         .edit-panel { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-top: 6px; }
     </style>
 </head>
-<body>
+<body data-ctx="${pageContext.request.contextPath}" data-user-id="${sessionScope.loggedInUserId}">
     <div class="topbar">
         <a href="${pageContext.request.contextPath}/home">PetCare</a>
         <span>Xin chào, ${loggedInUser}</span>
@@ -182,5 +182,6 @@
             </table>
         </div>
     </main>
+    <script src="${pageContext.request.contextPath}/assets/js/notifications.js"></script>
 </body>
 </html>
