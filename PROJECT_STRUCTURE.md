@@ -45,6 +45,7 @@
 
 ## filter
 
+- AuthFilter.java — xác minh trạng thái/vai trò hiện tại từ DB trước khi truy cập khu vực bảo vệ.
 - package-info.java
 
 ## listener
@@ -85,7 +86,17 @@
 
 ## websocket
 
+- HttpSessionConfigurator.java
+- NotificationEndpoint.java
 - package-info.java
+
+## Kiểm thử (cập nhật 2026-11-17)
+
+- `src/test/java/com/petcare/controllers/HomeServletTest.java` — không báo đặt lịch thành công khi chưa lưu DB.
+- `src/test/java/com/petcare/services/AuthServiceTest.java` — giới hạn input, kết quả cập nhật, đổi mật khẩu khi hồ sơ không có hash.
+- `src/test/java/com/petcare/filter/AuthFilterTest.java` — session cũ sau khi khóa hoặc thu hồi vai trò.
+- `scripts/smoke-test.ps1` — kiểm thử HTTP trên Tomcat đang chạy; có ghi dữ liệu QA, đọc `dalam.md` trước khi chạy.
+- Luồng đặt lịch thật: `/customer/dat-lich`; `/dat-lich` cũ chỉ redirect. Thanh toán và các module scaffold chưa được triển khai hoàn chỉnh.
 
 ## Database to model mapping
 

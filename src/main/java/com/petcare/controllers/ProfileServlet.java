@@ -50,7 +50,7 @@ public class ProfileServlet extends HttpServlet {
 
         try {
             Users freshUser = authService.getUserById(currentUser.getUserId());
-            if (freshUser == null) {
+            if (freshUser == null || !freshUser.isActive()) {
                 SessionUtil.clearSession(request);
                 response.sendRedirect(request.getContextPath() + "/login");
                 return;

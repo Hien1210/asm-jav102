@@ -45,7 +45,7 @@
                                 ${fn:toUpperCase(fn:substring(fn:trim(sessionScope.loggedInUser), 0, 1))}
                             </span>
                             <span class="header-user-info">
-                                <span class="header-user-name">${sessionScope.loggedInUser}</span>
+                                <span class="header-user-name">${fn:escapeXml(sessionScope.loggedInUser)}</span>
                                 <span class="header-user-role-tag">
                                     <c:choose>
                                         <c:when test="${sessionScope.loggedInRole == 'ADMIN'}">Quản trị viên</c:when>
@@ -66,7 +66,7 @@
                                     ${fn:toUpperCase(fn:substring(fn:trim(sessionScope.loggedInUser), 0, 1))}
                                 </span>
                                 <div class="dropdown-user-meta">
-                                    <strong>${sessionScope.loggedInUser}</strong>
+                                    <strong>${fn:escapeXml(sessionScope.loggedInUser)}</strong>
                                     <span>Mã TV #${sessionScope.loggedInUserId} &bull; ${sessionScope.loggedInRole}</span>
                                 </div>
                             </div>
@@ -78,11 +78,11 @@
                                 </div>
                                 <div class="dropdown-meta-row">
                                     <span>Điện thoại</span>
-                                    <strong>${sessionScope.loggedInPhone}</strong>
+                                    <strong>${fn:escapeXml(sessionScope.loggedInPhone)}</strong>
                                 </div>
                                 <div class="dropdown-meta-row">
                                     <span>Email</span>
-                                    <strong>${sessionScope.loggedInEmail}</strong>
+                                    <strong>${fn:escapeXml(sessionScope.loggedInEmail)}</strong>
                                 </div>
                             </div>
 
@@ -135,7 +135,7 @@
                         </div>
                         <div>
                             <span class="profile-hero-eyebrow">TRUNG TÂM TÀI KHOẢN THÀNH VIÊN</span>
-                            <h1 class="profile-hero-title">${sessionScope.currentUser.fullName}</h1>
+                            <h1 class="profile-hero-title">${fn:escapeXml(sessionScope.currentUser.fullName)}</h1>
                             <div class="profile-hero-badges">
                                 <span class="profile-hero-badge">
                                     <c:choose>
@@ -158,7 +158,7 @@
                         <a href="${pageContext.request.contextPath}/home" class="btn-banner-white">
                             <span>&larr; Quay về Trang chủ</span>
                         </a>
-                        <a href="${pageContext.request.contextPath}/services.jsp" class="btn-banner-outline">
+                        <a href="${pageContext.request.contextPath}/customer/dat-lich" class="btn-banner-outline">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                                 <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -177,11 +177,11 @@
                     </div>
                     <div class="profile-kpi-card">
                         <span class="profile-kpi-label">Số điện thoại</span>
-                        <span class="profile-kpi-value">${sessionScope.currentUser.phone}</span>
+                        <span class="profile-kpi-value">${fn:escapeXml(sessionScope.currentUser.phone)}</span>
                     </div>
                     <div class="profile-kpi-card">
                         <span class="profile-kpi-label">Địa chỉ Email</span>
-                        <span class="profile-kpi-value" title="${sessionScope.currentUser.email}">${sessionScope.currentUser.email}</span>
+                        <span class="profile-kpi-value" title="${fn:escapeXml(sessionScope.currentUser.email)}">${fn:escapeXml(sessionScope.currentUser.email)}</span>
                     </div>
                     <div class="profile-kpi-card">
                         <span class="profile-kpi-label">Ngày tham gia</span>
@@ -202,7 +202,7 @@
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                         <polyline points="22 4 12 14.01 9 11.01" />
                     </svg>
-                    <span>${profileSuccess}</span>
+                    <span>${fn:escapeXml(profileSuccess)}</span>
                 </div>
             </c:if>
 
@@ -214,7 +214,7 @@
                         <line x1="12" y1="8" x2="12" y2="12" />
                         <line x1="12" y1="16" x2="12.01" y2="16" />
                     </svg>
-                    <span>${profileError}</span>
+                    <span>${fn:escapeXml(profileError)}</span>
                 </div>
             </c:if>
 
@@ -255,7 +255,7 @@
                                     </svg>
                                 </span>
                                 <input type="text" id="profileFullName" name="fullName" class="form-control"
-                                    value="${sessionScope.currentUser.fullName}" placeholder="Nhập họ và tên của bạn" required />
+                                    value="${fn:escapeXml(sessionScope.currentUser.fullName)}" placeholder="Nhập họ và tên của bạn" required />
                             </div>
                         </div>
 
@@ -273,7 +273,7 @@
                                     </svg>
                                 </span>
                                 <input type="tel" id="profilePhone" name="phone" class="form-control"
-                                    value="${sessionScope.currentUser.phone}" placeholder="Ví dụ: 0912345678" required />
+                                    value="${fn:escapeXml(sessionScope.currentUser.phone)}" placeholder="Ví dụ: 0912345678" required />
                             </div>
                         </div>
 
@@ -290,7 +290,7 @@
                                     </svg>
                                 </span>
                                 <input type="email" id="profileEmail" name="email" class="form-control"
-                                    value="${sessionScope.currentUser.email}" placeholder="email@domain.com" required />
+                                    value="${fn:escapeXml(sessionScope.currentUser.email)}" placeholder="email@domain.com" required />
                             </div>
                         </div>
 
@@ -430,7 +430,7 @@
             </div>
 
             <div class="profile-shortcut-grid" aria-label="Tiện ích nhanh">
-                <a href="${pageContext.request.contextPath}/services.jsp" class="profile-shortcut-card">
+                <a href="${pageContext.request.contextPath}/customer/dat-lich" class="profile-shortcut-card">
                     <span class="profile-shortcut-icon" aria-hidden="true">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>

@@ -1,5 +1,53 @@
 # PetCare (asm-jav102) — Tổng hợp hiện trạng dự án
 
+## Kết quả kiểm thử và sửa lỗi 2026-11-17 (trạng thái mới nhất)
+
+Mục này thay thế các nhận định cũ về conflict/build bên dưới. Không còn conflict marker; code compile thành công. Đã restart SmartTomcat từ IntelliJ để nạp các lớp mới và kiểm thử trên `http://localhost:8080/asm-jav102`.
+
+### Lỗi đã sửa và kiểm chứng
+
+- Trang admin lỗi HTTP 500: JSTL `fmt:formatDate` không nhận `LocalDateTime`. Hiển thị `createdAt.toLocalDate()`.
+- Các nút đặt lịch ở trang dịch vụ/hồ sơ và JS trang chủ nay đi tới `/customer/dat-lich`. Gỡ modal demo báo thành công giả; cả GET/POST `/dat-lich` cũ chuyển về luồng đặt lịch lưu DB.
+- Escape HTML tên/email/điện thoại, thông báo và giá trị form ở trang chủ, hồ sơ, login/register, admin và đặt lịch. Đã thử chuỗi có dấu `<`, `>` và script trên tài khoản QA.
+- `AuthFilter` tải lại tài khoản từ DB cho khu vực bảo vệ: khóa tài khoản/thu hồi vai trò có hiệu lực cả với session đã đăng nhập. DB lỗi trả 503 thay vì dùng quyền cũ. Hồ sơ cũng loại bỏ tài khoản bị khóa.
+- `AuthService` không báo lưu hồ sơ/đổi mật khẩu thành công nếu DAO trả false; chặn tên dài hơn schema 100 ký tự.
+- Admin kiểm tra email/SĐT trùng, chuẩn hóa dữ liệu, kiểm tra tài khoản tồn tại trước khi sửa và báo rõ ràng các ràng buộc DB (chủ thú cưng phải là CUSTOMER, nhân viên có ca/kỹ năng phải là STAFF, không khóa khách đang có lịch chưa kết thúc).
+- Đặt lịch kiểm tra action, chiều dài dữ liệu thú cưng và dùng giờ Việt Nam khi chặn lịch quá khứ.
+- Lỗi mapper thiếu `password_hash` ở phần cập nhật trước tiếp tục được xác minh qua hồ sơ và đổi mật khẩu thật bằng tài khoản QA.
+
+### Bằng chứng kiểm thử
+
+| Nhóm | Kết quả |
+| --- | --- |
+| HTTP trên Tomcat thật | **52/52 PASS**, gồm trang công khai, đăng ký, login email/SĐT, sai mật khẩu, hồ sơ, escape HTML, phân quyền, thú cưng, đặt lịch, trùng giờ/sai chủ/ngoài ca/quá khứ, admin tạo/sửa/khóa/mở/reset mật khẩu, đổi mật khẩu và logout |
+| Unit/regression JUnit | **7/7 PASS**, đã quan sát test fail trước khi sửa (đặt lịch giả, tên quá dài, lưu thất bại nhưng báo thành công, session quyền cũ) |
+| WebSocket | Có session đăng nhập: Open; không có session: server gửi Close |
+| UI | Đã quan sát trang chủ/hồ sơ/dịch vụ bằng Chrome và restart Tomcat từ IntelliJ. Lần kiểm tra cuối bị công cụ CUA chặn vì không đọc chắc URL; không coi là đã test mọi thao tác UI |
+
+Test tái sử dụng: `scripts/smoke-test.ps1`. Truyền `-AdminEmail` / `-AdminPassword` hoặc biến môi trường `PETCARE_QA_ADMIN_EMAIL` / `PETCARE_QA_ADMIN_PASSWORD` để kiểm tra admin. Script ghi dữ liệu QA trên DB thật, không dùng tài khoản cá nhân. Kết quả máy hiện tại ở `target/qa-smoke-results.json` (gitignore).
+
+Tài khoản test: `qa-smoke-20261117@petcare.test`, `qa-admin-target-20261117@petcare.test`; 1 thú cưng QA và lịch hẹn test **#5, 18/11/2026 11:15** được giữ lại. Tài khoản đích admin đã được trả về CUSTOMER, hoạt động, mật khẩu QA ban đầu sau kiểm thử. Script lưu slot trong `target/qa-booking-state.json` để chạy lại không tạo thêm lịch cùng đợt.
+
+Build/test trên máy này dùng Maven đi kèm IntelliJ:
+
+```powershell
+& 'F:/IntelliJ IDEA 2026.2/plugins/maven-plugin/lib/maven3/bin/mvn.cmd' '-Dmaven.repo.local=C:/Users/ADMIN/.m2/repository' test-compile
+& 'F:/IntelliJ IDEA 2026.2/plugins/maven-plugin/lib/maven3/bin/mvn.cmd' '-Dmaven.repo.local=C:/Users/ADMIN/.m2/repository' org.apache.maven.plugins:maven-surefire-plugin:3.5.6:test
+```
+
+Surefire 3.5.4 mặc định bị treo tải provider trên máy trong lần chạy này; đã dùng 3.5.6 có sẵn để chạy đủ test, không sửa phiên bản dependency của project.
+
+### Chức năng chưa triển khai (không đánh dấu PASS)
+
+Thanh toán còn thiếu Service/Servlet/JSP; chỉ có model/DAO. Lịch hẹn khách hàng/nhân viên, quản lý thú cưng đầy đủ, quản lý ca/dịch vụ/combo/phòng và đánh giá còn scaffold. Những trang này chưa có nghiệp vụ để kiểm thử hoàn chỉnh; chưa tích hợp cổng thanh toán. Giá marketing trang chủ/dịch vụ vẫn là dữ liệu tĩnh, chưa đồng bộ DB.
+
+Chưa commit/push các thay đổi của đợt kiểm thử này.
+
+## Cập nhật 2026-11-17: hồ sơ báo thiếu password_hash
+
+- `GetAccountById` và `ListAccounts` trong `petcare_accounts.sql` chủ động không trả `password_hash`; mapper sau merge lại luôn đọc cột này nên trang `/profile` báo lỗi.
+- Sửa mapper JDBC chấp nhận kết quả không có hash, sửa mapper local tương thích cả 7 cột hồ sơ và 8 cột xác thực. Đổi mật khẩu lấy hash qua `findByIdentifier` và đối chiếu user ID trước khi xác minh mật khẩu hiện tại. Không cần thay đổi schema hay chạy lại SQL.
+
 ## Cập nhật 2026-11-17: lỗi kết nối khi đăng ký
 
 - Tái hiện bằng `DatabaseConnectionTest`: cấu hình resource mặc định gây `UnrecoverableKeyException` (mật khẩu truststore không khớp), sau đó DAO/test chuyển sang SQL Server local qua Windows Authentication. Đây là lý do có thể thấy lỗi login Windows như `MSI\Admin` thay vì tài khoản SQL của server chung.
@@ -70,3 +118,14 @@ Mỗi file còn nguyên `<<<<<<< HEAD` / `=======` / `>>>>>>> bao` — đây là
 3. Sửa package của `ProfileServlet.java` cho khớp thư mục.
 4. Hoàn thiện module Thanh toán (`PaymentDAOImpl`, `PaymentService`, `ThanhToanServlet`, JSP) — đang làm dở.
 5. Các module còn ❌ chưa làm ở mục 4, ưu tiên theo nhu cầu nhóm (gợi ý: Lịch hẹn khách hàng/nhân viên nên làm sớm vì Đặt lịch & Thanh toán đều cần nó để khách xem lại).
+
+- Kiểm chứng: compile các lớp liên quan thành công; test chỉ đọc trên DB thật tải danh sách và hồ sơ từng tài khoản: PASS (9 tài khoản). Chưa xác minh qua trình duyệt hoặc ghi đổi mật khẩu.
+
+## Kiểm tra Chrome qua điều khiển máy (2026-11-17)
+- Đã quan sát trang chủ và mở trang đăng nhập tại http://localhost:8080/asm-jav102/login thành công.
+- Chưa hoàn tất đăng nhập hoặc kiểm tra profile: công cụ phát hiện thao tác người dùng cùng cửa sổ nên dừng thao tác tự động. Chưa ghi dữ liệu ứng dụng trong lần kiểm tra này.
+
+## Kết quả kiểm tra giao diện Chrome (2026-11-17)
+- Đã điều khiển Chrome mở /profile với phiên CUSTOMER đang đăng nhập: trang tải đủ thông tin và không còn thông báo lỗi password_hash.
+- Trang /services.jsp tải được nhưng các liên kết Đặt lịch vẫn trỏ /login, nút Đặt lịch chăm sóc ngay trỏ /register dù phiên đã đăng nhập; cần nối về luồng đặt lịch thật.
+- Chỉ kiểm tra điều hướng và hiển thị; chưa submit sửa hồ sơ, đổi mật khẩu, đặt lịch hoặc thanh toán qua UI.

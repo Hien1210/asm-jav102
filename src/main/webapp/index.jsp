@@ -53,7 +53,7 @@
                                         ${fn:toUpperCase(fn:substring(fn:trim(sessionScope.loggedInUser), 0, 1))}
                                     </span>
                                     <span class="header-user-info">
-                                        <span class="header-user-name">${sessionScope.loggedInUser}</span>
+                                        <span class="header-user-name">${fn:escapeXml(sessionScope.loggedInUser)}</span>
                                         <span class="header-user-role-tag">
                                             <c:choose>
                                                 <c:when test="${sessionScope.loggedInRole == 'ADMIN'}">Quản trị viên</c:when>
@@ -73,7 +73,7 @@
                                             ${fn:toUpperCase(fn:substring(fn:trim(sessionScope.loggedInUser), 0, 1))}
                                         </span>
                                         <div class="dropdown-user-meta">
-                                            <strong>${sessionScope.loggedInUser}</strong>
+                                            <strong>${fn:escapeXml(sessionScope.loggedInUser)}</strong>
                                             <span>Mã TV #${sessionScope.loggedInUserId} &bull; ${sessionScope.loggedInRole}</span>
                                         </div>
                                     </div>
@@ -85,11 +85,11 @@
                                         </div>
                                         <div class="dropdown-meta-row">
                                             <span>Điện thoại</span>
-                                            <strong>${sessionScope.loggedInPhone}</strong>
+                                            <strong>${fn:escapeXml(sessionScope.loggedInPhone)}</strong>
                                         </div>
                                         <div class="dropdown-meta-row">
                                             <span>Email</span>
-                                            <strong>${sessionScope.loggedInEmail}</strong>
+                                            <strong>${fn:escapeXml(sessionScope.loggedInEmail)}</strong>
                                         </div>
                                     </div>
 
@@ -916,88 +916,7 @@
         </div>
     </footer>
 
-    <!-- ====================================================================
-         11. INTERACTIVE BOOKING MODAL
-         ==================================================================== -->
-    <div class="modal-backdrop ${bookingSuccess ? 'open' : ''}" id="bookingModal">
-        <div class="booking-modal-box">
-            <button type="button" class="modal-close-btn" id="closeModalBtn" aria-label="Đóng">&times;</button>
-            <h3>Đặt Lịch Hẹn &amp; Giữ Chỗ Tại Pet care</h3>
-            <p>Hệ thống tự động giữ chỗ chuyên viên 15 phút. Miễn phí đổi hoặc hủy hẹn trước 2 giờ.</p>
-
-            <c:if test="${bookingSuccess}">
-                <div class="booking-toast">
-                    <strong>&#10003; Đã giữ chỗ 15 phút cho bé ${bookingData.petName}!</strong><br/>
-                    Cảm ơn <b>${bookingData.ownerName}</b> (${bookingData.phone}). Hệ thống <b>Pet care</b> tại cơ sở
-                    <b>${bookingData.branch}</b> đã ghi nhận lịch hẹn gói <b>${bookingData.serviceName}</b>.
-                </div>
-            </c:if>
-            <div class="booking-toast" id="bookingSuccessStatic" style="display:none;"></div>
-
-            <form action="${pageContext.request.contextPath}/dat-lich" method="post" id="petcareBookingForm">
-                <div class="modal-form-grid">
-                    <div class="modal-field">
-                        <label for="ownerName">Họ và tên Sen *</label>
-                        <input type="text" id="ownerName" name="ownerName" class="modal-input"
-                            value="${sessionScope.loggedInUser}" placeholder="Nguyễn Thảo My" required />
-                    </div>
-                    <div class="modal-field">
-                        <label for="phone">Số điện thoại / Zalo *</label>
-                        <input type="tel" id="phone" name="phone" class="modal-input"
-                            value="${sessionScope.loggedInPhone}" placeholder="0912 345 678" required />
-                    </div>
-                    <div class="modal-field">
-                        <label for="petName">Tên bé cưng *</label>
-                        <input type="text" id="petName" name="petName" class="modal-input" placeholder="Miu, Bơ, Mây..." required />
-                    </div>
-                    <div class="modal-field">
-                        <label for="petType">Giống loài &amp; Cân nặng *</label>
-                        <select id="petType" name="petType" class="modal-input">
-                            <option value="Chó (2 - 5 kg)">Chó (2 - 5 kg)</option>
-                            <option value="Mèo (2 - 5 kg)">Mèo (2 - 5 kg)</option>
-                            <option value="Chó (5 - 12 kg)">Chó (5 - 12 kg)</option>
-                            <option value="Chó (> 12 kg)">Chó (&gt; 12 kg)</option>
-                        </select>
-                    </div>
-                    <div class="modal-field full">
-                        <label for="modalServiceName">Gói dịch vụ chăm sóc *</label>
-                        <select id="modalServiceName" name="serviceName" class="modal-input">
-                            <option value="Grooming & Tắm Sấy Thảo Mộc Toàn Diện (150.000 đ)">Grooming &amp; Tắm Sấy Thảo Mộc Toàn Diện (150.000 đ)</option>
-                            <option value="Cắt Tỉa Tạo Kiểu Chuẩn Salon (280.000 đ)">Cắt Tỉa Tạo Kiểu Chuẩn Salon (280.000 đ)</option>
-                            <option value="Spa Thảo Dược & Phục Hồi Da Lông (350.000 đ)">Spa Thảo Dược &amp; Phục Hồi Da Lông (350.000 đ)</option>
-                            <option value="Vệ Sinh Tai, Móng & Tuyến Hôi Chuyên Sâu (120.000 đ)">Vệ Sinh Tai, Móng &amp; Tuyến Hôi Chuyên Sâu (120.000 đ)</option>
-                            <option value="Kiểm Tra Sức Khỏe Cơ Bản & Gỡ Rối Lông (180.000 đ)">Kiểm Tra Sức Khỏe Cơ Bản &amp; Gỡ Rối Lông (180.000 đ)</option>
-                            <option value="Combo Chăm Sóc Toàn Diện & Lưu Trú VIP (390.000 đ)">Combo Chăm Sóc Toàn Diện &amp; Lưu Trú VIP (390.000 đ)</option>
-                        </select>
-                    </div>
-                    <div class="modal-field">
-                        <label for="branch">Chi nhánh Salon Pet care *</label>
-                        <select id="branch" name="branch" class="modal-input">
-                            <option value="128 Nguyễn Đình Chiểu, Q.3, TP.HCM">128 Nguyễn Đình Chiểu, Q.3, TP.HCM</option>
-                            <option value="45 Hoàng Cầu, Đống Đa, Hà Nội">45 Hoàng Cầu, Đống Đa, Hà Nội</option>
-                        </select>
-                    </div>
-                    <div class="modal-field">
-                        <label for="timeSlot">Khung giờ hẹn *</label>
-                        <select id="timeSlot" name="timeSlot" class="modal-input">
-                            <option value="09:00 - 10:30">09:00 - 10:30</option>
-                            <option value="10:30 - 12:00">10:30 - 12:00</option>
-                            <option value="14:00 - 15:30">14:00 - 15:30</option>
-                            <option value="16:00 - 17:30">16:00 - 17:30</option>
-                            <option value="18:00 - 19:30">18:00 - 19:30</option>
-                        </select>
-                    </div>
-                    <div class="modal-field full">
-                        <label for="notes">Lưu ý tính cách / thói quen của bé</label>
-                        <textarea id="notes" name="notes" class="modal-input" placeholder="Ví dụ: Bé hơi nhát máy sấy, thích cắt form Teddy tròn..."></textarea>
-                    </div>
-                </div>
-                <button type="submit" class="btn-modal-submit">Xác nhận đặt lịch &amp; Giữ chỗ 15 phút</button>
-            </form>
-        </div>
-    </div>
-
-    <script src="${pageContext.request.contextPath}/assets/js/home.js"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/home.js?v=20261117"></script>
     <script src="${pageContext.request.contextPath}/assets/js/notifications.js"></script>
 </body>
 </html>

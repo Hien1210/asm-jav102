@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -74,7 +75,7 @@
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                         <polyline points="22 4 12 14.01 9 11.01" />
                     </svg>
-                    <span>${successMessage}</span>
+                    <span>${fn:escapeXml(successMessage)}</span>
                 </div>
             </c:if>
 
@@ -86,7 +87,7 @@
                         <line x1="12" y1="8" x2="12" y2="12" />
                         <line x1="12" y1="16" x2="12.01" y2="16" />
                     </svg>
-                    <span>${errorMessage}</span>
+                    <span>${fn:escapeXml(errorMessage)}</span>
                 </div>
             </c:if>
 
@@ -106,7 +107,7 @@
                             </svg>
                         </span>
                         <input type="text" id="fullName" name="fullName" class="form-control"
-                            placeholder="Ví dụ: Nguyễn Thuỳ Trang" value="${fullName}" required autocomplete="name" />
+                            placeholder="Ví dụ: Nguyễn Thuỳ Trang" value="${fn:escapeXml(fullName)}" required autocomplete="name" />
                     </div>
                 </div>
 
@@ -125,7 +126,7 @@
                                 </svg>
                             </span>
                             <input type="tel" id="phone" name="phone" class="form-control"
-                                placeholder="VD: 0912 345 678" value="${phone}" required autocomplete="tel" />
+                                placeholder="VD: 0912 345 678" value="${fn:escapeXml(phone)}" required autocomplete="tel" />
                         </div>
                     </div>
 
@@ -143,7 +144,7 @@
                                 </svg>
                             </span>
                             <input type="email" id="email" name="email" class="form-control"
-                                placeholder="VD: thuytrang@gmail.com" value="${email}" required autocomplete="email" />
+                                placeholder="VD: thuytrang@gmail.com" value="${fn:escapeXml(email)}" required autocomplete="email" />
                         </div>
                     </div>
                 </div>

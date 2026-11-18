@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!doctype html>
 <html lang="vi">
 <head>
@@ -32,17 +33,17 @@
 <body data-ctx="${pageContext.request.contextPath}" data-user-id="${sessionScope.loggedInUserId}">
     <div class="topbar">
         <a href="${pageContext.request.contextPath}/home">PetCare</a>
-        <span>Xin chào, ${loggedInUser}</span>
+        <span>Xin chào, ${fn:escapeXml(loggedInUser)}</span>
     </div>
     <main>
         <h1>Đặt lịch chăm sóc</h1>
         <p class="sub">Chọn thú cưng, dịch vụ, nhân viên và thời gian bạn muốn đặt.</p>
 
         <c:if test="${not empty errorMessage}">
-            <div class="alert alert-error">${errorMessage}</div>
+            <div class="alert alert-error">${fn:escapeXml(errorMessage)}</div>
         </c:if>
         <c:if test="${not empty successMessage}">
-            <div class="alert alert-success">${successMessage}</div>
+            <div class="alert alert-success">${fn:escapeXml(successMessage)}</div>
         </c:if>
 
         <div class="card">
@@ -74,7 +75,7 @@
                     <label>Thú cưng</label>
                     <select name="petId" required>
                         <c:forEach var="pet" items="${pets}">
-                            <option value="${pet.petId}">${pet.name} (${pet.species})</option>
+                            <option value="${pet.petId}">${fn:escapeXml(pet.name)} (${fn:escapeXml(pet.species)})</option>
                         </c:forEach>
                     </select>
 
@@ -86,9 +87,9 @@
                         <c:otherwise>
                             <select name="staffChoice" required>
                                 <c:forEach var="entry" items="${staffByService}">
-                                    <optgroup label="${entry.key.name} (${entry.key.durationMinutes} phút - ${entry.key.price} đ)">
+                                    <optgroup label="${fn:escapeXml(entry.key.name)} (${entry.key.durationMinutes} phút - ${entry.key.price} đ)">
                                         <c:forEach var="staff" items="${entry.value}">
-                                            <option value="${entry.key.serviceId}_${staff.staffId}">${staff.fullName}</option>
+                                            <option value="${entry.key.serviceId}_${staff.staffId}">${fn:escapeXml(staff.fullName)}</option>
                                         </c:forEach>
                                         <c:if test="${empty entry.value}">
                                             <option disabled>Chưa có nhân viên nhận dịch vụ này</option>

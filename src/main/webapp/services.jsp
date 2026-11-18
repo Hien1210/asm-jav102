@@ -48,7 +48,7 @@
                                         ${fn:toUpperCase(fn:substring(fn:trim(sessionScope.loggedInUser), 0, 1))}
                                     </span>
                                     <span class="header-user-info">
-                                        <span class="header-user-name">${sessionScope.loggedInUser}</span>
+                                        <span class="header-user-name">${fn:escapeXml(sessionScope.loggedInUser)}</span>
                                         <span class="header-user-role-tag">
                                             <c:choose>
                                                 <c:when test="${sessionScope.loggedInRole == 'ADMIN'}">Quản trị viên</c:when>
@@ -68,7 +68,7 @@
                                             ${fn:toUpperCase(fn:substring(fn:trim(sessionScope.loggedInUser), 0, 1))}
                                         </span>
                                         <div class="dropdown-user-meta">
-                                            <strong>${sessionScope.loggedInUser}</strong>
+                                            <strong>${fn:escapeXml(sessionScope.loggedInUser)}</strong>
                                             <span>Mã TV #${sessionScope.loggedInUserId} &bull; ${sessionScope.loggedInRole}</span>
                                         </div>
                                     </div>
@@ -80,11 +80,11 @@
                                         </div>
                                         <div class="dropdown-meta-row">
                                             <span>Điện thoại</span>
-                                            <strong>${sessionScope.loggedInPhone}</strong>
+                                            <strong>${fn:escapeXml(sessionScope.loggedInPhone)}</strong>
                                         </div>
                                         <div class="dropdown-meta-row">
                                             <span>Email</span>
-                                            <strong>${sessionScope.loggedInEmail}</strong>
+                                            <strong>${fn:escapeXml(sessionScope.loggedInEmail)}</strong>
                                         </div>
                                     </div>
 
@@ -191,7 +191,7 @@
                         </div>
 
                         <div class="svc-hero-actions">
-                            <a href="${pageContext.request.contextPath}/register" class="btn-svc-primary">
+                            <a href="${pageContext.request.contextPath}/customer/dat-lich" class="btn-svc-primary">
                                 <span>Đặt lịch chăm sóc ngay</span>
                                 <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
                                     <line x1="5" y1="12" x2="19" y2="12" />
@@ -358,7 +358,7 @@
                                     <span class="svc-price-label">Chi phí trọn gói</span>
                                     <span class="svc-price">180.000đ <small>/ từ &lt; 5kg</small></span>
                                 </div>
-                                <a href="${pageContext.request.contextPath}/login" class="btn-svc-book">
+                                <a href="${pageContext.request.contextPath}/customer/dat-lich" class="btn-svc-book">
                                     <span>Đặt lịch</span>
                                     <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
                                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -427,7 +427,7 @@
                                     <span class="svc-price-label">Chi phí trọn gói</span>
                                     <span class="svc-price">320.000đ <small>/ từ &lt; 5kg</small></span>
                                 </div>
-                                <a href="${pageContext.request.contextPath}/login" class="btn-svc-book">
+                                <a href="${pageContext.request.contextPath}/customer/dat-lich" class="btn-svc-book">
                                     <span>Đặt lịch</span>
                                     <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
                                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -494,7 +494,7 @@
                                     <span class="svc-price-label">Chi phí trọn gói</span>
                                     <span class="svc-price">280.000đ <small>/ từ &lt; 5kg</small></span>
                                 </div>
-                                <a href="${pageContext.request.contextPath}/login" class="btn-svc-book">
+                                <a href="${pageContext.request.contextPath}/customer/dat-lich" class="btn-svc-book">
                                     <span>Đặt lịch</span>
                                     <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
                                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -566,7 +566,7 @@
                                     <span class="svc-price-label">Chi phí trọn gói</span>
                                     <span class="svc-price">90.000đ <small>/ từ &lt; 5kg</small></span>
                                 </div>
-                                <a href="${pageContext.request.contextPath}/login" class="btn-svc-book">
+                                <a href="${pageContext.request.contextPath}/customer/dat-lich" class="btn-svc-book">
                                     <span>Đặt lịch</span>
                                     <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
                                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -631,7 +631,7 @@
                                     <span class="svc-price-label">Chi phí trọn gói</span>
                                     <span class="svc-price">150.000đ <small>/ từ &lt; 5kg</small></span>
                                 </div>
-                                <a href="${pageContext.request.contextPath}/login" class="btn-svc-book">
+                                <a href="${pageContext.request.contextPath}/customer/dat-lich" class="btn-svc-book">
                                     <span>Đặt lịch</span>
                                     <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
                                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -697,7 +697,7 @@
                                     <span class="svc-price-label">Trọn gói ưu đãi</span>
                                     <span class="svc-price">450.000đ <small>/ từ &lt; 5kg</small></span>
                                 </div>
-                                <a href="${pageContext.request.contextPath}/login" class="btn-svc-book">
+                                <a href="${pageContext.request.contextPath}/customer/dat-lich" class="btn-svc-book">
                                     <span>Đặt lịch</span>
                                     <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
                                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -1125,7 +1125,7 @@
                             </div>
                         </div>
 
-                        <a href="${pageContext.request.contextPath}/register" class="btn-cta-book-now">
+                        <a href="${pageContext.request.contextPath}/customer/dat-lich" class="btn-cta-book-now">
                             <span>Đăng ký thành viên &amp; Đặt lịch</span>
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2.4">

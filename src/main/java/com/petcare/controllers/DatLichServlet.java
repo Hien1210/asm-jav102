@@ -68,8 +68,10 @@ public class DatLichServlet extends HttpServlet {
         try {
             if ("addPet".equals(action)) {
                 handleAddPet(request, customerId);
-            } else {
+            } else if ("book".equals(action)) {
                 handleBooking(request, customerId);
+            } else {
+                throw new IllegalArgumentException("Hành động không hợp lệ.");
             }
         } catch (IllegalArgumentException e) {
             request.setAttribute("errorMessage", e.getMessage());
@@ -112,7 +114,9 @@ public class DatLichServlet extends HttpServlet {
     private void handleAddPet(HttpServletRequest request, int customerId) throws SQLException {
         String name = trim(request.getParameter("petName"));
         String species = trim(request.getParameter("petSpecies"));
-        if (ValidationUtil.isBlank(name) || ValidationUtil.isBlank(species)) {
+        if (ValidationUtil.isBlank(name) || ValidationUtil.isBlank(species)
+                || name.length() > 100 || species.length() > 50
+                || trim(request.getParameter("petBreed")).length() > 100) {
             throw new IllegalArgumentException("Vui lòng nhập tên và loài thú cưng.");
         }
         Pets pet = new Pets();
@@ -153,7 +157,7 @@ public class DatLichServlet extends HttpServlet {
             throw new IllegalArgumentException("Thông tin đặt lịch không hợp lệ.");
         }
 
-        if (start.isBefore(LocalDateTime.now())) {
+        if (start.isBefore(LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")))) {
             throw new IllegalArgumentException("Thời gian đặt lịch phải ở trong tương lai.");
         }
 

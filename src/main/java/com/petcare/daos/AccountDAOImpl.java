@@ -23,12 +23,19 @@ public class AccountDAOImpl implements AccountDAO {
 
     private Users mapRow(ResultSet rs) throws SQLException {
         Timestamp createdTs = rs.getTimestamp("created_at");
+        String passwordHash = null;
+        for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+            if ("password_hash".equalsIgnoreCase(rs.getMetaData().getColumnLabel(i))) {
+                passwordHash = rs.getString(i);
+                break;
+            }
+        }
         return new Users(
                 rs.getInt("user_id"),
                 rs.getString("full_name"),
                 rs.getString("email"),
                 rs.getString("phone"),
-                rs.getString("password_hash"),
+                passwordHash,
                 rs.getString("role"),
                 rs.getBoolean("is_active"),
                 createdTs != null ? createdTs.toLocalDateTime() : null
@@ -36,17 +43,20 @@ public class AccountDAOImpl implements AccountDAO {
     }
 
     private Users mapLocalRow(String[] cols) {
-        LocalDateTime createdAt = (cols.length > 7 && cols[7] != null && !cols[7].isEmpty())
-                ? LocalDateTime.parse(cols[7])
+        // Profile/list procedures omit the password hash; authentication includes it.
+        int offset = cols.length == 7 ? 0 : 1;
+        int createdIndex = 6 + offset;
+        LocalDateTime createdAt = (cols[createdIndex] != null && !cols[createdIndex].isEmpty())
+                ? LocalDateTime.parse(cols[createdIndex])
                 : null;
-        boolean active = "1".equals(cols[6]) || "true".equalsIgnoreCase(cols[6]);
+        boolean active = "1".equals(cols[5 + offset]) || "true".equalsIgnoreCase(cols[5 + offset]);
         return new Users(
                 Integer.parseInt(cols[0]),
                 cols[1],
                 cols[2],
                 cols[3],
-                cols[4],
-                cols[5],
+                offset == 1 ? cols[4] : null,
+                cols[4 + offset],
                 active,
                 createdAt
         );

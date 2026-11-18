@@ -1,6 +1,5 @@
 package com.petcare.controllers;
 
-import com.petcare.model.BookingRequest;
 import com.petcare.model.ReviewItem;
 import com.petcare.model.ServiceCard;
 import jakarta.servlet.ServletException;
@@ -130,6 +129,11 @@ public class HomeServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         resp.setCharacterEncoding("UTF-8");
 
+        if ("/dat-lich".equals(req.getServletPath())) {
+            resp.sendRedirect(req.getContextPath() + "/customer/dat-lich");
+            return;
+        }
+
         HttpSession session = req.getSession(false);
         if (session != null) {
             Object profileSuccess = session.getAttribute("profileSuccess");
@@ -153,25 +157,6 @@ public class HomeServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         resp.setCharacterEncoding("UTF-8");
 
-        String ownerName = req.getParameter("ownerName");
-        String phone = req.getParameter("phone");
-        String petName = req.getParameter("petName");
-        String petType = req.getParameter("petType");
-        String weightRange = req.getParameter("weightRange");
-        String serviceName = req.getParameter("serviceName");
-        String branch = req.getParameter("branch");
-        String bookingDate = req.getParameter("bookingDate");
-        String timeSlot = req.getParameter("timeSlot");
-        String notes = req.getParameter("notes");
-
-        BookingRequest booking = new BookingRequest(
-                ownerName, phone, petName, petType, weightRange,
-                serviceName, branch, bookingDate, timeSlot, notes
-        );
-
-        req.setAttribute("bookingSuccess", true);
-        req.setAttribute("bookingData", booking);
-        loadHomePageData(req);
-        req.getRequestDispatcher("/index.jsp").forward(req, resp);
+        resp.sendRedirect(req.getContextPath() + "/customer/dat-lich");
     }
 }

@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!doctype html>
 <html lang="vi">
 <head>
@@ -48,17 +48,17 @@
 <body data-ctx="${pageContext.request.contextPath}" data-user-id="${sessionScope.loggedInUserId}">
     <div class="topbar">
         <a href="${pageContext.request.contextPath}/home">PetCare</a>
-        <span>Xin chào, ${loggedInUser}</span>
+        <span>Xin chào, ${fn:escapeXml(loggedInUser)}</span>
     </div>
     <main>
         <h1>Quản lý tài khoản</h1>
         <p class="sub">Tạo, chỉnh sửa vai trò, khóa/mở và đặt lại mật khẩu cho tài khoản người dùng.</p>
 
         <c:if test="${not empty errorMessage}">
-            <div class="alert alert-error">${errorMessage}</div>
+            <div class="alert alert-error">${fn:escapeXml(errorMessage)}</div>
         </c:if>
         <c:if test="${not empty successMessage}">
-            <div class="alert alert-success">${successMessage}</div>
+            <div class="alert alert-success">${fn:escapeXml(successMessage)}</div>
         </c:if>
 
         <div class="card">
@@ -113,8 +113,8 @@
                 <c:forEach var="acc" items="${accounts}">
                     <tr>
                         <td>${acc.userId}</td>
-                        <td>${acc.fullName}</td>
-                        <td>${acc.email}<br/><span style="color:#94a3b8">${acc.phone}</span></td>
+                        <td>${fn:escapeXml(acc.fullName)}</td>
+                        <td>${fn:escapeXml(acc.email)}<br/><span style="color:#94a3b8">${fn:escapeXml(acc.phone)}</span></td>
                         <td>
                             <c:choose>
                                 <c:when test="${acc.role == 'ADMIN'}"><span class="badge badge-admin">Quản trị</span></c:when>
@@ -126,7 +126,7 @@
                             <c:if test="${acc.active}"><span class="badge badge-active">Hoạt động</span></c:if>
                             <c:if test="${!acc.active}"><span class="badge badge-inactive">Đã khóa</span></c:if>
                         </td>
-                        <td><fmt:formatDate value="${acc.createdAt}" pattern="dd/MM/yyyy"/></td>
+                        <td><c:out value="${acc.createdAt.toLocalDate()}"/></td>
                         <td>
                             <div class="row-actions">
                                 <form method="post" action="${pageContext.request.contextPath}/admin/tai-khoan" class="inline-form">
@@ -144,11 +144,11 @@
                                             <input type="hidden" name="action" value="update" />
                                             <input type="hidden" name="userId" value="${acc.userId}" />
                                             <label>Họ tên</label>
-                                            <input type="text" name="fullName" value="${acc.fullName}" required />
+                                            <input type="text" name="fullName" value="${fn:escapeXml(acc.fullName)}" required />
                                             <label>Email</label>
-                                            <input type="email" name="email" value="${acc.email}" required />
+                                            <input type="email" name="email" value="${fn:escapeXml(acc.email)}" required />
                                             <label>Số điện thoại</label>
-                                            <input type="text" name="phone" value="${acc.phone}" />
+                                            <input type="text" name="phone" value="${fn:escapeXml(acc.phone)}" />
                                             <label>Vai trò</label>
                                             <select name="role">
                                                 <option value="CUSTOMER" ${acc.role == 'CUSTOMER' ? 'selected' : ''}>Khách hàng</option>
