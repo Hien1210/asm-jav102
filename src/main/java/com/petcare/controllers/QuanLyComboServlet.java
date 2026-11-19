@@ -1,8 +1,9 @@
 package com.petcare.controllers;
 
-import jakarta.servlet.http.HttpServlet;
+import com.petcare.services.AdminModule;
+import jakarta.servlet.annotation.WebServlet;
 
-/** Scaffold only; URL mapping and request handling are not implemented. */
-public class QuanLyComboServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
+@WebServlet(urlPatterns = "/admin/combo")
+public class QuanLyComboServlet extends AdminCatalogServlet {
+    public QuanLyComboServlet() { super(AdminModule.COMBOS); }
 }

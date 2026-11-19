@@ -150,3 +150,58 @@
 ## Controllers consolidation
 HomeServlet.java, LoginServlet.java and RegisterServlet.java now use com.petcare.controllers.
 The singular controller package was removed. Existing servlet URL mappings are unchanged.
+
+## Quản lý tài khoản (2026-11-19)
+
+- `QuanLyTaiKhoanServlet` kiểm tra CSRF trên POST, trạng thái true/false, ID dương và tài khoản đích reset mật khẩu.
+- `src/test/java/com/petcare/controllers/QuanLyTaiKhoanServletTest.java` — 9 test quản trị tài khoản, dùng DAO giả.
+- `admin/quanLiTaiKhoan.jsp` gửi token theo session; `scripts/smoke-test.ps1` lấy token trước POST quản trị.
+
+## Các trang admin hoàn chỉnh trong source (2026-11-19)
+
+- `services/AdminModule.java`: định nghĩa và validation dịch vụ/combo/phòng/ca/thú cưng.
+- `daos/AdminCatalogDAO.java`: đọc danh sách/chi tiết, gọi procedure ghi và transaction combo.
+- `controllers/AdminCatalogServlet.java` và 5 `QuanLy*Servlet`: `/admin/dich-vu`, `/admin/combo`, `/admin/phong`, `/admin/ca-lam-viec`, `/admin/thu-cung`.
+- `WEB-INF/views/admin/catalog.jsp`, `assets/css/admin.css`, `assets/js/admin.js`: giao diện quản trị chung; JSP admin cũ redirect.
+- `database/admin_catalog.sql`: migration 11 procedure + quyền EXECUTE/SELECT cho role admin, chưa áp dụng DB chính (chờ duyệt).
+- `scripts/test-admin.ps1`, `scripts/test-admin-accounts.ps1`: test HTTP trên QA. Test JUnit mới: AdminModuleTest, AdminCatalogServletTest, AdminCatalogIntegrationTest (opt-in).
+- Chi tiết phạm vi, triển khai và kết quả: `docs/ADMIN.md`. 27/27 JUnit và 82/82 HTTP PASS trên database QA riêng.
+
+## Giao diện admin đồng bộ (2026-11-19)
+
+- Bố cục 6 trang dùng `WEB-INF/views/admin/shell-start.jspf`, `shell-end.jspf` và thanh tìm kiếm/bộ lọc `table-tools.jspf`.
+- `admin/quanLiTaiKhoan.jsp` dùng chung `admin.css`/`admin.js` với `catalog.jsp`; sidebar, breadcrumb, bộ lọc/tìm không dấu, form có label và bảng responsive.
+- Chi tiết kiểm thử desktop/mobile, ảnh preview và giới hạn: `docs/ADMIN_UI.md`. Không thêm dependency, không đổi luồng ghi DB.
+
+## Bảo vệ quản trị viên (2026-11-19)
+
+- `QuanLyTaiKhoanServlet` chặn chỉnh sửa/khóa/reset tài khoản ADMIN trong trang quản lý; UI hiển thị badge bảo vệ và liên kết hồ sơ của chính mình.
+- `AccountDAO`/`AccountDAOImpl`: các hàm quản lý `updateManagedProfile`, `setManagedActive`, `resetManagedPassword` xác minh actor/target và ghi trong cùng transaction; luồng hồ sơ cá nhân giữ riêng.
+- `src/test/java/com/petcare/daos/AccountAdminProtectionTest.java`: 11 test DAO/JDBC giả cho quyền, race, rollback và fallback; Servlet có 13 test. Không có migration mới.
+
+## Lịch hẹn và báo cáo admin (2026-11-19)
+
+- `controllers/AdminOperationsServlet.java`: `/admin/lich-hen` (GET + POST trạng thái) và `/admin/bao-cao` (GET HTML/CSV), ADMIN/CSRF.
+- `daos/AdminOperationsDAO.java`: danh sách phân trang, chi tiết dịch vụ/lưu trú/giao dịch, cập nhật qua SetAppointmentStatus có khóa kiểm tra trạng thái, SQL báo cáo không nhân tiền theo dòng dịch vụ.
+- `services/AdminOperationsPolicy.java`, `models/AdminReport.java`: khoảng ngày, state machine, tổng thực thu và CSV.
+- `WEB-INF/views/admin/appointments.jsp`, `reports.jsp`, `operations-filters.jspf`; menu chung thêm 2 trang. QuanLyThuCungServlet nối lại module PETS sau khi phát hiện scaffold.
+- Test mới: AdminOperationsPolicyTest, AdminReportTest, AdminOperationsServletTest, AdminOperationsIntegrationTest (opt-in QA). Fixture src/test/resources/admin-operations-fixture.sql và scripts/test-admin-operations.ps1.
+- Phạm vi/định nghĩa chỉ số/kết quả và điều kiện chạy lại: docs/ADMIN_OPERATIONS.md.
+
+## Staff UI — 19/11/2026
+- Controller routes: /staff/lich-hen, /staff/lich-lam-viec, /staff/dat-lich-tai-quay.
+- Protected JSPs: src/main/webapp/WEB-INF/views/staff; common header: WEB-INF/includes/staffHeader.jspf; assets: assets/css/staff.css, assets/js/staff.js.
+- StaffCsrfFilter guards staff POST forms. Legacy staff JSPs redirect to controllers.
+- Verification and limitations: docs/STAFF_UI_REVIEW.md.
+
+## Sửa chuyển trang sau đăng nhập STAFF — 19/11/2026
+- Nguyên nhân: LoginServlet chỉ phân nhánh ADMIN; STAFF bị chuyển về /home.
+- Đã thêm nhánh STAFF sang /staff/lich-hen, giữ ADMIN và CUSTOMER như cũ.
+- Test hồi quy tái hiện lỗi trước sửa; sau sửa 3 test LoginServlet đạt. Toàn suite: 82 test, 79 đạt, 3 tích hợp bỏ qua; WAR build thành công.
+- Bản đóng gói: target/petcare.war. Cần nạp lại artifact/redeploy trên Tomcat đang dùng để nhận mã mới.
+
+## Làm lại giao diện staff — 19/11/2026
+- Sidebar navy/vàng, menu mobile 4 mục; header/breadcrumb và hồ sơ chung trong staffHeader.jspf.
+- Ba protected JSP staff dùng staff.css mới: lịch hẹn có tổng quan lượt dịch vụ, khung giờ/tên bé/thao tác; lịch làm việc có bảng ca; tại quầy có ba bước và thẻ thú cưng.
+- Preview riêng không DB: 9 trạng thái render HTTP đạt, ba trang tại 320/768/1024px không tràn; đã quan sát 1440px và 390px, thử menu bàn phím và form ONLINE. Maven 82 test: 79 đạt, 3 tích hợp bỏ qua; build WAR đạt.
+- Chi tiết thiết kế và ảnh: docs/STAFF_UI_DESIGN.md. Không đổi controller/DAO hoặc deploy server chính.

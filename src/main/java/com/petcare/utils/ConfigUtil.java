@@ -20,15 +20,15 @@ public final class ConfigUtil {
                 if (input != null) settings.load(input);
             }
             String external = System.getProperty("petcare.config");
-            // Local developer settings stay outside Git and override shared defaults.
-            if (external == null || external.isBlank()) {
-                Path localConfig = Path.of("application-local.properties");
-                if (Files.isRegularFile(localConfig)) {
-                    external = localConfig.toAbsolutePath().toString();
-                }
+
+            Path externalPath = (external != null && !external.isBlank())
+                    ? Path.of(external)
+                    : Path.of("application-local.properties");
+            if (!Files.isRegularFile(externalPath)) {
+                externalPath = Path.of("C:/Users/Admin/Documents/GitHub/asm-jav102/application-local.properties");
             }
-            if (external != null && !external.isBlank()) {
-                try (InputStream input = Files.newInputStream(Path.of(external))) {
+            if (Files.isRegularFile(externalPath)) {
+                try (InputStream input = Files.newInputStream(externalPath)) {
                     EXTERNAL.load(input);
                     settings.putAll(EXTERNAL);
                 }

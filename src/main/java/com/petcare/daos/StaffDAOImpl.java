@@ -112,4 +112,58 @@ public class StaffDAOImpl implements StaffDAO {
             throw e;
         }
     }
+
+    @Override
+    public List<Shifts> findShiftsForStaff(int staffId, LocalDate fromDate, LocalDate toDate) throws SQLException {
+        List<Shifts> shifts = new ArrayList<>();
+        String sql = "SELECT sh.shift_id, sh.staff_id, u.full_name, sh.work_date, sh.start_time, sh.end_time "
+                + "FROM dbo.Shifts sh "
+                + "JOIN dbo.Users u ON u.user_id = sh.staff_id "
+                + "WHERE sh.staff_id = ? AND sh.work_date BETWEEN ? AND ? "
+                + "ORDER BY sh.work_date, sh.start_time";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, staffId);
+            stmt.setDate(2, Date.valueOf(fromDate));
+            stmt.setDate(3, Date.valueOf(toDate));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Shifts shift = new Shifts();
+                    shift.setShiftId(rs.getInt("shift_id"));
+                    shift.setStaffId(rs.getInt("staff_id"));
+                    shift.setStaffName(rs.getString("full_name"));
+                    shift.setWorkDate(rs.getDate("work_date").toLocalDate());
+                    shift.setStartTime(rs.getTime("start_time").toLocalTime());
+                    shift.setEndTime(rs.getTime("end_time").toLocalTime());
+                    shifts.add(shift);
+                }
+            }
+            return shifts;
+        } catch (SQLException e) {
+            if (DBUtil.isConnectionFailure(e)) {
+                String localSql = "SELECT sh.shift_id, sh.staff_id, u.full_name, sh.work_date, sh.start_time, sh.end_time "
+                        + "FROM dbo.Shifts sh "
+                        + "JOIN dbo.Users u ON u.user_id = sh.staff_id "
+                        + "WHERE sh.staff_id = @p0 AND sh.work_date BETWEEN CONVERT(DATE, @p1) AND CONVERT(DATE, @p2) "
+                        + "ORDER BY sh.work_date, sh.start_time";
+                for (String[] cols : DBUtil.queryLocalSql(localSql,
+                        DBUtil.localIntParam(staffId), DBUtil.localLocalDateParam(fromDate),
+                        DBUtil.localLocalDateParam(toDate))) {
+                    Shifts shift = new Shifts();
+                    shift.setShiftId(Integer.parseInt(cols[0]));
+                    shift.setStaffId(Integer.parseInt(cols[1]));
+                    shift.setStaffName(cols[2]);
+                    shift.setWorkDate(DateUtil.parseLocalDate(cols[3]));
+                    shift.setStartTime(DateUtil.parseLocalTime(cols[4]));
+                    shift.setEndTime(DateUtil.parseLocalTime(cols[5]));
+                    shifts.add(shift);
+                }
+                return shifts;
+            }
+            if (e.getErrorCode() == 229) {
+                return shifts;
+            }
+            throw e;
+        }
+    }
 }

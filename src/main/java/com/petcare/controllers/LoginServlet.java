@@ -15,7 +15,15 @@ import java.sql.SQLException;
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login", "/dang-nhap"})
 public class LoginServlet extends HttpServlet {
 
-    private final AuthService authService = new AuthService();
+    private final AuthService authService;
+
+    public LoginServlet() {
+        this(new AuthService());
+    }
+
+    LoginServlet(AuthService authService) {
+        this.authService = authService;
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -74,6 +82,8 @@ public class LoginServlet extends HttpServlet {
 
             if (user.isAdmin()) {
                 response.sendRedirect(request.getContextPath() + "/admin/tai-khoan");
+            } else if (Users.ROLE_STAFF.equalsIgnoreCase(user.getRole())) {
+                response.sendRedirect(request.getContextPath() + "/staff/lich-hen");
             } else {
                 response.sendRedirect(request.getContextPath() + "/home");
             }

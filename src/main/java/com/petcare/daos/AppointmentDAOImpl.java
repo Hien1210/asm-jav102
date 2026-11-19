@@ -472,4 +472,85 @@ public class AppointmentDAOImpl implements AppointmentDAO {
     private BigDecimal parseDecimal(String raw) {
         return (raw == null || raw.isBlank()) ? BigDecimal.ZERO : new BigDecimal(raw);
     }
+
+    @Override
+    public void setStatus(int appointmentId, String status, String cancelReason) throws SQLException {
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement stmt = conn.prepareCall("{call dbo.SetAppointmentStatus(?,?,?)}")) {
+            stmt.setInt(1, appointmentId);
+            stmt.setString(2, status);
+            if (cancelReason != null) {
+                stmt.setString(3, cancelReason);
+            } else {
+                stmt.setNull(3, Types.NVARCHAR);
+            }
+            stmt.execute();
+        }
+    }
+
+    @Override
+    public List<AppointmentServices> findServiceLinesByStaff(int staffId, LocalDate fromDate, LocalDate toDate)
+            throws SQLException {
+        List<AppointmentServices> lines = new ArrayList<>();
+        String sql = "SELECT s.appointment_id, s.service_id, s.staff_id, s.scheduled_start, s.scheduled_end, "
+                + "s.price_at_booking, s.line_status, svc.name AS service_name, svc.category AS service_category, "
+                + "u.full_name AS staff_name, a.status AS appointment_status, "
+                + "cust.full_name AS customer_name, cust.phone AS customer_phone, p.name AS pet_name "
+                + "FROM dbo.AppointmentServices s "
+                + "JOIN dbo.Appointments a ON a.appointment_id = s.appointment_id "
+                + "JOIN dbo.Services svc ON svc.service_id = s.service_id "
+                + "JOIN dbo.Users u ON u.user_id = s.staff_id "
+                + "JOIN dbo.Users cust ON cust.user_id = a.customer_id "
+                + "JOIN dbo.Pets p ON p.pet_id = a.pet_id "
+                + "WHERE s.staff_id = ? AND CAST(s.scheduled_start AS DATE) BETWEEN ? AND ? "
+                + "ORDER BY s.scheduled_start";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, staffId);
+            ps.setDate(2, Date.valueOf(fromDate));
+            ps.setDate(3, Date.valueOf(toDate));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    AppointmentServices line = new AppointmentServices();
+                    line.setAppointmentId(rs.getInt("appointment_id"));
+                    line.setServiceId(rs.getInt("service_id"));
+                    line.setStaffId(rs.getInt("staff_id"));
+                    Timestamp startTs = rs.getTimestamp("scheduled_start");
+                    Timestamp endTs = rs.getTimestamp("scheduled_end");
+                    line.setScheduledStart(startTs != null ? startTs.toLocalDateTime() : null);
+                    line.setScheduledEnd(endTs != null ? endTs.toLocalDateTime() : null);
+                    line.setPriceAtBooking(rs.getBigDecimal("price_at_booking"));
+                    line.setLineStatus(rs.getString("line_status"));
+                    line.setServiceName(rs.getString("service_name"));
+                    line.setServiceCategory(rs.getString("service_category"));
+                    line.setStaffName(rs.getString("staff_name"));
+                    line.setAppointmentStatus(rs.getString("appointment_status"));
+                    line.setCustomerName(rs.getString("customer_name"));
+                    line.setCustomerPhone(rs.getString("customer_phone"));
+                    line.setPetName(rs.getString("pet_name"));
+                    lines.add(line);
+                }
+            }
+        }
+        return lines;
+    }
+
+    @Override
+    public boolean isSoleStaffOnAppointment(int appointmentId, int staffId) throws SQLException {
+        String sql = "SELECT COUNT(CASE WHEN staff_id = ? THEN 1 END) AS mine, "
+                + "COUNT(CASE WHEN staff_id <> ? THEN 1 END) AS others "
+                + "FROM dbo.AppointmentServices WHERE appointment_id = ?";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, staffId);
+            ps.setInt(2, staffId);
+            ps.setInt(3, appointmentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return false;
+                }
+                return rs.getInt("mine") > 0 && rs.getInt("others") == 0;
+            }
+        }
+    }
 }

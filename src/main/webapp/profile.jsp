@@ -690,6 +690,22 @@
                     </svg>
                 </a>
 
+                <a href="${pageContext.request.contextPath}/customer/thanh-toan" class="profile-shortcut-card">
+                    <span class="profile-shortcut-icon" aria-hidden="true">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="2" y1="10" x2="22" y2="10"></line>
+                        </svg>
+                    </span>
+                    <span class="profile-shortcut-body">
+                        <strong>Thanh toán lịch hẹn</strong>
+                        <span>Xem số tiền còn nợ &amp; thanh toán ngay</span>
+                    </span>
+                    <svg class="profile-shortcut-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </a>
+
                 <a href="${pageContext.request.contextPath}/customer/danh-gia" class="profile-shortcut-card">
                     <span class="profile-shortcut-icon ico-pink" aria-hidden="true">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

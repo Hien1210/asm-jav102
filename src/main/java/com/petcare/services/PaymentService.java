@@ -6,8 +6,8 @@ import com.petcare.models.AppointmentBalance;
 import com.petcare.models.Payments;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,20 +17,13 @@ public class PaymentService {
 
     private static final Map<Integer, String> FRIENDLY_ERRORS = new HashMap<>();
     static {
-        FRIENDLY_ERRORS.put(51001, "Hệ thống đang xử lý giao dịch khác, vui lòng thử lại.");
-        FRIENDLY_ERRORS.put(51016, "Không thể thanh toán cho lịch hẹn ở trạng thái nháp.");
-        FRIENDLY_ERRORS.put(51017, "Yêu cầu hoàn tiền không hợp lệ.");
-        FRIENDLY_ERRORS.put(51018, "Tổng số tiền thanh toán vượt quá số tiền còn lại của lịch hẹn.");
-        FRIENDLY_ERRORS.put(51019, "Số tiền hoàn vượt quá số tiền đã thanh toán.");
-        FRIENDLY_ERRORS.put(51026, "Giao dịch đã hoàn tất hoặc thất bại nên không thể thay đổi.");
-        FRIENDLY_ERRORS.put(51038, "Thiếu mã chống trùng giao dịch (idempotency key).");
-        FRIENDLY_ERRORS.put(51039, "Mã giao dịch đã được sử dụng cho giao dịch khác, vui lòng tải lại trang.");
-        FRIENDLY_ERRORS.put(51040, "Lịch hẹn không tồn tại hoặc chưa ở trạng thái hợp lệ.");
-        FRIENDLY_ERRORS.put(51041, "Thanh toán trực tuyến yêu cầu mã tham chiếu giao dịch.");
-        FRIENDLY_ERRORS.put(51042, "Không tìm thấy giao dịch thanh toán.");
-        FRIENDLY_ERRORS.put(51043, "Giao dịch này đã chốt trạng thái cuối và không thể cập nhật thêm.");
-        FRIENDLY_ERRORS.put(2627, "Mã giao dịch bị trùng lặp, vui lòng thử lại.");
-        FRIENDLY_ERRORS.put(2601, "Mã giao dịch bị trùng lặp, vui lòng thử lại.");
+        FRIENDLY_ERRORS.put(51001, "Hệ thống đang xử lý thanh toán khác, vui lòng thử lại.");
+        FRIENDLY_ERRORS.put(51016, "Lịch hẹn chưa được xác nhận, không thể thanh toán.");
+        FRIENDLY_ERRORS.put(51018, "Số tiền vượt quá số còn phải thanh toán của lịch hẹn.");
+        FRIENDLY_ERRORS.put(51038, "Không tạo được mã thanh toán, vui lòng thử lại.");
+        FRIENDLY_ERRORS.put(51039, "Yêu cầu thanh toán bị trùng, vui lòng thử lại.");
+        FRIENDLY_ERRORS.put(51040, "Lịch hẹn chưa được xác nhận, không thể thanh toán.");
+        FRIENDLY_ERRORS.put(51041, "Thanh toán online cần nhập mã giao dịch.");
     }
 
     private final PaymentDAO paymentDAO;
@@ -43,106 +36,128 @@ public class PaymentService {
         this.paymentDAO = paymentDAO;
     }
 
+    /** The customer's own appointments that still have an outstanding balance. */
     public List<AppointmentBalance> getPayableAppointments(int customerId) throws SQLException {
-        return paymentDAO.findPayableAppointments(customerId);
-    }
-
-    public List<Payments> getPaymentHistory(int customerId) throws SQLException {
-        return paymentDAO.findByCustomer(customerId);
+        List<AppointmentBalance> payable = new ArrayList<>();
+        for (AppointmentBalance balance : paymentDAO.findPayableAppointments(customerId)) {
+            if (balance.getRemainingAmount().signum() > 0) {
+                payable.add(balance);
+            }
+        }
+        return payable;
     }
 
     /**
-     * Initiates a CASH or ONLINE charge via dbo.RecordPayment (status = PENDING).
-     * Verifies ownership, payable status, and remaining balance before calling DB.
+     * Records a PENDING charge for one of the customer's own appointments (self-service). For
+     * ONLINE, a transaction reference is generated automatically (there is no real payment
+     * gateway in this project). The charge stays PENDING until it is settled:
+     * {@link #confirmOnlinePayment(int, int)} for ONLINE, or staff confirmation at the counter
+     * for CASH.
+     *
+     * @return the new payment_id
      */
     public int initiatePayment(int customerId, int appointmentId, BigDecimal amount, String method, UUID paymentKey)
             throws SQLException {
-        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Số tiền thanh toán phải lớn hơn 0.");
-        }
-        BigDecimal normalizedAmount = amount.setScale(2, RoundingMode.HALF_UP);
-
-        String normalizedMethod = method == null ? "" : method.trim().toUpperCase();
-        if (!Payments.METHOD_CASH.equals(normalizedMethod) && !Payments.METHOD_ONLINE.equals(normalizedMethod)) {
-            throw new IllegalArgumentException("Phương thức thanh toán phải là Tiền mặt (CASH) hoặc Trực tuyến (ONLINE).");
-        }
-
-        UUID key = paymentKey != null ? paymentKey : UUID.randomUUID();
-
-        AppointmentBalance target = null;
-        for (AppointmentBalance appt : paymentDAO.findPayableAppointments(customerId)) {
-            if (appt.getAppointmentId() == appointmentId) {
-                target = appt;
-                break;
-            }
-        }
+        validateAmountAndMethod(amount, method);
+        AppointmentBalance target = findOwned(customerId, appointmentId);
         if (target == null) {
-            throw new IllegalArgumentException("Lịch hẹn không tồn tại, không thuộc tài khoản của bạn hoặc đã bị hủy.");
+            throw new IllegalArgumentException("Lịch hẹn không hợp lệ hoặc không thuộc tài khoản của bạn.");
         }
-        if (target.getRemainingAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Lịch hẹn #" + appointmentId + " đã được thanh toán đủ hoặc đang chờ xác nhận đủ.");
-        }
-        if (normalizedAmount.compareTo(target.getRemainingAmount()) > 0) {
-            throw new IllegalArgumentException("Số tiền thanh toán không được vượt quá số tiền còn lại ("
-                    + target.getFormattedRemainingAmount() + ").");
+        if (amount.compareTo(target.getRemainingAmount()) > 0) {
+            throw new IllegalArgumentException("Số tiền vượt quá số còn phải thanh toán ("
+                    + target.getRemainingAmount() + " đ).");
         }
 
-        String transactionRef = null;
-        if (Payments.METHOD_ONLINE.equals(normalizedMethod)) {
-            String suffix = key.toString().replace("-", "").substring(0, 12).toUpperCase();
-            transactionRef = "PC-ONL-" + appointmentId + "-" + suffix;
-        }
-
-        try {
-            return paymentDAO.recordPayment(appointmentId, normalizedAmount, normalizedMethod, key, transactionRef);
-        } catch (SQLException e) {
-            throw translate(e, "Không thể khởi tạo giao dịch thanh toán. Vui lòng thử lại.");
-        }
+        String ref = Payments.METHOD_ONLINE.equals(method)
+                ? "PC-ONL-" + appointmentId + "-" + System.currentTimeMillis()
+                : null;
+        return recordPaymentFriendly(appointmentId, amount, method, paymentKey, ref);
     }
 
-    /** Confirms a PENDING ONLINE payment belonging to customerId (simulated gateway callback -> PAID). */
+    /**
+     * Customer confirms their own ONLINE payment completed (simulates a successful gateway
+     * callback, since there is no real gateway). CASH charges must be confirmed by staff at the
+     * counter instead — a customer cannot self-confirm that they paid in cash.
+     */
     public Payments confirmOnlinePayment(int customerId, int paymentId) throws SQLException {
         Payments payment = paymentDAO.findByIdForCustomer(paymentId, customerId);
         if (payment == null) {
-            throw new IllegalArgumentException("Không tìm thấy giao dịch thuộc tài khoản của bạn.");
+            throw new IllegalArgumentException("Không tìm thấy thanh toán này.");
         }
-        if (!Payments.TYPE_CHARGE.equals(payment.getPaymentType())
-                || !Payments.METHOD_ONLINE.equals(payment.getMethod())) {
-            throw new IllegalArgumentException("Chỉ có thể tự xác nhận cho giao dịch thanh toán trực tuyến (ONLINE).");
+        if (Payments.METHOD_CASH.equals(payment.getMethod())) {
+            throw new IllegalArgumentException("Thanh toán tiền mặt phải được nhân viên xác nhận tại quầy.");
         }
-        if (!Payments.STATUS_PENDING.equals(payment.getStatus())) {
-            throw new IllegalArgumentException("Giao dịch này đã ở trạng thái cuối (" + payment.getStatusLabel() + ").");
+        paymentDAO.setStatus(paymentId, Payments.STATUS_PAID);
+        payment.setStatus(Payments.STATUS_PAID);
+        return payment;
+    }
+
+    /**
+     * Nhân viên thu tiền và xác nhận thanh toán ngay tại quầy (CASH hoặc ONLINE) cho lịch hẹn của
+     * một khách bất kỳ — khác với {@link #confirmOnlinePayment}, đây là nhân viên xác nhận trực
+     * tiếp trước mặt khách nên không bị chặn bởi luật "khách không tự xác nhận tiền mặt".
+     *
+     * @return the new payment_id
+     */
+    public int settleAtCounter(int customerId, int appointmentId, BigDecimal amount, String method,
+                                String transactionRef) throws SQLException {
+        validateAmountAndMethod(amount, method);
+        AppointmentBalance target = findOwned(customerId, appointmentId);
+        if (target == null) {
+            throw new IllegalArgumentException("Lịch hẹn không hợp lệ hoặc không thuộc tài khoản của bạn.");
         }
+        if (amount.compareTo(target.getRemainingAmount()) > 0) {
+            throw new IllegalArgumentException("Số tiền vượt quá số còn phải thanh toán ("
+                    + target.getRemainingAmount() + " đ).");
+        }
+
+        String ref = transactionRef == null ? null : transactionRef.trim();
+        if (ref != null && ref.isEmpty()) {
+            ref = null;
+        }
+        if (Payments.METHOD_ONLINE.equals(method) && ref == null) {
+            throw new IllegalArgumentException("Vui lòng nhập mã giao dịch thanh toán online.");
+        }
+        if (ref != null && ref.length() > 100) {
+            throw new IllegalArgumentException("Mã giao dịch quá dài.");
+        }
+
+        int paymentId = recordPaymentFriendly(appointmentId, amount, method, UUID.randomUUID(),
+                Payments.METHOD_ONLINE.equals(method) ? ref : null);
         try {
             paymentDAO.setStatus(paymentId, Payments.STATUS_PAID);
-            payment.setStatus(Payments.STATUS_PAID);
-            return payment;
         } catch (SQLException e) {
-            throw translate(e, "Không thể xác nhận thanh toán trực tuyến.");
+            throw new SQLException(FRIENDLY_ERRORS.getOrDefault(e.getErrorCode(),
+                    "Không thể xác nhận thanh toán. Vui lòng thử lại."), e.getSQLState(), e);
+        }
+        return paymentId;
+    }
+
+    private void validateAmountAndMethod(BigDecimal amount, String method) {
+        if (amount == null || amount.signum() <= 0) {
+            throw new IllegalArgumentException("Số tiền thanh toán phải lớn hơn 0.");
+        }
+        if (!Payments.METHOD_CASH.equals(method) && !Payments.METHOD_ONLINE.equals(method)) {
+            throw new IllegalArgumentException("Phương thức thanh toán không hợp lệ.");
         }
     }
 
-    /** Cancels a PENDING payment attempt belonging to customerId (-> FAILED) so remaining balance is freed. */
-    public Payments cancelPendingPayment(int customerId, int paymentId) throws SQLException {
-        Payments payment = paymentDAO.findByIdForCustomer(paymentId, customerId);
-        if (payment == null) {
-            throw new IllegalArgumentException("Không tìm thấy giao dịch thuộc tài khoản của bạn.");
-        }
-        if (!Payments.TYPE_CHARGE.equals(payment.getPaymentType())
-                || !Payments.STATUS_PENDING.equals(payment.getStatus())) {
-            throw new IllegalArgumentException("Chỉ có thể hủy giao dịch đang chờ xử lý.");
-        }
+    private int recordPaymentFriendly(int appointmentId, BigDecimal amount, String method, UUID paymentKey,
+                                       String transactionRef) throws SQLException {
         try {
-            paymentDAO.setStatus(paymentId, Payments.STATUS_FAILED);
-            payment.setStatus(Payments.STATUS_FAILED);
-            return payment;
+            return paymentDAO.recordPayment(appointmentId, amount, method, paymentKey, transactionRef);
         } catch (SQLException e) {
-            throw translate(e, "Không thể hủy giao dịch đang chờ.");
+            throw new SQLException(FRIENDLY_ERRORS.getOrDefault(e.getErrorCode(),
+                    "Không thể ghi nhận thanh toán. Vui lòng kiểm tra lại và thử lại."), e.getSQLState(), e);
         }
     }
 
-    private SQLException translate(SQLException e, String fallback) {
-        return new SQLException(FRIENDLY_ERRORS.getOrDefault(e.getErrorCode(), fallback),
-                e.getSQLState(), e.getErrorCode(), e);
+    private AppointmentBalance findOwned(int customerId, int appointmentId) throws SQLException {
+        for (AppointmentBalance balance : getPayableAppointments(customerId)) {
+            if (balance.getAppointmentId() == appointmentId) {
+                return balance;
+            }
+        }
+        return null;
     }
 }
