@@ -10,12 +10,18 @@ import java.util.UUID;
 
 public interface PaymentDAO {
 
-    /** The customer's own published (non-DRAFT, non-CANCELLED) appointments with an outstanding balance. */
+    /** The customer's own published (non-DRAFT, non-CANCELLED, non-NO_SHOW) appointments with payment totals. */
     List<AppointmentBalance> findPayableAppointments(int customerId) throws SQLException;
 
     List<Payments> findByAppointment(int appointmentId) throws SQLException;
 
-    /** Records a charge/refund via dbo.RecordPayment; returns the payment_id. */
+    /** Full payment history (CHARGE and REFUND) for all appointments belonging to customerId. */
+    List<Payments> findByCustomer(int customerId) throws SQLException;
+
+    /** Loads a single payment only if its appointment belongs to customerId. */
+    Payments findByIdForCustomer(int paymentId, int customerId) throws SQLException;
+
+    /** Records a charge via dbo.RecordPayment; returns the payment_id. */
     int recordPayment(int appointmentId, BigDecimal amount, String method, UUID paymentKey,
                        String transactionRef) throws SQLException;
 
