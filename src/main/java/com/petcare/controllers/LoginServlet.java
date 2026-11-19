@@ -2,6 +2,7 @@ package com.petcare.controllers;
 
 import com.petcare.models.Users;
 import com.petcare.services.AuthService;
+import com.petcare.utils.SessionUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,11 +15,28 @@ import java.sql.SQLException;
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login", "/dang-nhap"})
 public class LoginServlet extends HttpServlet {
 
+    private final AuthService authService = new AuthService();
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
+
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            Object successMsg = session.getAttribute("successMessage");
+            if (successMsg != null) {
+                request.setAttribute("successMessage", successMsg);
+                session.removeAttribute("successMessage");
+            }
+            Object regId = session.getAttribute("registeredIdentifier");
+            if (regId != null) {
+                request.setAttribute("identifier", regId);
+                session.removeAttribute("registeredIdentifier");
+            }
+        }
+
         request.getRequestDispatcher("/login.jsp").forward(request, response);
     }
 
@@ -49,37 +67,30 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        Users user;
         try {
-            user = new AuthService().authenticate(identifier, password);
+            Users user = authService.authenticate(identifier, password);
+            boolean rememberMe = "on".equalsIgnoreCase(remember) || "true".equalsIgnoreCase(remember);
+            SessionUtil.storeAuthenticatedUser(request, user, rememberMe);
+
+            if (user.isAdmin()) {
+                response.sendRedirect(request.getContextPath() + "/admin/tai-khoan");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/home");
+            }
+        } catch (IllegalArgumentException e) {
+            request.setAttribute("errorMessage", e.getMessage());
+            request.setAttribute("identifier", identifier);
+            request.getRequestDispatcher("/login.jsp").forward(request, response);
         } catch (SQLException e) {
-            request.setAttribute("errorMessage", "Không thể kết nối hệ thống. Vui lòng thử lại sau.");
+            if (e.getErrorCode() == 229) {
+                request.setAttribute("errorMessage",
+                        "Tài khoản SQL 'petcare_backend' chưa được cấp quyền SELECT trên bảng dbo.Users. "
+                        + "Vui lòng chạy file database/grant_auth_permissions.sql trên SQL Server.");
+            } else {
+                request.setAttribute("errorMessage", "Lỗi truy vấn cơ sở dữ liệu SQL Server: " + e.getMessage());
+            }
             request.setAttribute("identifier", identifier);
             request.getRequestDispatcher("/login.jsp").forward(request, response);
-            return;
-        }
-
-        if (user == null) {
-            request.setAttribute("errorMessage", "Email hoặc mật khẩu không đúng, hoặc tài khoản đã bị khóa.");
-            request.setAttribute("identifier", identifier);
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
-            return;
-        }
-
-        // Lưu thông tin đăng nhập vào session
-        HttpSession session = request.getSession(true);
-        session.setAttribute("loggedInUserId", user.getUserId());
-        session.setAttribute("loggedInUser", user.getFullName());
-        session.setAttribute("loggedInRole", user.getRole());
-        if ("on".equals(remember) || "true".equals(remember)) {
-            session.setMaxInactiveInterval(7 * 24 * 60 * 60); // 7 ngày
-        }
-
-        if ("ADMIN".equals(user.getRole())) {
-            response.sendRedirect(request.getContextPath() + "/admin/tai-khoan");
-        } else {
-            response.sendRedirect(request.getContextPath() + "/home");
         }
     }
 }
-

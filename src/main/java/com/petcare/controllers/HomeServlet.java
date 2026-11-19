@@ -1,6 +1,5 @@
 package com.petcare.controllers;
 
-import com.petcare.model.BookingRequest;
 import com.petcare.model.ReviewItem;
 import com.petcare.model.ServiceCard;
 import jakarta.servlet.ServletException;
@@ -8,6 +7,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -128,6 +128,26 @@ public class HomeServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         resp.setCharacterEncoding("UTF-8");
+
+        if ("/dat-lich".equals(req.getServletPath())) {
+            resp.sendRedirect(req.getContextPath() + "/customer/dat-lich");
+            return;
+        }
+
+        HttpSession session = req.getSession(false);
+        if (session != null) {
+            Object profileSuccess = session.getAttribute("profileSuccess");
+            if (profileSuccess != null) {
+                req.setAttribute("profileSuccess", profileSuccess);
+                session.removeAttribute("profileSuccess");
+            }
+            Object profileError = session.getAttribute("profileError");
+            if (profileError != null) {
+                req.setAttribute("profileError", profileError);
+                session.removeAttribute("profileError");
+            }
+        }
+
         loadHomePageData(req);
         req.getRequestDispatcher("/index.jsp").forward(req, resp);
     }
@@ -137,25 +157,6 @@ public class HomeServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         resp.setCharacterEncoding("UTF-8");
 
-        String ownerName = req.getParameter("ownerName");
-        String phone = req.getParameter("phone");
-        String petName = req.getParameter("petName");
-        String petType = req.getParameter("petType");
-        String weightRange = req.getParameter("weightRange");
-        String serviceName = req.getParameter("serviceName");
-        String branch = req.getParameter("branch");
-        String bookingDate = req.getParameter("bookingDate");
-        String timeSlot = req.getParameter("timeSlot");
-        String notes = req.getParameter("notes");
-
-        BookingRequest booking = new BookingRequest(
-                ownerName, phone, petName, petType, weightRange,
-                serviceName, branch, bookingDate, timeSlot, notes
-        );
-
-        req.setAttribute("bookingSuccess", true);
-        req.setAttribute("bookingData", booking);
-        loadHomePageData(req);
-        req.getRequestDispatcher("/index.jsp").forward(req, resp);
+        resp.sendRedirect(req.getContextPath() + "/customer/dat-lich");
     }
 }

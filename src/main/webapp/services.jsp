@@ -1,4 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -12,7 +14,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
         rel="stylesheet" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css?v=6" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css?v=9" />
 </head>
 
 <body>
@@ -37,15 +39,97 @@
             </nav>
 
             <div class="header-auth-actions">
-                <a href="${pageContext.request.contextPath}/login" class="btn-login-outline">Đăng nhập</a>
-                <a href="${pageContext.request.contextPath}/register" class="btn-register-solid">Đăng ký tài khoản</a>
-                <a href="${pageContext.request.contextPath}/login" class="btn-user-avatar" aria-label="Tài khoản thành viên">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2.1">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                </a>
+                <c:choose>
+                    <c:when test="${not empty sessionScope.loggedInUser}">
+                        <div class="header-user-wrap">
+                            <div class="header-user-trigger">
+                                <a href="${pageContext.request.contextPath}/profile" class="header-user-pill">
+                                    <span class="header-user-avatar-circle">
+                                        ${fn:toUpperCase(fn:substring(fn:trim(sessionScope.loggedInUser), 0, 1))}
+                                    </span>
+                                    <span class="header-user-info">
+                                        <span class="header-user-name">${fn:escapeXml(sessionScope.loggedInUser)}</span>
+                                        <span class="header-user-role-tag">
+                                            <c:choose>
+                                                <c:when test="${sessionScope.loggedInRole == 'ADMIN'}">Quản trị viên</c:when>
+                                                <c:when test="${sessionScope.loggedInRole == 'STAFF'}">Nhân viên</c:when>
+                                                <c:otherwise>Thành viên</c:otherwise>
+                                            </c:choose>
+                                        </span>
+                                    </span>
+                                    <svg class="header-user-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </a>
+
+                                <div class="header-user-dropdown">
+                                    <div class="dropdown-user-head">
+                                        <span class="dropdown-user-avatar">
+                                            ${fn:toUpperCase(fn:substring(fn:trim(sessionScope.loggedInUser), 0, 1))}
+                                        </span>
+                                        <div class="dropdown-user-meta">
+                                            <strong>${fn:escapeXml(sessionScope.loggedInUser)}</strong>
+                                            <span>Mã TV #${sessionScope.loggedInUserId} &bull; ${sessionScope.loggedInRole}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="dropdown-meta-list">
+                                        <div class="dropdown-meta-row">
+                                            <span>Mã tài khoản</span>
+                                            <strong>#${sessionScope.loggedInUserId}</strong>
+                                        </div>
+                                        <div class="dropdown-meta-row">
+                                            <span>Điện thoại</span>
+                                            <strong>${fn:escapeXml(sessionScope.loggedInPhone)}</strong>
+                                        </div>
+                                        <div class="dropdown-meta-row">
+                                            <span>Email</span>
+                                            <strong>${fn:escapeXml(sessionScope.loggedInEmail)}</strong>
+                                        </div>
+                                    </div>
+
+                                    <div class="dropdown-menu-actions">
+                                        <a href="${pageContext.request.contextPath}/profile" class="dropdown-menu-link">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="12" cy="7" r="4"></circle>
+                                            </svg>
+                                            <span>Hồ sơ &amp; Đổi mật khẩu</span>
+                                        </a>
+                                        <a href="${pageContext.request.contextPath}/logout" class="dropdown-menu-link logout-link">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                                <polyline points="16 17 21 12 16 7"></polyline>
+                                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                                            </svg>
+                                            <span>Đăng xuất tài khoản</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <a href="${pageContext.request.contextPath}/logout" class="btn-header-logout" title="Đăng xuất">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                                <span>Đăng xuất</span>
+                            </a>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="${pageContext.request.contextPath}/login" class="btn-login-outline">Đăng nhập</a>
+                        <a href="${pageContext.request.contextPath}/register" class="btn-register-solid">Đăng ký tài khoản</a>
+                        <a href="${pageContext.request.contextPath}/login" class="btn-user-avatar" aria-label="Tài khoản thành viên">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.1">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </a>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </div>
     </header>
@@ -107,7 +191,7 @@
                         </div>
 
                         <div class="svc-hero-actions">
-                            <a href="${pageContext.request.contextPath}/register" class="btn-svc-primary">
+                            <a href="${pageContext.request.contextPath}/customer/dat-lich" class="btn-svc-primary">
                                 <span>Đặt lịch chăm sóc ngay</span>
                                 <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
                                     <line x1="5" y1="12" x2="19" y2="12" />
@@ -274,7 +358,7 @@
                                     <span class="svc-price-label">Chi phí trọn gói</span>
                                     <span class="svc-price">180.000đ <small>/ từ &lt; 5kg</small></span>
                                 </div>
-                                <a href="${pageContext.request.contextPath}/login" class="btn-svc-book">
+                                <a href="${pageContext.request.contextPath}/customer/dat-lich" class="btn-svc-book">
                                     <span>Đặt lịch</span>
                                     <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
                                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -343,7 +427,7 @@
                                     <span class="svc-price-label">Chi phí trọn gói</span>
                                     <span class="svc-price">320.000đ <small>/ từ &lt; 5kg</small></span>
                                 </div>
-                                <a href="${pageContext.request.contextPath}/login" class="btn-svc-book">
+                                <a href="${pageContext.request.contextPath}/customer/dat-lich" class="btn-svc-book">
                                     <span>Đặt lịch</span>
                                     <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
                                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -410,7 +494,7 @@
                                     <span class="svc-price-label">Chi phí trọn gói</span>
                                     <span class="svc-price">280.000đ <small>/ từ &lt; 5kg</small></span>
                                 </div>
-                                <a href="${pageContext.request.contextPath}/login" class="btn-svc-book">
+                                <a href="${pageContext.request.contextPath}/customer/dat-lich" class="btn-svc-book">
                                     <span>Đặt lịch</span>
                                     <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
                                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -482,7 +566,7 @@
                                     <span class="svc-price-label">Chi phí trọn gói</span>
                                     <span class="svc-price">90.000đ <small>/ từ &lt; 5kg</small></span>
                                 </div>
-                                <a href="${pageContext.request.contextPath}/login" class="btn-svc-book">
+                                <a href="${pageContext.request.contextPath}/customer/dat-lich" class="btn-svc-book">
                                     <span>Đặt lịch</span>
                                     <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
                                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -547,7 +631,7 @@
                                     <span class="svc-price-label">Chi phí trọn gói</span>
                                     <span class="svc-price">150.000đ <small>/ từ &lt; 5kg</small></span>
                                 </div>
-                                <a href="${pageContext.request.contextPath}/login" class="btn-svc-book">
+                                <a href="${pageContext.request.contextPath}/customer/dat-lich" class="btn-svc-book">
                                     <span>Đặt lịch</span>
                                     <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
                                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -613,7 +697,7 @@
                                     <span class="svc-price-label">Trọn gói ưu đãi</span>
                                     <span class="svc-price">450.000đ <small>/ từ &lt; 5kg</small></span>
                                 </div>
-                                <a href="${pageContext.request.contextPath}/login" class="btn-svc-book">
+                                <a href="${pageContext.request.contextPath}/customer/dat-lich" class="btn-svc-book">
                                     <span>Đặt lịch</span>
                                     <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
                                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -1041,7 +1125,7 @@
                             </div>
                         </div>
 
-                        <a href="${pageContext.request.contextPath}/register" class="btn-cta-book-now">
+                        <a href="${pageContext.request.contextPath}/customer/dat-lich" class="btn-cta-book-now">
                             <span>Đăng ký thành viên &amp; Đặt lịch</span>
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2.4">
