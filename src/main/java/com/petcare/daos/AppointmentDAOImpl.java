@@ -34,4 +34,19 @@ public class AppointmentDAOImpl implements AppointmentDAO {
             return stmt.getInt(5);
         }
     }
+
+    @Override
+    public void setStatus(int appointmentId, String status, String cancelReason) throws SQLException {
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement stmt = conn.prepareCall("{call dbo.SetAppointmentStatus(?,?,?)}")) {
+            stmt.setInt(1, appointmentId);
+            stmt.setString(2, status);
+            if (cancelReason != null) {
+                stmt.setString(3, cancelReason);
+            } else {
+                stmt.setNull(3, Types.NVARCHAR);
+            }
+            stmt.execute();
+        }
+    }
 }

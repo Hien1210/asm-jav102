@@ -11,4 +11,10 @@ public interface AppointmentDAO {
      */
     int bookService(int customerId, int petId, int serviceId, int staffId,
                      Timestamp scheduledStart, Timestamp scheduledEnd) throws SQLException;
+
+    /**
+     * CONFIRMED/CHECKED_IN/IN_PROGRESS/COMPLETED/CANCELLED/NO_SHOW via dbo.SetAppointmentStatus.
+     * cancelReason is required only when status is CANCELLED.
+     */
+    void setStatus(int appointmentId, String status, String cancelReason) throws SQLException;
 }

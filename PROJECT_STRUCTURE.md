@@ -121,3 +121,25 @@
 ## Controllers consolidation
 HomeServlet.java, LoginServlet.java and RegisterServlet.java now use com.petcare.controllers.
 The singular controller package was removed. Existing servlet URL mappings are unchanged.
+
+## Quản lý tài khoản (2026-11-19)
+
+- `QuanLyTaiKhoanServlet` kiểm tra CSRF trên POST, trạng thái true/false, ID dương và tài khoản đích reset mật khẩu.
+- `src/test/java/com/petcare/controllers/QuanLyTaiKhoanServletTest.java` — 9 test quản trị tài khoản, dùng DAO giả.
+- `admin/quanLiTaiKhoan.jsp` gửi token theo session; `scripts/smoke-test.ps1` lấy token trước POST quản trị.
+
+## Các trang admin hoàn chỉnh trong source (2026-11-19)
+
+- `services/AdminModule.java`: định nghĩa và validation dịch vụ/combo/phòng/ca/thú cưng.
+- `daos/AdminCatalogDAO.java`: đọc danh sách/chi tiết, gọi procedure ghi và transaction combo.
+- `controllers/AdminCatalogServlet.java` và 5 `QuanLy*Servlet`: `/admin/dich-vu`, `/admin/combo`, `/admin/phong`, `/admin/ca-lam-viec`, `/admin/thu-cung`.
+- `WEB-INF/views/admin/catalog.jsp`, `assets/css/admin.css`, `assets/js/admin.js`: giao diện quản trị chung; JSP admin cũ redirect.
+- `database/admin_catalog.sql`: migration 11 procedure + quyền EXECUTE/SELECT cho role admin, chưa áp dụng DB chính (chờ duyệt).
+- `scripts/test-admin.ps1`, `scripts/test-admin-accounts.ps1`: test HTTP trên QA. Test JUnit mới: AdminModuleTest, AdminCatalogServletTest, AdminCatalogIntegrationTest (opt-in).
+- Chi tiết phạm vi, triển khai và kết quả: `docs/ADMIN.md`. 27/27 JUnit và 82/82 HTTP PASS trên database QA riêng.
+
+## Giao diện admin đồng bộ (2026-11-19)
+
+- Bố cục 6 trang dùng `WEB-INF/views/admin/shell-start.jspf`, `shell-end.jspf` và thanh tìm kiếm/bộ lọc `table-tools.jspf`.
+- `admin/quanLiTaiKhoan.jsp` dùng chung `admin.css`/`admin.js` với `catalog.jsp`; sidebar, breadcrumb, bộ lọc/tìm không dấu, form có label và bảng responsive.
+- Chi tiết kiểm thử desktop/mobile, ảnh preview và giới hạn: `docs/ADMIN_UI.md`. Không thêm dependency, không đổi luồng ghi DB.

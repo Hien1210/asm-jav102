@@ -15,13 +15,22 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Set;
+import java.util.UUID;
 
 @WebServlet(name = "QuanLyTaiKhoanServlet", urlPatterns = {"/admin/tai-khoan"})
 public class QuanLyTaiKhoanServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Set<String> VALID_ROLES = Set.of("CUSTOMER", "STAFF", "ADMIN");
 
-    private final AccountDAO accountDAO = new AccountDAOImpl();
+    private final AccountDAO accountDAO;
+
+    public QuanLyTaiKhoanServlet() {
+        this(new AccountDAOImpl());
+    }
+
+    QuanLyTaiKhoanServlet(AccountDAO accountDAO) {
+        this.accountDAO = accountDAO;
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -31,6 +40,10 @@ public class QuanLyTaiKhoanServlet extends HttpServlet {
 
         if (!requireAdmin(request, response)) {
             return;
+        }
+
+        if (request.getSession().getAttribute("adminCsrfToken") == null) {
+            request.getSession().setAttribute("adminCsrfToken", UUID.randomUUID().toString());
         }
 
         try {
@@ -52,6 +65,13 @@ public class QuanLyTaiKhoanServlet extends HttpServlet {
         }
 
         String action = request.getParameter("action");
+        Object expectedToken = request.getSession().getAttribute("adminCsrfToken");
+        String submittedToken = request.getParameter("csrfToken");
+        if (!(expectedToken instanceof String) || !expectedToken.equals(submittedToken)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN,
+                    "Yêu cầu không hợp lệ. Vui lòng tải lại trang quản lý tài khoản.");
+            return;
+        }
         action = (action != null) ? action : "";
 
         try {
@@ -131,7 +151,11 @@ public class QuanLyTaiKhoanServlet extends HttpServlet {
         account.setPhone(phone);
         account.setPasswordHash(AuthService.hashPassword(password));
         account.setRole(role);
-        accountDAO.create(account);
+        account.setActive(true);
+        Users created = accountDAO.create(account);
+        if (created == null || created.getUserId() <= 0) {
+            throw new SQLException("Account creation did not return an identifier.");
+        }
     }
 
     private int currentUserId(HttpServletRequest request) {
@@ -178,7 +202,11 @@ public class QuanLyTaiKhoanServlet extends HttpServlet {
 
     private void handleToggleActive(HttpServletRequest request) throws SQLException {
         int userId = parseUserId(request);
-        boolean active = "true".equals(request.getParameter("active"));
+        String activeValue = request.getParameter("active");
+        if (!"true".equals(activeValue) && !"false".equals(activeValue)) {
+            throw new IllegalArgumentException("Trạng thái tài khoản phải là true hoặc false.");
+        }
+        boolean active = Boolean.parseBoolean(activeValue);
 
         if (currentUserId(request) == userId && !active) {
             throw new IllegalArgumentException("Không thể tự khóa tài khoản của chính mình.");
@@ -198,6 +226,9 @@ public class QuanLyTaiKhoanServlet extends HttpServlet {
         if (newPassword == null || newPassword.length() < 8) {
             throw new IllegalArgumentException("Mật khẩu mới phải có tối thiểu 8 ký tự.");
         }
+        if (accountDAO.findById(userId) == null) {
+            throw new IllegalArgumentException("Tài khoản không tồn tại.");
+        }
         if (!accountDAO.updatePassword(userId, AuthService.hashPassword(newPassword))) {
             throw new IllegalArgumentException("Tài khoản không tồn tại hoặc chưa được cập nhật.");
         }
@@ -205,7 +236,9 @@ public class QuanLyTaiKhoanServlet extends HttpServlet {
 
     private int parseUserId(HttpServletRequest request) {
         try {
-            return Integer.parseInt(request.getParameter("userId"));
+            int userId = Integer.parseInt(request.getParameter("userId"));
+            if (userId <= 0) throw new NumberFormatException();
+            return userId;
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Thiếu hoặc sai mã tài khoản.");
         }

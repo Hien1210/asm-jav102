@@ -1,5 +1,107 @@
 # PetCare (asm-jav102) — Tổng hợp hiện trạng dự án
 
+## Đã làm phần "Khách vãng lai / đặt lịch tại quầy" 2026-11-19
+
+Theo đề nghị của nhóm: khách không tự đặt lịch trên website (đến trực tiếp) thì nhân viên/lễ tân tạo lịch và thu tiền hộ ngay tại quầy, khách không cần tài khoản đăng nhập — giống mô hình "bấm bill tại quầy" của POS ngoài thị trường. Chưa commit.
+
+- **`AppointmentDAO`/`AppointmentDAOImpl`**: thêm `setStatus(appointmentId, status, cancelReason)` gọi SP `SetAppointmentStatus` có sẵn trong DB (trước đó chưa có lớp Java nào gọi SP này).
+- **`WalkInBookingService.java`** (mới): `findOrCreateCustomer(fullName, phone)` — tra theo SĐT qua `AccountDAO.findByPhone` (đã có sẵn), nếu có rồi thì tái dùng (và sửa lại tên nếu nhân viên xác nhận gõ nhầm, qua `updateProfile`), nếu chưa có thì tạo mới tài khoản CUSTOMER **không cần mật khẩu/email thật**: email sinh tự động từ SĐT theo đúng cơ chế có sẵn của `AuthService.registerCustomer` (`sdt@petcare.vn`), mật khẩu random không ai dùng để đăng nhập được (hash qua `AuthService.hashPassword`). `addPet(...)` tái dùng logic thêm thú cưng. `bookAndSettleAtCounter(...)`: gọi `BookingService.bookService` rồi **tự động chuyển PENDING → CONFIRMED ngay** (vì nhân viên đã xác nhận trực tiếp trước mặt khách) rồi gọi `PaymentService.pay` thu đủ tiền luôn.
+- **`DatLichTaiQuayServlet.java`** (mới): `@WebServlet(urlPatterns = "/staff/dat-lich-tai-quay")`, cho cả STAFF và ADMIN (đã nằm trong vùng `/staff/*` mà `AuthFilter` bảo vệ sẵn, không cần sửa filter). 3 action trên cùng 1 trang: `timKhach` (tìm/tạo khách theo SĐT), `themThuCung` (thêm thú cưng cho khách đó), `datLichVaThu` (đặt lịch + thu tiền ngay, validate ONLINE phải có mã giao dịch trước khi tạo lịch để tránh kẹt ở trạng thái "đã đặt nhưng chưa thu được tiền").
+- **`src/main/webapp/staff/datLichTaiQuay.jsp`** (file mới): cùng style/layout với `datLich.jsp`/`thanhToan.jsp` đã làm trước đó.
+- Không đụng `LichHenNhanVienServlet`/`LichLamViecServlet` hay các module admin khác đang có người/phiên khác làm dở song song.
+
+### Đã test thật trên DB (tầng service, gọi thẳng DB thật)
+Khách vãng lai test SĐT `0977000111`: tạo mới (user_id=15, email tự sinh `0977000111@petcare.vn`) → gọi lại với tên khác → đúng cập nhật lại tên, giữ nguyên user_id. Thêm thú cưng, đặt 2 lịch hẹn (appt#16 CASH, appt#17 ONLINE kèm mã giao dịch) → cả hai đều **CONFIRMED** và **PAID** đủ ngay, biến mất khỏi `listPayable`. Đúng như thiết kế.
+
+### Đã test qua UI thật (đăng nhập STAFF)
+Dùng tài khoản `staff@petcare.vn` (mật khẩu lấy từ `docs/tk test petcare.txt` — ghi chú mật khẩu "Staff@123" trong `database/grant_auth_permissions.sql` không khớp hash thật trong DB, phải dùng file này). Luồng: đăng nhập STAFF → `/staff/dat-lich-tai-quay` → nhập SĐT `0933555777` + tên khách mới → tạo khách thành công → thêm thú cưng "Vang Lai Pet UI" → đặt lịch Grooming 20/11/2026 16:00, chọn Tiền mặt → báo **"Đã tạo và thu tiền lịch hẹn #18 cho khách Khach Vang Lai UI (0933555777)."** Kiểm tra lại DB: appt#18 status=CONFIRMED, total=150.000, đã thu đủ 150.000. Đúng toàn bộ.
+
+Tomcat test (cổng 8081, xem mục Thanh toán bên dưới để biết cách dựng) đã dừng sau khi test xong.
+
+### Còn thiếu / điểm cần lưu ý
+- Nếu 2 nhân viên cùng lúc nhập đúng 1 SĐT khách mới (chưa từng có) thì có thể đụng độ tạo 2 user trùng SĐT (DB không có UNIQUE constraint trên cột `phone`, chỉ chặn ở tầng ứng dụng theo logic tìm-trước-khi-tạo) — rủi ro thấp trong thực tế (2 lễ tân hiếm khi nhập cùng lúc), nhưng nên biết trước.
+- Chưa có cách tìm/sửa/xoá các tài khoản "khách vãng lai" này riêng biệt với khách tự đăng ký trong trang quản lý tài khoản admin (chúng chỉ là CUSTOMER bình thường, không có cờ đánh dấu riêng).
+- Giống phần Thanh toán: do dự án không có cổng thanh toán thật, thu tiền tại quầy cũng được coi là thành công ngay khi nhân viên bấm xác nhận.
+
+## Đã làm phần Thanh toán 2026-11-19
+
+Thay cho mục "Thanh toán — làm được một phần" bên dưới: đã viết xong `PaymentService`, `ThanhToanServlet` và JSP, test thật trên DB qua `PaymentDAO`/stored procedure có sẵn. Chưa commit.
+
+- **`PaymentService.java`** (mới, thay scaffold rỗng): `listPayable(customerId)` lọc `AppointmentBalance` còn `remainingAmount > 0` từ `PaymentDAO.findPayableAppointments`. `pay(customerId, appointmentId, amount, method, transactionRef)`: kiểm tra lịch hẹn thuộc đúng khách hàng (so với `listPayable`), số tiền > 0 và không vượt số còn nợ, `method` chỉ CASH/ONLINE, ONLINE bắt buộc `transactionRef`. Gọi `PaymentDAO.recordPayment` (SP `RecordPayment`, sinh `payment_key` UUID mới mỗi lần) rồi `setStatus(..., "PAID")` ngay (SP `SetPaymentStatus`) — **dự án chưa có cổng thanh toán thật nên coi mỗi lần submit là thu tiền mặt/chuyển khoản đã xác nhận ngay**, không có bước PENDING chờ xác nhận riêng. Map mã lỗi SQL (51016/51018/51038-51041...) sang thông báo tiếng Việt như `BookingService` đã làm với lỗi đặt lịch.
+- **`ThanhToanServlet.java`** (thay scaffold rỗng): thêm `@WebServlet(urlPatterns = "/customer/thanh-toan")` (được `AuthFilter` bảo vệ theo pattern `/customer/*` có sẵn, không cần sửa filter). `doGet` nạp danh sách lịch hẹn còn nợ; `doPost` nhận `appointmentId`/`amount`/`method`/`transactionRef`, gọi `PaymentService.pay`, báo thành công/lỗi, gửi thông báo realtime qua `NotificationEndpoint` (cho khách và cho ADMIN/STAFF) giống `DatLichServlet`.
+- **`src/main/webapp/customer/thanhToan.jsp`** (file mới): danh sách lịch hẹn còn nợ (tổng tiền/còn nợ dùng `fmt:formatNumber`), mỗi lịch hẹn có form chọn số tiền + CASH/ONLINE + mã giao dịch. Theo đúng style/layout của `datLich.jsp` (trang thật đang dùng), không dùng `assets/css/style.css` (CSS đó chỉ còn ở các JSP khung chưa làm).
+- **`profile.jsp`**: thêm 1 thẻ "Thanh toán lịch hẹn" vào lưới shortcut (`profile-shortcut-grid`) trỏ tới `/customer/thanh-toan`, cùng mẫu với 3 thẻ có sẵn.
+- Không sửa `PaymentDAO`/`PaymentDAOImpl`/schema/stored procedure — lớp DAO đã đúng từ trước.
+
+### Đã test thật trên DB (ghi dữ liệu QA, không phải suy đoán)
+Dùng tài khoản test `e2e-customer@petcare.vn` (customer_id=5), lịch hẹn test có sẵn `#1` (PENDING, total_amount=150000, chưa có payment nào) — không đụng tới lịch hẹn `#5` của `qa-smoke-20261117@petcare.test` vì `scripts/smoke-test.ps1` đang giữ slot đó để chạy lại.
+- Gọi `PaymentService.pay` CASH 50.000đ → `remainingAmount` 150.000 → 100.000, payment_id=1, PAID. Đúng.
+- Gọi tiếp ONLINE 100.000đ kèm `transactionRef="TEST-TXN-0001"` → hết nợ, payment_id=2, PAID, lịch hẹn biến mất khỏi `listPayable`. Đúng.
+- Trả về đúng lỗi "Lịch hẹn không hợp lệ hoặc không thuộc tài khoản của bạn." khi: trả thêm cho lịch đã hết nợ, trả cho `appointmentId` không tồn tại, và trả cho lịch hẹn của khách khác (dùng `customerId` sai). Đúng cả 3.
+- Chưa test qua UI thật (chưa mở trình duyệt bấm form); chỉ test tầng `PaymentService` gọi thẳng DB thật bằng một class test tạm ngoài project (không commit vào repo).
+- `mvn compile` sạch, không lỗi.
+
+### Đã test qua trình duyệt thật (UI) 2026-11-19
+Không có SmartTomcat/launch.json sẵn trong repo nên tự deploy tạm: `mvn package` ra `target/petcare.war`, chạy bằng Tomcat 10.1.54 có sẵn trên máy ở `F:\apache-tomcat-10.1.54-windows-x64` — **đổi cổng sang 8081/8006** (sửa `conf/server.xml`) vì 8080/8005 đã có tiến trình Java khác đang chiếm (không phải do tôi khởi động, không đụng tới tiến trình đó). Thêm `bin/setenv.bat` set `-Dpetcare.config=F:/asm-jav102/application-local.properties`. Đã dừng Tomcat test này sau khi xong; cài đặt Tomcat đó nằm ngoài repo, vẫn còn trên máy nếu muốn dùng lại (nhớ đổi cổng lại 8080/8005 nếu muốn trùng với SmartTomcat).
+
+Luồng test qua trình duyệt (tài khoản mới tạo qua UI, không dùng tài khoản QA cũ): đăng ký `qa-ui-test-20261119@petcare.test` → đăng nhập → thêm thú cưng "QA Pet" → đặt lịch dịch vụ Grooming ngày 20/11/2026 10:00 → ra lịch hẹn **#15** (150.000đ) → vào `/customer/thanh-toan`:
+- Chọn Online, để trống mã giao dịch → đúng báo lỗi "Vui lòng nhập mã giao dịch thanh toán online.", không trừ tiền.
+- Trả Tiền mặt 50.000đ → báo thành công, còn nợ cập nhật đúng 150.000 → 100.000.
+- Trả Online 100.000đ kèm mã giao dịch → báo thành công, hết nợ, lịch hẹn biến mất khỏi danh sách còn phải thanh toán.
+- Thẻ shortcut "Thanh toán lịch hẹn" mới thêm trên `/profile` hiển thị đúng, cùng style 3 thẻ có sẵn.
+
+Tất cả đúng như thiết kế. Module Thanh toán coi như đã test đầy đủ cả tầng service (DB trực tiếp) lẫn UI thật.
+
+### Còn thiếu để coi là "xong" hoàn toàn
+- Chưa có nơi khách xem lại lịch sử thanh toán (`findByAppointment`) — hiện chỉ có luồng trả tiền, chưa có trang xem đã thanh toán bao nhiêu/khi nào.
+- Việc coi mỗi submit là thanh toán thành công ngay (không có bước xác nhận/webhook cổng thanh toán thật) là giả định tạm vì dự án không có cổng thanh toán — nên nêu rõ với giảng viên/nhóm nếu cần mô phỏng trạng thái PENDING chờ xác nhận.
+
+### Lưu ý: có người/phiên khác đang sửa song song (phát hiện 2026-11-19 sau khi test UI xong)
+`git status` lúc này cho thấy nhiều file KHÔNG phải do tôi sửa đang ở trạng thái modified/untracked: `PROJECT_STRUCTURE.md`, `scripts/smoke-test.ps1`, `QuanLyCaLamViecServlet.java`, `QuanLyComboServlet.java`, `QuanLyDichVuServlet.java`, `QuanLyPhongServlet.java`, `QuanLyTaiKhoanServlet.java`, `QuanLyThuCungServlet.java`, các JSP admin (`quanLyCaLamViec.jsp`, `quanLyCombo.jsp`, `quanLyDichVu.jsp`, `quanLyPhong.jsp`, `quanLiTaiKhoan.jsp`), và file mới `AdminCatalogServlet.java`, `AdminCatalogDAO.java`, `AdminModule.java`, `database/admin_catalog.sql`, `assets/css/admin.css`, `assets/js/admin.js`... — có vẻ ai đó (người hoặc phiên AI khác) đang làm dở các module quản trị admin cùng lúc trên working tree này. Tôi **không đụng, không revert, không commit** các file đó — không thuộc phạm vi việc thanh toán. Nếu nhóm commit/push, cần kiểm tra kỹ tránh đụng tay vào nhau trên cùng file.
+
+## Kiểm tra backend còn thiếu gì 2026-11-19 (đọc trực tiếp code, không suy đoán)
+
+Phần "Tiến độ theo module" ở mục 4 bên dưới đã cũ (viết trước khi `PaymentDAOImpl` được hoàn thiện). Mục này là bản cập nhật chính xác hơn, kiểm bằng cách đọc từng file + grep `@WebServlet` để biết servlet nào thực sự có URL mapping.
+
+### Scaffold rỗng, KHÔNG có `@WebServlet` → không hoạt động, chưa làm gì cả
+- `ThanhToanServlet` (thanh toán) — không mapping, class rỗng.
+- `DanhGiaServlet` (đánh giá) — không mapping, class rỗng. `ReviewDAOImpl` cũng rỗng (5 dòng).
+- `LichHenKhachHangServlet`, `LichHenNhanVienServlet`, `LichLamViecServlet` (xem/quản lý lịch hẹn, lịch làm việc) — không mapping, rỗng.
+- `QuanLyCaLamViecServlet` (admin quản lý ca làm việc) — không mapping, rỗng.
+- `QuanLyComboServlet` (admin quản lý combo) — không mapping, rỗng. `ComboDAOImpl` cũng rỗng (5 dòng).
+- `QuanLyDichVuServlet` (admin CRUD dịch vụ) — không mapping, rỗng. `ServiceDAOImpl` chỉ có 2 hàm đọc (`findActiveBookable`, `findById`) phục vụ trang đặt lịch, **chưa có thêm/sửa/xoá dịch vụ**.
+- `QuanLyPhongServlet` (admin quản lý phòng) — không mapping, rỗng. `RoomDAOImpl` cũng rỗng (5 dòng).
+- `QuanLyThuCungServlet` (admin quản lý thú cưng) — không mapping, rỗng. `PetDAOImpl` chỉ có hàm phục vụ đặt lịch (tìm theo chủ, tạo mới), chưa có giao diện quản lý riêng.
+- `DangKyServlet`, `DangNhapServlet` — scaffold cũ, không có `@WebServlet`, là code chết/trùng lặp; bản thật đang chạy là `RegisterServlet` (`/register`, `/dang-ky`) và `LoginServlet` (`/login`, `/dang-nhap`). Nên xoá 2 file scaffold này để tránh nhầm với bản đang dùng.
+
+### Thanh toán — làm được một phần
+- `PaymentDAO` + `PaymentDAOImpl` (115 dòng): **đã triển khai thật**, gọi DB/stored procedure (`findPayableAppointments`, ghi nhận thanh toán...).
+- `PaymentService`: scaffold rỗng (5 dòng) — chưa có logic nghiệp vụ nối DAO với servlet.
+- `ThanhToanServlet`: scaffold rỗng, không mapping.
+- Chưa có JSP thanh toán (không tìm thấy file `*thanh-toan*`/`payment*` trong `src/main/webapp`).
+- → Việc còn thiếu: viết `PaymentService`, `ThanhToanServlet` (thêm `@WebServlet`), JSP thanh toán. Phần DB/DAO coi như xong.
+
+### Đã làm, đang chạy thật (xác nhận còn đúng)
+- Đăng ký/Đăng nhập/Đăng xuất: `RegisterServlet`, `LoginServlet`, `DangXuatServlet` — có mapping, dùng `AuthService`/`AccountDAOImpl` (396 dòng, đầy đủ).
+- Trang chủ: `HomeServlet`.
+- Hồ sơ cá nhân: `ProfileServlet` (`/profile`, `/ho-so`).
+- Đặt lịch khách hàng: `DatLichServlet` (`/customer/dat-lich`) + `BookingService` + `AppointmentDAOImpl` (gọi SP `BookServiceAppointment`) + `StaffDAOImpl`, `ServiceDAOImpl` (phần đọc), `PetDAOImpl` (phần đọc/tạo) — chạy được, có test.
+- Quản lý tài khoản (admin): `QuanLyTaiKhoanServlet` (`/admin/tai-khoan`) + `AccountDAOImpl`.
+- Kết nối DB (`DBUtil`, `ConfigUtil`): đã xác minh kết nối thật, xem mục kiểm tra kết nối dưới.
+
+### Tóm tắt phần backend CHƯA làm
+1. Thanh toán — chỉ có DAO, thiếu Service + Servlet + JSP.
+2. Đánh giá (review) — chưa làm gì (servlet + DAO đều rỗng).
+3. Lịch hẹn khách hàng xem lại / lịch hẹn nhân viên / lịch làm việc nhân viên — chưa làm gì.
+4. Toàn bộ trang quản trị (admin) cho: ca làm việc, combo, dịch vụ (CRUD), phòng, thú cưng — chưa làm gì (chỉ các servlet quản lý tài khoản là có thật).
+5. Dọn dẹp: xoá `DangKyServlet`/`DangNhapServlet` (scaffold chết, trùng với Register/LoginServlet đang dùng thật).
+
+## Kiểm tra kết nối database 2026-11-19
+
+- Chạy `com.petcare.utils.DatabaseConnectionTest` với `-Dpetcare.config=F:/asm-jav102/application-local.properties` (compile bằng Maven của IntelliJ, classpath lấy qua `dependency:build-classpath`).
+- Kết quả: **kết nối JDBC thành công** tới SQL Server `hung211.tail1f20d2.ts.net:1433`, database `PetCare`, đọc được `dbo.Users` = 11 dòng. Không phải dùng fallback local SQL Server.
+- Không có thay đổi code; chỉ kiểm tra kết nối.
+
 ## Kết quả kiểm thử và sửa lỗi 2026-11-17 (trạng thái mới nhất)
 
 Mục này thay thế các nhận định cũ về conflict/build bên dưới. Không còn conflict marker; code compile thành công. Đã restart SmartTomcat từ IntelliJ để nạp các lớp mới và kiểm thử trên `http://localhost:8080/asm-jav102`.
@@ -129,3 +231,61 @@ Mỗi file còn nguyên `<<<<<<< HEAD` / `=======` / `>>>>>>> bao` — đây là
 - Đã điều khiển Chrome mở /profile với phiên CUSTOMER đang đăng nhập: trang tải đủ thông tin và không còn thông báo lỗi password_hash.
 - Trang /services.jsp tải được nhưng các liên kết Đặt lịch vẫn trỏ /login, nút Đặt lịch chăm sóc ngay trỏ /register dù phiên đã đăng nhập; cần nối về luồng đặt lịch thật.
 - Chỉ kiểm tra điều hướng và hiển thị; chưa submit sửa hồ sơ, đổi mật khẩu, đặt lịch hoặc thanh toán qua UI.
+
+## Hướng dẫn xoá tài khoản test (2026-11-19)
+
+- Đã cung cấp câu SQL cho người dùng tự chạy trong SSMS, nhắm đúng email E2E/QA đã ghi nhận: e2e-test-admin@petcare.vn, e2e-customer@petcare.vn, qa-smoke-20261117@petcare.test, qa-admin-target-20261117@petcare.test.
+- Giữ tài khoản admin/staff chính và staff.demo (nhân viên demo có kỹ năng/ca làm việc). Không tự thực thi xoá trên DB.
+- Xoá trong transaction với XACT_ABORT và TRY/CATCH; nếu có khoá ngoại từ thú cưng/lịch hẹn thì rollback toàn bộ. Schema chặn xoá lịch đã công bố và thanh toán bằng trigger; không tắt trigger trong câu lệnh hướng dẫn.
+
+## Hướng dẫn tạo quản trị web (2026-11-19)
+
+- Cung cấp SQL INSERT tài khoản ADMIN đang hoạt động, dùng email admin.web@petcare.vn và hash BCrypt mẫu của mật khẩu Admin@123 từ database/grant_auth_permissions.sql.
+- Có kiểm tra email tồn tại để không ghi đè tài khoản cũ; không tự chạy SQL trên database. Người dùng nên đổi mật khẩu sau khi đăng nhập.
+
+## Quản lý tài khoản và quyền quản trị — cập nhật 2026-11-19
+
+Phạm vi người dùng xác nhận: chỉ quản lý tài khoản và quyền quản trị.
+
+- Kiểm tra `QuanLyTaiKhoanServlet`, `AccountDAO/Impl`, `AuthFilter`, `SessionUtil`, trang quản lý tài khoản và script smoke test.
+- Bổ sung token CSRF theo session cho cả bốn form tạo/sửa/khóa-mở/reset mật khẩu. POST thiếu/sai token trả HTTP 403 trước khi gọi DAO; mở GET `/admin/tai-khoan` để lấy token.
+- Không hiểu trạng thái thiếu/sai thành khóa tài khoản; chỉ nhận `true`/`false`. Mã tài khoản phải là số nguyên dương.
+- Tạo tài khoản đặt active rõ ràng và kiểm tra DAO trả ID hợp lệ trước khi báo thành công. Reset mật khẩu kiểm tra tài khoản tồn tại trước khi ghi.
+- Giữ các quy tắc hiện có: chỉ ADMIN quản lý tài khoản, không tự khóa/tự bỏ quyền; filter xác minh trạng thái/vai trò từ DB mỗi request tới khu vực bảo vệ.
+- Thêm 9 test servlet bằng DAO giả: token thiếu/sai, token hợp lệ, trạng thái sai, tự khóa, tự bỏ quyền, reset đích không tồn tại, tạo admin và CUSTOMER bị chặn. Ba test tái hiện đã quan sát FAIL trước sửa, PASS sau sửa.
+- Kết quả: test-compile và toàn bộ 16 test JUnit PASS (Surefire 3.5.6 offline, Maven IntelliJ, repo local C:/Users/ADMIN/.m2/repository). Kiểm tra cú pháp PowerShell và git diff --check đạt. Script smoke tự lấy token trước POST admin.
+- Chưa chạy smoke HTTP trên Tomcat/ghi dữ liệu DB thật trong lần này, chưa deploy/restart Tomcat, chưa commit/push. Các thay đổi thanh toán đang xuất hiện từ phiên khác được giữ nguyên, không thuộc phần triển khai này.
+
+## Đối chiếu các trang admin 2026-11-19
+
+- Kiểm tra trực tiếp 5 JSP trong src/main/webapp/admin và 6 QuanLy*Servlet.
+- Quản lý tài khoản: có Servlet mapping /admin/tai-khoan, GET/POST, DAO và form thật; có test tự động, đợt sửa mới chưa xác minh lại trên Tomcat.
+- Dịch vụ, combo, phòng, ca làm việc: 4 JSP chỉ hiển thị trang khung chờ triển khai; Servlet tương ứng chưa mapping/xử lý request. ComboDAOImpl và RoomDAOImpl còn rỗng.
+- Quản lý thú cưng: Servlet còn scaffold, chưa có trang trong thư mục admin.
+- Kết luận: chưa đủ toàn bộ trang admin. Lần làm trước chỉ bổ sung quản lý tài khoản/quyền quản trị theo phạm vi người dùng đã chọn.
+
+## Chẩn đoán máy thành viên timeout SQL (2026-11-19)
+- Ảnh SSMS: TCP Provider timeout, Error 258 khi tới 100.90.157.31:1433; chưa đủ căn cứ kết luận lỗi login/password.
+- Kiểm tra máy chủ hiện tại: MSSQL$SQLEXPRESS và Tailscale Running; netstat xác nhận 0.0.0.0:1433 LISTENING và ESTABLISHED từ hai IP Tailscale khác. Đây là kết nối TCP, chưa khẳng định từng kết nối đã xác thực SQL thành công.
+- Cần kết quả tailscale status, tailscale ping 100.90.157.31 và Test-NetConnection 100.90.157.31 -Port 1433 trên đúng máy thành viên bị lỗi. Xem IP/tài khoản Tailscale máy đó để phân biệt kết nối tailnet, policy theo nguồn hoặc firewall theo nguồn. Chưa thay đổi cấu hình mạng/firewall/schema.
+
+## Hoàn thiện và kiểm thử các trang admin — 2026-11-19 (thay thế nhận định admin còn scaffold)
+
+- Đã triển khai dịch vụ, combo, phòng, ca làm việc và thú cưng: danh sách, form tạo/sửa, xóa có ràng buộc, menu kết nối quản lý tài khoản. Servlet admin cũ đã có mapping thật. JSP cũ redirect về Servlet.
+- Dùng AdminModule + AdminCatalogServlet + AdminCatalogDAO cho vòng đời CRUD chung; không thay đổi DAO đặt lịch hiện có. Ghi qua 11 stored procedure trong database/admin_catalog.sql; transaction giữ combo và các dịch vụ nhất quán, giữ nguyên trigger/khóa ngoại.
+- Validation, ADMIN/CSRF, escape HTML, thông báo lỗi DB, redirect sau thành công; form không biến thành bản sửa trống khi xóa thất bại.
+- Kiểm thử cuối: 27/27 JUnit (gồm test DB tích hợp nhiều trường hợp CRUD, trùng ca/phòng, tham chiếu và rollback lỗi bảng con); 69/69 HTTP catalog + phân quyền/CSRF và 13/13 HTTP quản lý tài khoản. Build WAR và kiểm tra cú pháp PowerShell/git diff --check đạt.
+- Đã quan sát trình duyệt thật ở login admin, trang dịch vụ và phòng; chưa bấm toàn bộ form bằng browser hoặc kiểm tra viewport mobile.
+- Môi trường kiểm thử: DB riêng PetCareAdminQA_ee134de11d + Tomcat QA loopback port 18089. Thao tác CRUD mới không chạy trên PetCare chính. Fixture catalog đã dọn; DB và process QA dọn sau test.
+- IMPORTANT: tự động duyệt đã từ chối cài migration vào PetCare chính vì thay đổi schema/quyền lâu dài cần phê duyệt cụ thể. Migration/code/WAR đã sẵn sàng để duyệt; DB chính chưa được áp dụng, chưa deploy/restart server chính.
+- Chi tiết và điều kiện triển khai: docs/ADMIN.md. Báo cáo ở target/surefire-reports, target/admin-http-results.json và target/admin-account-http-results.json. Chưa commit/push; giữ nguyên thay đổi thanh toán và file của phiên khác.
+
+## Hoàn thiện giao diện 6 trang admin — 2026-11-19
+
+- Đồng bộ giao diện tài khoản/dịch vụ/combo/phòng/ca/thú cưng: sidebar PetCare, breadcrumb, avatar, số bản ghi, form, bảng, badge và trạng thái tiếng Việt. Form tạo tài khoản đóng/mở bằng details; label liên kết input bằng ID.
+- Thêm tìm kiếm không dấu và bộ lọc ngay trong bảng, số kết quả/không có kết quả. Giá định dạng Việt Nam, hiển thị tên chủ/nhân viên; giữ toàn bộ tên input/action/CSRF và URL backend.
+- CSS responsive: sidebar desktop, menu cuộn ngang mobile, bảng cuộn riêng không kéo rộng trang. Fragment JSP có pageEncoding UTF-8 riêng (đã phát hiện và sửa lỗi dấu khi chạy Jasper).
+- Kiểm tra đủ 6 trang HTTP 200 qua Tomcat preview fixture, trình duyệt desktop 1440x1000 và mobile 390x844 không tràn toàn trang. Tìm không dấu/lọc/mở form/focus/chuyển sửa sang thêm mới/chặn giá âm đạt. Không có input/select thiếu label ở lượt kiểm tra.
+- Build WAR và 26 test JUnit PASS; 1 test DB tích hợp bỏ qua trong lượt sửa UI. Node syntax, selector HTTP test và git diff --check đạt. Không kết nối/ghi DB trong preview.
+- Test hộp xác nhận xóa bị công cụ browser chặn ở focus, không tính PASS; khôi phục tab/viewport bằng API chưa thành công. Auto-review từ chối chụp cửa sổ host do có thể lộ nội dung ngoài preview; chỉ dùng ảnh từ tab preview đã lưu trước đó.
+- Chi tiết: docs/ADMIN_UI.md; ảnh target/admin-ui-screenshots/desktop.jpg và mobile.jpg. Fixture/servlet preview chỉ ở target, không đưa vào WAR chính. Chưa deploy server chính, không áp dụng migration SQL đang chờ duyệt; chưa commit/push. Process preview dọn sau kiểm tra.
