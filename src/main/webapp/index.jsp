@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css?v=15" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css?v=16" />
 </head>
 <body data-ctx="${pageContext.request.contextPath}" data-user-id="${sessionScope.loggedInUserId}">
 
@@ -54,7 +54,7 @@
                                     </span>
                                     <span class="header-user-info">
                                         <span class="header-user-name">${fn:escapeXml(sessionScope.loggedInUser)}</span>
-                                        <span class="header-user-role-tag">
+                                        <span class="header-user-role-tag${sessionScope.loggedInRole == 'STAFF' ? ' header-user-role-tag-staff' : ''}">
                                             <c:choose>
                                                 <c:when test="${sessionScope.loggedInRole == 'ADMIN'}">Quản trị viên</c:when>
                                                 <c:when test="${sessionScope.loggedInRole == 'STAFF'}">Nhân viên</c:when>
@@ -112,6 +112,31 @@
                                             </a>
                                             <a href="${pageContext.request.contextPath}/customer/thong-bao" class="dropdown-menu-link">
                                                 <span>Thông báo</span>
+                                            </a>
+                                        </c:if>
+                                        <c:if test="${sessionScope.loggedInRole == 'STAFF'}">
+                                            <a href="${pageContext.request.contextPath}/staff/dat-lich-tai-quay" class="dropdown-menu-link">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                                </svg>
+                                                <span>Đặt lịch tại quầy</span>
+                                            </a>
+                                            <a href="${pageContext.request.contextPath}/staff/lich-hen" class="dropdown-menu-link">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                                    <polyline points="9 12 11 14 15 10"></polyline>
+                                                </svg>
+                                                <span>Lịch hẹn của tôi</span>
+                                            </a>
+                                            <a href="${pageContext.request.contextPath}/staff/lich-lam-viec" class="dropdown-menu-link">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="12" cy="12" r="9"></circle>
+                                                    <polyline points="12 7 12 12 15 15"></polyline>
+                                                </svg>
+                                                <span>Lịch làm việc</span>
                                             </a>
                                         </c:if>
                                         <a href="${pageContext.request.contextPath}/profile" class="dropdown-menu-link">

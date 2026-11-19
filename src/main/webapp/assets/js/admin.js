@@ -37,6 +37,14 @@
         applyFilters();
     }
 
+    const appointmentStatus = document.querySelector('#appointment-status');
+    const cancelReason = document.querySelector('#cancel-reason');
+    if (appointmentStatus && cancelReason) {
+        const updateReasonRequirement = () => { cancelReason.required = appointmentStatus.value === 'CANCELLED'; };
+        appointmentStatus.addEventListener('change', updateReasonRequirement);
+        updateReasonRequirement();
+    }
+
     const openEditor = () => {
         const editor = document.querySelector('#editor');
         if (!editor) return;

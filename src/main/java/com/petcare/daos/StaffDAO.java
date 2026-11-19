@@ -14,4 +14,7 @@ public interface StaffDAO {
 
     /** Upcoming shifts for active staff within the given date range (inclusive). */
     List<Shifts> findUpcomingShifts(LocalDate fromDate, LocalDate toDate) throws SQLException;
+
+    /** One staff member's own shifts within the given date range (inclusive). */
+    List<Shifts> findShiftsForStaff(int staffId, LocalDate fromDate, LocalDate toDate) throws SQLException;
 }

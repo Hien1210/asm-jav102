@@ -1,6 +1,7 @@
 package com.petcare.daos;
 
 import com.petcare.models.Appointments;
+import com.petcare.models.AppointmentServices;
 import com.petcare.models.ServiceBookingItem;
 
 import java.sql.SQLException;
@@ -38,4 +39,11 @@ public interface AppointmentDAO {
      * cancelReason is required only when status is CANCELLED.
      */
     void setStatus(int appointmentId, String status, String cancelReason) throws SQLException;
+
+    /** Service lines assigned to one staff member within [fromDate, toDate], with customer/pet context. */
+    List<AppointmentServices> findServiceLinesByStaff(int staffId, LocalDate fromDate, LocalDate toDate)
+            throws SQLException;
+
+    /** True if staffId is assigned to this appointment and no other staff member is also assigned to it. */
+    boolean isSoleStaffOnAppointment(int appointmentId, int staffId) throws SQLException;
 }

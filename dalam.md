@@ -1,5 +1,46 @@
 # PetCare (asm-jav102) — Tổng hợp hiện trạng dự án
 
+## Đổi giao diện khu vực nhân viên cho khác khách hàng 2026-11-19
+
+Theo yêu cầu: giao diện nhân viên phải khác khách hàng để dễ phân biệt. Chưa commit.
+
+- 3 trang `/staff/*` (`datLichTaiQuay.jsp`, `lichLamViec.jsp`, `quanLyLichHen.jsp`): đổi topbar + nút chính từ xanh ngọc `#0f766e` (trùng màu các trang khách hàng `customer/*` và trang chủ) sang **xanh indigo `#1e3a8a`**, thêm badge "KHU VỰC NHÂN VIÊN" cạnh logo PetCare trên topbar.
+- `index.jsp` (trang chủ dùng chung mọi vai trò): nhãn vai trò "Nhân viên" trong dropdown tài khoản đổi màu chữ sang cùng tông indigo (`.header-user-role-tag-staff` trong `home.css`) thay vì xanh lá mặc định — để ngay từ trang chủ cũng phân biệt được đang đăng nhập vai trò gì.
+- **Lưu ý kỹ thuật đã gặp khi test**: `index.jsp` có cache-bust `?v=15` cho `home.css`; đổi CSS mà không tăng số này thì trình duyệt vẫn dùng bản cache cũ (gặp đúng lỗi này khi test, nhìn mãi vẫn thấy màu cũ dù file đã sửa đúng) — đã tăng lên `?v=16`. **Lần sau sửa `home.css`, nhớ tăng số version này** nếu không sẽ thấy "không có gì đổi" dù code đã đúng.
+- Test qua UI thật (`staff.demo@petcare.vn`): xác nhận bằng `getComputedStyle` lẫn mắt thường — topbar 3 trang nhân viên và nhãn vai trò trên trang chủ đều đúng màu indigo `rgb(30,58,138)`.
+
+## Fix: đăng nhập nhân viên vẫn thấy giao diện y hệt khách hàng 2026-11-19
+
+User báo đăng nhập STAFF xong thấy trang y hệt khách hàng. Nguyên nhân: KHÔNG phải sai đường dẫn — `LoginServlet` vẫn redirect đúng tới `/home`, và `/home` (`index.jsp`) có hiện đúng nhãn vai trò ("Nhân viên") trong dropdown tài khoản — nhưng khối link tắt (Đặt lịch, Lịch hẹn, Thanh toán...) trong dropdown đó chỉ hiện khi `loggedInRole == 'CUSTOMER'`, không có nhánh nào cho STAFF, nên nhân viên không có cách nào bấm vào 3 trang `/staff/*` đã làm (phải gõ tay URL).
+
+- **`src/main/webapp/index.jsp`**: thêm `<c:if test="${sessionScope.loggedInRole == 'STAFF'}">` ngay sau khối của CUSTOMER, chứa 3 link: Đặt lịch tại quầy, Lịch hẹn của tôi, Lịch làm việc — cùng kiểu icon/style với khối CUSTOMER sẵn có.
+- Test qua UI thật (đăng nhập `staff.demo@petcare.vn`): hover vào pill tài khoản ở góc phải trên cùng → dropdown hiện đúng 3 link mới kèm icon; bấm "Lịch hẹn của tôi" → điều hướng đúng tới `/staff/lich-hen` và hiển thị đúng dữ liệu.
+- Không đụng nhánh ADMIN (đăng nhập ADMIN redirect thẳng `/admin/tai-khoan`, không qua `/home`) hay nhánh CUSTOMER.
+
+## Đã làm "Lịch làm việc" + "Lịch hẹn nhân viên" 2026-11-19
+
+Hoàn thiện 2 trang nhân viên còn thiếu (trước đó `LichLamViecServlet`/`LichHenNhanVienServlet` là scaffold rỗng). Chưa commit.
+
+- **`StaffDAO`/`StaffDAOImpl`**: thêm `findShiftsForStaff(staffId, fromDate, toDate)` — như `findUpcomingShifts` có sẵn nhưng lọc theo đúng 1 nhân viên.
+- **`AppointmentDAO`/`AppointmentDAOImpl`**: thêm `findServiceLinesByStaff(staffId, fromDate, toDate)` (join Appointments+Services+Users khách+Pets để có đủ tên khách/SĐT/thú cưng/trạng thái lịch hẹn) và `isSoleStaffOnAppointment(appointmentId, staffId)` (kiểm tra nhân viên này có phải người duy nhất thực hiện lịch hẹn đó không — dùng để chặn an toàn trước khi cho đổi trạng thái, vì 1 lịch hẹn combo có thể có nhiều nhân viên khác nhau cho từng dịch vụ).
+- **`AppointmentServices.java`** (model): thêm các trường hiển thị `appointmentStatus`, `customerName`, `customerPhone`, `petName` (+ `getAppointmentStatusLabel()`), theo đúng pattern đã dùng cho `AppointmentBalance` trước đó.
+- **`StaffScheduleService.java`** (mới): `getMyShifts(...)`, `getMyAppointments(...)`, và `advanceStatus(staffId, appointmentId, newStatus)` — chỉ cho phép CHECKED_IN/IN_PROGRESS/COMPLETED, và **chỉ khi nhân viên đó là người duy nhất** thực hiện lịch hẹn (gọi `isSoleStaffOnAppointment` trước), tránh 1 nhân viên tự ý đổi trạng thái ảnh hưởng tới phần việc của nhân viên khác trong cùng 1 lịch hẹn combo multi-staff.
+- **`LichLamViecServlet`** (`/staff/lich-lam-viec`): xem ca làm việc 14 ngày tới — chỉ xem, không có hành động.
+- **`LichHenNhanVienServlet`** (`/staff/lich-hen`): xem lịch hẹn được giao trong 30 ngày tới, có nút hành động theo đúng trạng thái hiện tại (CONFIRMED → nút "Check-in", CHECKED_IN → "Bắt đầu thực hiện", IN_PROGRESS → "Hoàn thành"; PENDING/COMPLETED/CANCELLED không có nút).
+- 2 JSP (`staff/lichLamViec.jsp`, `staff/quanLyLichHen.jsp`) thay nội dung khung cũ; thêm link điều hướng qua lại giữa 3 trang nhân viên (đặt lịch tại quầy / lịch làm việc / lịch hẹn của tôi).
+
+### Đã kiểm chứng
+- `mvn test-compile` sạch.
+- Test trên DB thật bằng tài khoản `staff.demo@petcare.vn` (user_id=4, có sẵn ca + lịch hẹn demo): `getMyShifts` ra đúng 9 ca còn lại trong 14 ngày; `getMyAppointments` ra đúng 7 lịch hẹn kèm đủ tên khách/SĐT/thú cưng. `advanceStatus` chạy đúng chuỗi CONFIRMED→CHECKED_IN→IN_PROGRESS→COMPLETED (appt#16, xác nhận lại trong DB cả `Appointments.status` lẫn `AppointmentServices.line_status` đều COMPLETED); bị từ chối đúng khi thử chuyển PENDING→CHECKED_IN (lỗi 51022).
+- Test qua UI thật (đăng nhập `staff.demo@petcare.vn`/`12345678` lấy từ `docs/tk test petcare.txt` — lưu ý tài khoản `staff@petcare.vn` KHÔNG có dữ liệu demo, phải dùng đúng `staff.demo@petcare.vn`): trang Lịch làm việc hiện đúng 9 ca; trang Lịch hẹn của tôi hiện đúng 7 dòng với nút hành động đúng theo trạng thái; bấm "Check-in" cho appt#17 → báo "Đã check-in lịch hẹn #17", nút đổi thành "Bắt đầu thực hiện" ngay, đúng.
+
+### Còn thiếu / lưu ý
+- Trang "Lịch hẹn của tôi" chưa có hành động Hủy/Vắng mặt (CANCELLED/NO_SHOW) — chỉ cho đi tới (check-in → bắt đầu → hoàn thành) vì đó là nhu cầu chính; có thể bổ sung sau nếu cần.
+- Khi lịch hẹn có nhiều nhân viên khác nhau (combo nhiều dịch vụ), trang chỉ hiển thị, không cho đổi trạng thái (an toàn hơn, tránh đụng việc của người khác) — chưa có nơi nào xử lý trường hợp này.
+
+### ⚠️ Lại có người/phiên khác đang sửa code song song (lần 3)
+Ngay khi viết xong mục này, `git status` cho thấy có thêm nhiều file mới hoàn toàn không phải do tôi: `AdminOperationsServlet.java`, `AdminOperationsDAO.java`, `AdminReport.java`, `AdminOperationsPolicy.java`, `docs/ADMIN_OPERATIONS.md`... Không đụng vào các file này. Nhắc lại: nên đồng bộ với nhóm trước khi merge/commit để tránh lặp lại sự cố mất code đã ghi ở mục trên.
+
 ## Sự cố merge làm mất code + khắc phục 2026-11-19 (quan trọng, đọc trước khi làm tiếp)
 
 Sau khi merge nhiều nhánh (`PhungBao`, `Chitien`, `bao`...) vào `GiaHung` (commit `50e968a`), code working tree bị hỏng. Đã tìm và sửa xong, build sạch + test pass, nhưng có 1 thay đổi hành vi cần biết (xem mục cuối).
@@ -393,3 +434,27 @@ Phạm vi người dùng xác nhận: chỉ quản lý tài khoản và quyền 
 - Đã quan sát 4 regression test FAIL trước sửa; sau sửa 13 test Servlet + 11 test DAO protection + 6 test AuthService/AuthFilter = 30/30 PASS. Test DAO dùng JDBC giả, gồm thay đổi vai trò sau kiểm tra, quyền người thao tác bị thu hồi, inactive, missing target, lỗi SQL rollback, phân biệt hoa thường, thứ tự tham số fallback và thao tác bình thường.
 - Kiểm tra cuối: compile toàn bộ Java vào thư mục kiểm tra riêng thành công; toàn bộ suite 55 PASS, 1 integration test opt-in SKIPPED; WAR build thành công. Lỗi API thanh toán từ phiên song song từng chặn build đầu lượt đã hết ở lần kiểm tra cuối; không sửa phần thanh toán trong thay đổi này.
 - Script scripts/test-admin-accounts.ps1 bổ sung các POST tấn công tài khoản ADMIN trên môi trường QA disposable; phần HTTP mới chưa chạy với DB thật. Process render JSP fixture đã dừng. Chưa deploy/restart Tomcat chính, chưa commit/push.
+
+## Bổ sung quản lý lịch hẹn và báo cáo admin — 2026-11-19
+
+- Theo yêu cầu người dùng, đã có /admin/lich-hen và /admin/bao-cao trong menu admin. Lịch: lọc theo ngày bắt đầu/trạng thái/loại/từ khóa, phân trang 25, xem khách/thú cưng/dịch vụ/nhân viên/phòng/giao dịch, chuyển trạng thái hợp lệ bằng procedure hiện có; hủy có lý do, chặn stale POST và xác minh ADMIN trong transaction. Tạo lịch dùng luồng tại quầy đã có.
+- Báo cáo kỳ tối đa 366 ngày: lịch tạo theo trạng thái, khách/thú cưng mới, tiền thu/hoàn PAID theo ngày xác nhận, thực thu, top dịch vụ, biểu đồ ngày và CSV. Tổng tiền tính độc lập dòng dịch vụ để không cộng trùng; không tính PENDING/FAILED. Không cần schema/procedure mới.
+- Giải thích Thú cưng: hồ sơ thuộc khách, tái dùng cho các lần đặt dịch vụ/lưu trú; khách quản lý trong hồ sơ cá nhân, admin xem toàn hệ thống. Phát hiện QuanLyThuCungServlet hiện trở lại scaffold nên nối lại /admin/thu-cung với module PETS; kiểm tra GET thật 200 và thấy dữ liệu QA.
+- Full suite: 71 PASS/1 integration cũ SKIPPED; thêm test thiếu status rồi nhóm 15 test liên quan PASS (72 ca khác nhau đã thực thi đạt). Hai test SQL mới chạy trên DB PetCareOperationsQA_3de63ace04 với schema/fixture thật; 29/29 HTTP PASS, JSP desktop/mobile 1440/390 không tràn toàn trang. Build WAR, JS/PowerShell syntax, git diff --check đạt. Thử DENY ghi trực tiếp trên QA vẫn cập nhật qua procedure thành công.
+- Không ghi nghiệp vụ hay đổi quyền/schema DB chính. Server/DB QA dọn sau test, cấu hình QA tạm xóa. Chưa deploy/restart server chính; chưa commit/push. Công việc lịch nhân viên của phiên khác giữ nguyên.
+- Chi tiết định nghĩa chỉ số, test, ảnh và chạy lại: docs/ADMIN_OPERATIONS.md; báo cáo target/admin-operations-http-results.json, ảnh target/admin-operations-screenshots.
+
+## Kiểm tra giao diện staff — 19/11/2026
+Đã sửa menu/header responsive cho 3 trang staff, nhãn form, escape dữ liệu khách, giữ context khi lỗi thêm pet, CSRF cho POST và bảo vệ JSP qua WEB-INF. 35 kiểm tra HTTP đạt trên QA riêng; Maven 79 test (76 đạt, 3 tích hợp bỏ qua), WAR build thành công. Kiểm tra trình duyệt desktop/mobile 390px đạt. Chưa thử thu tiền thực tế; xem docs/STAFF_UI_REVIEW.md về giới hạn thanh toán và lịch nhiều nhân viên. Không đổi database PetCare chính.
+
+## Sửa chuyển trang sau đăng nhập STAFF — 19/11/2026
+- Nguyên nhân: LoginServlet chỉ phân nhánh ADMIN; STAFF bị chuyển về /home.
+- Đã thêm nhánh STAFF sang /staff/lich-hen, giữ ADMIN và CUSTOMER như cũ.
+- Test hồi quy tái hiện lỗi trước sửa; sau sửa 3 test LoginServlet đạt. Toàn suite: 82 test, 79 đạt, 3 tích hợp bỏ qua; WAR build thành công.
+- Bản đóng gói: target/petcare.war. Cần nạp lại artifact/redeploy trên Tomcat đang dùng để nhận mã mới.
+
+## Làm lại giao diện staff — 19/11/2026
+- Sidebar navy/vàng, menu mobile 4 mục; header/breadcrumb và hồ sơ chung trong staffHeader.jspf.
+- Ba protected JSP staff dùng staff.css mới: lịch hẹn có tổng quan lượt dịch vụ, khung giờ/tên bé/thao tác; lịch làm việc có bảng ca; tại quầy có ba bước và thẻ thú cưng.
+- Preview riêng không DB: 9 trạng thái render HTTP đạt, ba trang tại 320/768/1024px không tràn; đã quan sát 1440px và 390px, thử menu bàn phím và form ONLINE. Maven 82 test: 79 đạt, 3 tích hợp bỏ qua; build WAR đạt.
+- Chi tiết thiết kế và ảnh: docs/STAFF_UI_DESIGN.md. Không đổi controller/DAO hoặc deploy server chính.

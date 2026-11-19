@@ -18,6 +18,12 @@ public class AppointmentServices {
     private String serviceCategory;
     private String staffName;
 
+    // Joined display fields for the staff's "my appointments" view.
+    private String appointmentStatus;
+    private String customerName;
+    private String customerPhone;
+    private String petName;
+
     public Integer getAppointmentId() {
         return appointmentId;
     }
@@ -121,5 +127,43 @@ public class AppointmentServices {
             case "CANCELLED" -> "Đã hủy";
             default -> lineStatus;
         };
+    }
+
+    public String getAppointmentStatus() {
+        return appointmentStatus;
+    }
+
+    public void setAppointmentStatus(String appointmentStatus) {
+        this.appointmentStatus = appointmentStatus;
+    }
+
+    public String getAppointmentStatusLabel() {
+        Appointments tmp = new Appointments();
+        tmp.setStatus(appointmentStatus);
+        return tmp.getStatusLabel();
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getCustomerPhone() {
+        return customerPhone;
+    }
+
+    public void setCustomerPhone(String customerPhone) {
+        this.customerPhone = customerPhone;
+    }
+
+    public String getPetName() {
+        return petName;
+    }
+
+    public void setPetName(String petName) {
+        this.petName = petName;
     }
 }

@@ -18,7 +18,7 @@
 <%@ include file="shell-start.jspf" %>
 <main id="main-content">
     <div class="page-heading">
-        <div><p class="eyebrow">KHÔNG GIAN QUẢN TRỊ</p><h1><c:out value="${module.title}"/></h1><p class="sub">Quản lý thông tin <c:out value="${fn:toLowerCase(module.title)}"/> và cập nhật dữ liệu tại một nơi.</p></div>
+        <div><p class="eyebrow">KHÔNG GIAN QUẢN TRỊ</p><h1><c:out value="${module.title}"/></h1><p class="sub"><c:choose><c:when test="${module.path == 'thu-cung'}">Hồ sơ thú cưng của khách hàng, dùng để đặt lịch dịch vụ và lưu trú.</c:when><c:otherwise>Quản lý thông tin <c:out value="${fn:toLowerCase(module.title)}"/> và cập nhật dữ liệu tại một nơi.</c:otherwise></c:choose></p></div>
         <a class="button" href="${pageContext.request.contextPath}/admin/${module.path}#editor"><span aria-hidden="true">＋</span> Thêm mới</a>
     </div>
     <c:if test="${not empty errorMessage}"><p class="alert error" role="alert"><c:out value="${errorMessage}"/></p></c:if>

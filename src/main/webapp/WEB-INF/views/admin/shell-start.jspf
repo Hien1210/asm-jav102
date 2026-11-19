@@ -16,6 +16,8 @@
         <a class="brand" href="${pageContext.request.contextPath}/admin/tai-khoan"><span class="brand-mark"><svg><use href="#i-paw"/></svg></span><span>petcare<span class="brand-dot">.</span><small>KHÔNG GIAN QUẢN TRỊ</small></span></a>
         <p class="nav-caption">QUẢN LÝ HỆ THỐNG</p>
         <nav class="side-nav" aria-label="Quản trị">
+            <a href="${pageContext.request.contextPath}/admin/lich-hen" ${adminPage == 'lich-hen' ? 'aria-current="page"' : ''}><svg><use href="#i-calendar"/></svg>Lịch hẹn</a>
+            <a href="${pageContext.request.contextPath}/admin/bao-cao" ${adminPage == 'bao-cao' ? 'aria-current="page"' : ''}><svg><use href="#i-grid"/></svg>Báo cáo hệ thống</a>
             <a href="${pageContext.request.contextPath}/admin/tai-khoan" ${adminPage == 'tai-khoan' ? 'aria-current="page"' : ''}><svg><use href="#i-users"/></svg>Tài khoản</a>
             <a href="${pageContext.request.contextPath}/admin/dich-vu" ${adminPage == 'dich-vu' ? 'aria-current="page"' : ''}><svg><use href="#i-spark"/></svg>Dịch vụ</a>
             <a href="${pageContext.request.contextPath}/admin/combo" ${adminPage == 'combo' ? 'aria-current="page"' : ''}><svg><use href="#i-box"/></svg>Combo dịch vụ</a>

@@ -1,0 +1,11 @@
+<%@ page pageEncoding="UTF-8" %>
+<form method="get" class="operations-filters" action="${pageContext.request.contextPath}/admin/${adminPage}">
+    <div><label for="date-from">Từ ngày</label><input type="date" id="date-from" name="from" value="${fn:escapeXml(fromDate)}" required></div>
+    <div><label for="date-to">Đến ngày</label><input type="date" id="date-to" name="to" value="${fn:escapeXml(toDate)}" required></div>
+    <c:if test="${adminPage == 'lich-hen'}">
+        <div><label for="status-filter">Trạng thái</label><select id="status-filter" name="status"><option value="ALL">Tất cả trạng thái</option><c:forEach var="state" items="${statusLabels}"><option value="${state.key}" ${statusFilter == state.key ? 'selected' : ''}><c:out value="${state.value}"/></option></c:forEach></select></div>
+        <div><label for="type-filter">Loại lịch</label><select id="type-filter" name="type"><option value="ALL">Tất cả loại lịch</option><option value="SERVICE" ${typeFilter == 'SERVICE' ? 'selected' : ''}>Dịch vụ</option><option value="BOARDING" ${typeFilter == 'BOARDING' ? 'selected' : ''}>Lưu trú</option></select></div>
+        <div class="operations-search"><label for="operations-search">Tìm mã lịch, khách, điện thoại, thú cưng</label><input type="search" id="operations-search" name="q" value="${fn:escapeXml(query)}" maxlength="100" placeholder="Nhập từ khóa…"></div>
+    </c:if>
+    <button type="submit">Áp dụng</button>
+</form>

@@ -9,6 +9,7 @@ import com.petcare.models.StaffOption;
 import com.petcare.models.Users;
 import com.petcare.services.WalkInBookingService;
 import com.petcare.utils.SessionUtil;
+import com.petcare.utils.DateUtil;
 import com.petcare.utils.ValidationUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -47,7 +48,7 @@ public class DatLichTaiQuayServlet extends HttpServlet {
             return;
         }
         loadServiceOptions(request);
-        request.getRequestDispatcher("/staff/datLichTaiQuay.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/views/staff/datLichTaiQuay.jsp").forward(request, response);
     }
 
     @Override
@@ -77,7 +78,7 @@ public class DatLichTaiQuayServlet extends HttpServlet {
         }
 
         loadServiceOptions(request);
-        request.getRequestDispatcher("/staff/datLichTaiQuay.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/views/staff/datLichTaiQuay.jsp").forward(request, response);
     }
 
     private boolean requireStaff(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -93,6 +94,7 @@ public class DatLichTaiQuayServlet extends HttpServlet {
     }
 
     private void loadServiceOptions(HttpServletRequest request) {
+        request.setAttribute("minimumBookingDate", DateUtil.todayVn());
         try {
             List<Services> services = serviceDAO.findActiveBookable();
             Map<Services, List<StaffOption>> staffByService = new LinkedHashMap<>();
@@ -120,6 +122,9 @@ public class DatLichTaiQuayServlet extends HttpServlet {
         String species = request.getParameter("petSpecies");
         String breed = request.getParameter("petBreed");
 
+        Users selectedCustomer = walkInService.getCustomer(customerId);
+        request.setAttribute("customer", selectedCustomer);
+        request.setAttribute("pets", walkInService.listPets(customerId));
         walkInService.addPet(customerId, name, species, breed);
         request.setAttribute("successMessage", "Đã thêm thú cưng \"" + trim(name) + "\" cho khách.");
 

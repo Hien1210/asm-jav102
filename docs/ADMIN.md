@@ -56,3 +56,7 @@ Trang quản lý không cho thao tác khóa/mở, hạ quyền, sửa email/hồ
 Bảo vệ thực thi ở Servlet và các hàm quản lý riêng trong AccountDAOImpl; DAO giữ lock khi xác minh quyền người thao tác và vai trò đích đến lúc ghi/commit, không dùng trạng thái session/role cũ để quyết định. Không fallback sang DB khác. Các công cụ SQL/DBA trực tiếp nằm ngoài quyền hạn web; thay đổi này không sửa schema/quyền SQL.
 
 UI: hàng ADMIN chỉ hiển thị Được bảo vệ và liên kết hồ sơ của chính mình, không sinh form quản lý. Kiểm chứng JSP qua HTTP với fixture. Kết quả cuối: 30 test bảo vệ/tài khoản liên quan PASS; toàn suite 55 PASS, 1 integration test SKIPPED; compile toàn bộ Java và đóng gói WAR thành công. Các test DAO dùng JDBC giả; chưa kiểm thử luồng ghi mới trên DB thật hoặc deploy server chính.
+
+## Lịch hẹn và báo cáo đã bổ sung (2026-11-19)
+
+Menu có thêm /admin/lich-hen và /admin/bao-cao: danh sách/chi tiết/phân trang/cập nhật trạng thái lịch; thống kê thu/hoàn/thực thu, lịch và lượt dịch vụ theo kỳ, xuất CSV theo ngày. Xem docs/ADMIN_OPERATIONS.md để biết định nghĩa số liệu, kiểm thử và điều kiện triển khai. Hồ sơ thú cưng được dùng lại giữa các lần đặt lịch, không phải một lịch hẹn riêng hay phân hệ bệnh án.
