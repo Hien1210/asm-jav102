@@ -20,7 +20,7 @@ public final class ConfigUtil {
                 if (input != null) settings.load(input);
             }
             String external = System.getProperty("petcare.config");
-<<<<<<<<< Temporary merge branch 1
+
             Path externalPath = (external != null && !external.isBlank())
                     ? Path.of(external)
                     : Path.of("application-local.properties");
@@ -29,7 +29,7 @@ public final class ConfigUtil {
             }
             if (Files.isRegularFile(externalPath)) {
                 try (InputStream input = Files.newInputStream(externalPath)) {
-=========
+
             // Local developer settings stay outside Git and override shared defaults.
             if (external == null || external.isBlank()) {
                 Path localConfig = Path.of("application-local.properties");
