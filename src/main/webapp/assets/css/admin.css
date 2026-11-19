@@ -1267,3 +1267,9 @@ td:nth-child(2) {
     min-width:850px;
 }
 
+
+.badge-protected {
+    background: #e5eee6;
+    color: #365d4a;
+    border: 1px solid #cedfcf;
+}

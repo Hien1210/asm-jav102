@@ -26,5 +26,12 @@ public interface AccountDAO {
 
     boolean updatePassword(int userId, String passwordHash) throws SQLException;
 
+    /** Management actions recheck actor and target under one database transaction. */
+    boolean updateManagedProfile(int actorId, Users user) throws SQLException;
+
+    boolean setManagedActive(int actorId, int userId, boolean active) throws SQLException;
+
+    boolean resetManagedPassword(int actorId, int userId, String passwordHash) throws SQLException;
+
     List<Users> findAll() throws SQLException;
 }

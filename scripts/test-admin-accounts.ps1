@@ -48,6 +48,18 @@ try {
     Check 'Self lock rejected' ($page.Content.Contains('Không thể tự khóa'))
     $page=AdminPost @{action='resetPassword';userId='2147483647';newPassword='QaReset@12345'}
     Check 'Unknown reset target rejected' ($page.Content.Contains('Tài khoản không tồn tại.'))
+    $protectedEmail='qa-protected-admin-'+[guid]::NewGuid().ToString('N').Substring(0,6)+'@petcare.test'
+    $page=AdminPost @{action='create';fullName='QA Protected Admin';email=$protectedEmail;phone='';role='ADMIN';password='QaProtected@123'}
+    Check 'Create protected admin fixture' ($page.Content.Contains('Đã tạo tài khoản mới.'))
+    $protectedRow=@([regex]::Matches($page.Content,'(?s)<tr(?:\s[^>]*)?>.*?</tr>') | Where-Object {$_.Value.Contains($protectedEmail)})[0].Value
+    $protectedId=[regex]::Match($protectedRow,'<td>#(\d+)</td>').Groups[1].Value
+    Check 'Admin row has no management forms' ($protectedRow.Contains('Được bảo vệ') -and $protectedRow -notmatch '<form\b' -and $protectedId)
+    $page=AdminPost @{action='toggleActive';userId=$protectedId;active='false'}
+    Check 'Other admin cannot be locked through direct POST' ($page.Content.Contains('ADMIN được bảo vệ'))
+    $page=AdminPost @{action='update';userId=$protectedId;fullName='QA Protected Admin';email=$protectedEmail;phone='';role='CUSTOMER'}
+    Check 'Other admin cannot be demoted before locking' ($page.Content.Contains('ADMIN được bảo vệ'))
+    $page=AdminPost @{action='resetPassword';userId=$protectedId;newPassword='Unauthorized@123'}
+    Check 'Other admin password cannot be replaced' ($page.Content.Contains('ADMIN được bảo vệ'))
 } finally {
     $checks | ConvertTo-Json | Set-Content (Join-Path $PSScriptRoot '../target/admin-account-http-results.json') -Encoding utf8
 }

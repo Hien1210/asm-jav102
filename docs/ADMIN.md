@@ -48,3 +48,11 @@ WAR đã đóng gói: `target/petcare.war`. Các thay đổi thanh toán hiện 
 Test tích hợp chỉ chạy khi truyền `-Dpetcare.integration=true` và `-Dpetcare.config=<file cấu hình QA>`; mặc định bỏ qua để tránh ghi DB ngoài ý muốn. Hai script HTTP mặc định dùng tài khoản QA và URL QA, chỉ chạy trên môi trường disposable.
 
 Chưa commit/push.
+
+## Quy tắc bảo vệ ADMIN (cập nhật 2026-11-19)
+
+Trang quản lý không cho thao tác khóa/mở, hạ quyền, sửa email/hồ sơ hay reset mật khẩu với tài khoản ADMIN, gồm cả bản thân người đang đăng nhập. Thông tin/mật khẩu cá nhân được thay đổi qua `/profile` theo luồng xác thực hiện có. STAFF/CUSTOMER vẫn quản lý bình thường, có thể nâng lên ADMIN; khi đã là ADMIN thì trở thành tài khoản được bảo vệ. Không có vai trò super-admin mới.
+
+Bảo vệ thực thi ở Servlet và các hàm quản lý riêng trong AccountDAOImpl; DAO giữ lock khi xác minh quyền người thao tác và vai trò đích đến lúc ghi/commit, không dùng trạng thái session/role cũ để quyết định. Không fallback sang DB khác. Các công cụ SQL/DBA trực tiếp nằm ngoài quyền hạn web; thay đổi này không sửa schema/quyền SQL.
+
+UI: hàng ADMIN chỉ hiển thị Được bảo vệ và liên kết hồ sơ của chính mình, không sinh form quản lý. Kiểm chứng JSP qua HTTP với fixture. Kết quả cuối: 30 test bảo vệ/tài khoản liên quan PASS; toàn suite 55 PASS, 1 integration test SKIPPED; compile toàn bộ Java và đóng gói WAR thành công. Các test DAO dùng JDBC giả; chưa kiểm thử luồng ghi mới trên DB thật hoặc deploy server chính.

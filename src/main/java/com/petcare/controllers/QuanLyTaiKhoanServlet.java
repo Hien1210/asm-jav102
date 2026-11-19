@@ -185,6 +185,7 @@ public class QuanLyTaiKhoanServlet extends HttpServlet {
         if (account == null) {
             throw new IllegalArgumentException("Tài khoản không tồn tại.");
         }
+        requireUnprotectedAccount(account);
         Users byEmail = accountDAO.findByEmail(email);
         Users byPhone = phone.isEmpty() ? null : accountDAO.findByPhone(phone);
         if ((byEmail != null && byEmail.getUserId() != userId)
@@ -195,7 +196,7 @@ public class QuanLyTaiKhoanServlet extends HttpServlet {
         account.setEmail(email);
         account.setPhone(phone);
         account.setRole(role);
-        if (!accountDAO.updateProfile(account)) {
+        if (!accountDAO.updateManagedProfile(currentUserId(request), account)) {
             throw new IllegalArgumentException("Tài khoản không tồn tại hoặc chưa được cập nhật.");
         }
     }
@@ -215,7 +216,8 @@ public class QuanLyTaiKhoanServlet extends HttpServlet {
         if (target == null) {
             throw new IllegalArgumentException("Tài khoản không tồn tại.");
         }
-        if (!accountDAO.updateRoleAndStatus(userId, target.getRole(), active)) {
+        requireUnprotectedAccount(target);
+        if (!accountDAO.setManagedActive(currentUserId(request), userId, active)) {
             throw new IllegalArgumentException("Tài khoản không tồn tại hoặc chưa được cập nhật.");
         }
     }
@@ -226,11 +228,19 @@ public class QuanLyTaiKhoanServlet extends HttpServlet {
         if (newPassword == null || newPassword.length() < 8) {
             throw new IllegalArgumentException("Mật khẩu mới phải có tối thiểu 8 ký tự.");
         }
-        if (accountDAO.findById(userId) == null) {
+        Users target = accountDAO.findById(userId);
+        if (target == null) {
             throw new IllegalArgumentException("Tài khoản không tồn tại.");
         }
-        if (!accountDAO.updatePassword(userId, AuthService.hashPassword(newPassword))) {
+        requireUnprotectedAccount(target);
+        if (!accountDAO.resetManagedPassword(currentUserId(request), userId, AuthService.hashPassword(newPassword))) {
             throw new IllegalArgumentException("Tài khoản không tồn tại hoặc chưa được cập nhật.");
+        }
+    }
+
+    private void requireUnprotectedAccount(Users target) {
+        if (Users.ROLE_ADMIN.equalsIgnoreCase(target.getRole())) {
+            throw new IllegalArgumentException("Tài khoản ADMIN được bảo vệ. Không thể khóa, sửa vai trò, hồ sơ hoặc đặt lại mật khẩu tại đây. Hãy dùng hồ sơ cá nhân của bạn.");
         }
     }
 

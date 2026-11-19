@@ -29,16 +29,6 @@ public final class ConfigUtil {
             }
             if (Files.isRegularFile(externalPath)) {
                 try (InputStream input = Files.newInputStream(externalPath)) {
-
-            // Local developer settings stay outside Git and override shared defaults.
-            if (external == null || external.isBlank()) {
-                Path localConfig = Path.of("application-local.properties");
-                if (Files.isRegularFile(localConfig)) {
-                    external = localConfig.toAbsolutePath().toString();
-                }
-            }
-            if (external != null && !external.isBlank()) {
-                try (InputStream input = Files.newInputStream(Path.of(external))) {
                     EXTERNAL.load(input);
                     settings.putAll(EXTERNAL);
                 }

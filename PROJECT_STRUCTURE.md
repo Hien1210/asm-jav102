@@ -172,3 +172,9 @@ The singular controller package was removed. Existing servlet URL mappings are u
 - Bố cục 6 trang dùng `WEB-INF/views/admin/shell-start.jspf`, `shell-end.jspf` và thanh tìm kiếm/bộ lọc `table-tools.jspf`.
 - `admin/quanLiTaiKhoan.jsp` dùng chung `admin.css`/`admin.js` với `catalog.jsp`; sidebar, breadcrumb, bộ lọc/tìm không dấu, form có label và bảng responsive.
 - Chi tiết kiểm thử desktop/mobile, ảnh preview và giới hạn: `docs/ADMIN_UI.md`. Không thêm dependency, không đổi luồng ghi DB.
+
+## Bảo vệ quản trị viên (2026-11-19)
+
+- `QuanLyTaiKhoanServlet` chặn chỉnh sửa/khóa/reset tài khoản ADMIN trong trang quản lý; UI hiển thị badge bảo vệ và liên kết hồ sơ của chính mình.
+- `AccountDAO`/`AccountDAOImpl`: các hàm quản lý `updateManagedProfile`, `setManagedActive`, `resetManagedPassword` xác minh actor/target và ghi trong cùng transaction; luồng hồ sơ cá nhân giữ riêng.
+- `src/test/java/com/petcare/daos/AccountAdminProtectionTest.java`: 11 test DAO/JDBC giả cho quyền, race, rollback và fallback; Servlet có 13 test. Không có migration mới.

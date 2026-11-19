@@ -130,7 +130,7 @@ public class WalkInBookingService {
 
         BigDecimal amount = findRemaining(customerId, appointmentId);
         try {
-            paymentService.pay(customerId, appointmentId, amount, method, transactionRef);
+            paymentService.settleAtCounter(customerId, appointmentId, amount, method, transactionRef);
         } catch (IllegalArgumentException e) {
             throw new SQLException("Đặt lịch #" + appointmentId
                     + " thành công nhưng chưa thu được tiền (" + e.getMessage()
@@ -141,7 +141,7 @@ public class WalkInBookingService {
     }
 
     private BigDecimal findRemaining(int customerId, int appointmentId) throws SQLException {
-        for (AppointmentBalance balance : paymentService.listPayable(customerId)) {
+        for (AppointmentBalance balance : paymentService.getPayableAppointments(customerId)) {
             if (balance.getAppointmentId() == appointmentId) {
                 return balance.getRemainingAmount();
             }

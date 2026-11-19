@@ -1,5 +1,41 @@
 # PetCare (asm-jav102) — Tổng hợp hiện trạng dự án
 
+## Sự cố merge làm mất code + khắc phục 2026-11-19 (quan trọng, đọc trước khi làm tiếp)
+
+Sau khi merge nhiều nhánh (`PhungBao`, `Chitien`, `bao`...) vào `GiaHung` (commit `50e968a`), code working tree bị hỏng. Đã tìm và sửa xong, build sạch + test pass, nhưng có 1 thay đổi hành vi cần biết (xem mục cuối).
+
+### Những gì bị hỏng do merge
+- `ConfigUtil.java`: 2 bản load config bị dính chùm vào nhau (ngoặc `{}` không khớp) → **toàn bộ project không build được**. Không phải do tôi, do merge.
+- `PaymentService.java`, `ThanhToanServlet.java` (của tôi, phần Thanh toán), `src/main/webapp/customer/thanhToan.jsp` bị merge đè về lại scaffold rỗng/trống hẳn — mất hết phần đã test UI thành công hôm trước.
+- `AppointmentDAO.java` (interface) bị merge về bản cũ chỉ có 1 hàm `bookService`, trong khi `AppointmentDAOImpl.java` (bản đồng đội nâng cấp: combo, lưu trú, hủy lịch, `setStatus`...) `@Override` tới 7 hàm không khai báo trong interface đó.
+- Phát hiện thêm: có **3 thiết kế `PaymentService` khác nhau** từng tồn tại song song của 3 người/phiên (tôi, `ProfileServlet.java` của đồng đội gọi `getPayableAppointments(customerId)`, và `src/test/java/com/petcare/services/PaymentServiceTest.java` của đồng đội đòi `PaymentService(PaymentDAO)` + `initiatePayment(...)` + `confirmOnlinePayment(...)`). Merge chỉ giữ lại các "người gọi" (callers), xoá mất class `PaymentService` thật.
+
+### Đã sửa, đối chiếu theo thiết kế có sẵn (không tự bịa thêm)
+- **`ConfigUtil.java`**: gộp lại thành 1 khối try/catch đúng, giữ nguyên ý định (ưu tiên `-Dpetcare.config`, sau đó `application-local.properties` ở thư mục làm việc, cuối cùng fallback đường dẫn tuyệt đối `C:/Users/Admin/Documents/GitHub/asm-jav102/...` — đúng kiểu DBUtil.java đã làm với truststore).
+- **`AppointmentDAO.java`**: bổ sung đủ 6 hàm mà `AppointmentDAOImpl.java` đã implement (`bookServices`, `bookBoarding`, `findByCustomer`, `findDetailByIdForCustomer`, `cancelAppointment`, `setStatus`) — các import (`Appointments`, `ServiceBookingItem`, `LocalDate`, `List`) đã có sẵn trong file từ trước, chỉ thiếu khai báo.
+- **`PaymentService.java`**: viết lại theo đúng hợp đồng mà `PaymentServiceTest.java` đòi hỏi (vì đó là thiết kế đã được test hóa, chặt hơn bản của tôi):
+  - `PaymentService()` (mặc định) + `PaymentService(PaymentDAO)` (để test có thể mock).
+  - `getPayableAppointments(customerId)` — giữ cho `ProfileServlet.java`.
+  - `initiatePayment(customerId, appointmentId, amount, method, paymentKey)` — ghi nhận charge **PENDING** (không tự PAID), Online tự sinh `transaction_ref` dạng `PC-ONL-{appointmentId}-{timestamp}` (dự án không có cổng thanh toán thật nên không có bước nhập mã giao dịch thủ công nữa).
+  - `confirmOnlinePayment(customerId, paymentId)` — khách tự xác nhận online đã thanh toán (giả lập callback cổng thanh toán) → PAID. **Chặn khách tự xác nhận thanh toán tiền mặt** (ném lỗi) — đúng ý đồ bảo mật: không cho khách tự bấm "đã trả tiền mặt" mà chưa đưa tiền thật.
+  - `settleAtCounter(customerId, appointmentId, amount, method, transactionRef)` — hàm mới, dành cho **nhân viên tại quầy** (không bị chặn như trên vì nhân viên là người xác nhận trực tiếp): ghi nhận + PAID ngay. Dùng bởi `WalkInBookingService`.
+- **`ThanhToanServlet.java`** (khách tự thanh toán online): đổi sang gọi `initiatePayment` rồi `confirmOnlinePayment` ngay cho ONLINE (gộp 1 lượt submit cho gọn vì không có cổng thật); với CASH chỉ `initiatePayment` rồi báo khách ra quầy, **không tự PAID nữa** (đổi hành vi so với bản tôi test hôm trước — xem mục cuối).
+- **`thanhToan.jsp`**: bỏ ô nhập "mã giao dịch" thủ công (Online giờ tự sinh mã), đổi lại thứ tự dropdown + ghi chú rõ Online xác nhận ngay / Cash cần nhân viên xác nhận tại quầy.
+- **`WalkInBookingService.java`**: đổi gọi `paymentService.pay(...)` (không còn tồn tại) sang `paymentService.settleAtCounter(...)`.
+
+### Đã kiểm chứng sau khi sửa
+- `mvn test-compile` sạch hoàn toàn (main + test, kể cả các class/test của đồng đội: `AdminModule`, `AdminCatalogServlet`, `QuanLyTaiKhoanServletTest`...).
+- `mvn test -Dtest=PaymentServiceTest` → **3/3 PASS**.
+- Test trực tiếp trên DB thật (khách mới SĐT `0911222333`): đặt lịch #19 → `initiatePayment` ONLINE → `confirmOnlinePayment` → payment PAID (appointment vẫn PENDING, đúng vì xác nhận lịch và xác nhận thanh toán là 2 việc khác nhau). Đặt lịch #20 → `initiatePayment` CASH → payment **PENDING** (đúng, chờ nhân viên) → gọi `confirmOnlinePayment` cho payment CASH này → bị từ chối đúng như thiết kế. Nhân viên tại quầy (`bookAndSettleAtCounter`) vẫn hoạt động đúng: appt#21 CONFIRMED + PAID ngay.
+- Chưa test lại qua trình duyệt lần này (đã test qua code/DB trực tiếp, mức độ tin cậy tương đương lần test Payment đầu tiên trước khi test UI).
+
+### Thay đổi hành vi cần nhóm biết
+- Trước đây (bản tôi tự thiết kế, đã test UI): khách chọn CASH trên `/customer/thanh-toan` thì **PAID ngay lập tức**. Giờ theo thiết kế mới (khớp với `PaymentServiceTest.java` của đồng đội): CASH chỉ tạo yêu cầu **PENDING**, cần nhân viên xác nhận tại quầy mới thành PAID — nhưng **hiện chưa có trang nào cho nhân viên xác nhận** khoản CASH đang chờ này (đã tìm, không thấy). Đây là phần còn thiếu, cần làm tiếp nếu muốn luồng thanh toán tiền mặt tự phục vụ hoàn chỉnh.
+- Appointment và Payment là 2 trạng thái độc lập: thanh toán PAID không tự động làm lịch hẹn thành CONFIRMED (trừ luồng nhân viên tại quầy, nơi cả 2 được làm cùng lúc).
+
+### ⚠️ Đang có người/phiên khác sửa code song song ngay lúc này
+Lúc viết xong mục này, `git status` cho thấy lại có thay đổi mới ở `AccountDAO.java`, `AccountDAOImpl.java`, `QuanLyTaiKhoanServlet.java`, admin JSP... (không phải do tôi). Nhiều khả năng có người đang code cùng lúc. **Nên trao đổi trong nhóm trước khi merge/commit lần tới** để tránh lặp lại y hệt sự cố ở mục này (các bản uncommitted bị merge đè mất).
+
 ## Đã làm phần "Khách vãng lai / đặt lịch tại quầy" 2026-11-19
 
 Theo đề nghị của nhóm: khách không tự đặt lịch trên website (đến trực tiếp) thì nhân viên/lễ tân tạo lịch và thu tiền hộ ngay tại quầy, khách không cần tài khoản đăng nhập — giống mô hình "bấm bill tại quầy" của POS ngoài thị trường. Chưa commit.
@@ -347,3 +383,13 @@ Phạm vi người dùng xác nhận: chỉ quản lý tài khoản và quyền 
 - Build WAR và 26 test JUnit PASS; 1 test DB tích hợp bỏ qua trong lượt sửa UI. Node syntax, selector HTTP test và git diff --check đạt. Không kết nối/ghi DB trong preview.
 - Test hộp xác nhận xóa bị công cụ browser chặn ở focus, không tính PASS; khôi phục tab/viewport bằng API chưa thành công. Auto-review từ chối chụp cửa sổ host do có thể lộ nội dung ngoài preview; chỉ dùng ảnh từ tab preview đã lưu trước đó.
 - Chi tiết: docs/ADMIN_UI.md; ảnh target/admin-ui-screenshots/desktop.jpg và mobile.jpg. Fixture/servlet preview chỉ ở target, không đưa vào WAR chính. Chưa deploy server chính, không áp dụng migration SQL đang chờ duyệt; chưa commit/push. Process preview dọn sau kiểm tra.
+
+## Bảo vệ tài khoản ADMIN khỏi quản trị viên khác — 2026-11-19
+
+- Theo yêu cầu người dùng: tài khoản ADMIN được bảo vệ trong trang quản lý tài khoản; không cho khóa/mở, hạ quyền, sửa hồ sơ hoặc reset mật khẩu ADMIN tại đây. Admin dùng trang hồ sơ cá nhân để tự cập nhật thông tin/đổi mật khẩu.
+- QuanLyTaiKhoanServlet từ chối cả request POST gửi trực tiếp, kể cả có CSRF hợp lệ. Chặn hạ quyền trước rồi khóa và thay email/reset mật khẩu để chiếm tài khoản. Tài khoản STAFF/CUSTOMER vẫn quản lý bình thường; vẫn cho tạo/nâng tài khoản lên ADMIN.
+- AccountDAO/Impl bổ sung updateManagedProfile, setManagedActive, resetManagedPassword: kiểm tra lại người thao tác còn ADMIN đang hoạt động và đích không phải ADMIN, khóa đọc UPDLOCK/HOLDLOCK và ghi cùng connection/transaction. Nếu đích vừa được nâng ADMIN sau kiểm tra Servlet thì DAO vẫn chặn. Không dùng fallback sang DB khác cho các thao tác này. Procedure hiện có và fallback SQL đều nằm sau kiểm tra, trong cùng transaction; đổi trạng thái không ghi lại role.
+- JSP ẩn toàn bộ form khóa/sửa/reset của hàng ADMIN, hiển thị badge Được bảo vệ; hàng chính mình có liên kết /profile. JSP fixture HTTP 200: ADMIN không có form quản lý, STAFF vẫn có đủ 3 form. Không ghi DB trong lượt này, không cần migration mới.
+- Đã quan sát 4 regression test FAIL trước sửa; sau sửa 13 test Servlet + 11 test DAO protection + 6 test AuthService/AuthFilter = 30/30 PASS. Test DAO dùng JDBC giả, gồm thay đổi vai trò sau kiểm tra, quyền người thao tác bị thu hồi, inactive, missing target, lỗi SQL rollback, phân biệt hoa thường, thứ tự tham số fallback và thao tác bình thường.
+- Kiểm tra cuối: compile toàn bộ Java vào thư mục kiểm tra riêng thành công; toàn bộ suite 55 PASS, 1 integration test opt-in SKIPPED; WAR build thành công. Lỗi API thanh toán từ phiên song song từng chặn build đầu lượt đã hết ở lần kiểm tra cuối; không sửa phần thanh toán trong thay đổi này.
+- Script scripts/test-admin-accounts.ps1 bổ sung các POST tấn công tài khoản ADMIN trên môi trường QA disposable; phần HTTP mới chưa chạy với DB thật. Process render JSP fixture đã dừng. Chưa deploy/restart Tomcat chính, chưa commit/push.

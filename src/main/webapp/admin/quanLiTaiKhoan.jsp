@@ -81,7 +81,7 @@
                         <td>${fn:escapeXml(acc.email)}<br/><span class="muted">${fn:escapeXml(acc.phone)}</span></td>
                         <td>
                             <c:choose>
-                                <c:when test="${acc.role == 'ADMIN'}"><span class="badge badge-admin">Quản trị</span></c:when>
+                                <c:when test="${fn:toUpperCase(acc.role) == 'ADMIN'}"><span class="badge badge-admin">Quản trị</span></c:when>
                                 <c:when test="${acc.role == 'STAFF'}"><span class="badge badge-staff">Nhân viên</span></c:when>
                                 <c:otherwise><span class="badge badge-customer">Khách hàng</span></c:otherwise>
                             </c:choose>
@@ -92,6 +92,12 @@
                         </td>
                         <td><c:out value="${acc.createdAt.toLocalDate()}"/></td>
                         <td>
+                            <c:choose>
+                                <c:when test="${fn:toUpperCase(acc.role) == 'ADMIN'}">
+                                    <span class="badge badge-protected" title="Không thể khóa, hạ quyền hoặc đặt lại mật khẩu ADMIN tại đây">Được bảo vệ</span>
+                                    <c:if test="${acc.userId == sessionScope.currentUser.userId}"><a class="button secondary" href="${pageContext.request.contextPath}/profile">Hồ sơ của tôi</a></c:if>
+                                </c:when>
+                                <c:otherwise>
                             <div class="row-actions">
                                 <form method="post" action="${pageContext.request.contextPath}/admin/tai-khoan" class="inline-form">
                                     <input type="hidden" name="csrfToken" value="${fn:escapeXml(sessionScope.adminCsrfToken)}" />
@@ -133,7 +139,7 @@
                                         </form>
                                     </div>
                                 </details>
-                            </div>
+                            </div></c:otherwise></c:choose>
                         </td>
                     </tr>
                 </c:forEach>

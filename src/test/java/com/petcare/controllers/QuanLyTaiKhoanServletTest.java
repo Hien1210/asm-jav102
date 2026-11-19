@@ -27,9 +27,9 @@ class QuanLyTaiKhoanServletTest {
         session.put("currentUser", admin);
         AccountDAO dao = proxy(AccountDAO.class, (p,m,a) -> switch (m.getName()) {
             case "findAll" -> List.of();
-            case "findById" -> (int)a[0] == 999 ? null : new Users(2,"Target","target@example.test",null,null,"CUSTOMER",true,null);
+            case "findById" -> (int)a[0] == 999 ? null : new Users((int)a[0],"Target","target@example.test",null,null,(int)a[0] == 3 ? "ADMIN" : "CUSTOMER",true,null);
             case "create" -> { writes.incrementAndGet(); Users user = (Users)a[0]; user.setUserId(3); yield user; }
-            case "updateRoleAndStatus", "updatePassword", "updateProfile" -> { writes.incrementAndGet(); yield true; }
+            case "updateRoleAndStatus", "updatePassword", "updateProfile", "updateManagedProfile", "setManagedActive", "resetManagedPassword" -> { writes.incrementAndGet(); yield true; }
             case "existsByEmail", "existsByPhone" -> false;
             default -> null;
         });
@@ -131,5 +131,29 @@ class QuanLyTaiKhoanServletTest {
         servlet.doPost(request(), response());
         assertEquals(0, writes.get());
         assertTrue(attributes.isEmpty());
+    }
+
+    @Test void adminCannotLockAnotherAdminEvenWithValidCsrf() throws Exception {
+        authorizedPost(Map.of("action","toggleActive","userId","3","active","false"));
+        assertEquals(0,writes.get());
+        assertTrue(attributes.get("errorMessage").toString().contains("bảo vệ"));
+    }
+
+    @Test void cannotDemoteAdminBeforeLocking() throws Exception {
+        authorizedPost(Map.of("action","update","userId","3","fullName","Target","email","target@example.test","role","CUSTOMER"));
+        assertEquals(0,writes.get());
+        assertNotNull(attributes.get("errorMessage"));
+    }
+
+    @Test void cannotResetOtherAdminPassword() throws Exception {
+        authorizedPost(Map.of("action","resetPassword","userId","3","newPassword","Password@123"));
+        assertEquals(0,writes.get());
+        assertNotNull(attributes.get("errorMessage"));
+    }
+
+    @Test void cannotReplaceOtherAdminEmail() throws Exception {
+        authorizedPost(Map.of("action","update","userId","3","fullName","Target","email","changed@example.test","role","ADMIN"));
+        assertEquals(0,writes.get());
+        assertNotNull(attributes.get("errorMessage"));
     }
 }
