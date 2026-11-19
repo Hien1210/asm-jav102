@@ -159,17 +159,12 @@ public final class DBUtil {
         if (!trustStore.isBlank()) {
             Path trustStorePath = Path.of(trustStore);
             Path fallbackPath = Path.of("certs", "petcare-truststore.p12");
-            Path workspaceFallbackPath = Path.of("C:/Users/Admin/Documents/GitHub/asm-jav102/certs/petcare-truststore.p12");
             if (Files.isRegularFile(trustStorePath)) {
                 properties.setProperty("trustStore", trustStorePath.toAbsolutePath().toString());
                 properties.setProperty("trustStorePassword",
                         ConfigUtil.get("db.trustStorePassword", "DB_TRUST_STORE_PASSWORD", ""));
             } else if (Files.isRegularFile(fallbackPath)) {
                 properties.setProperty("trustStore", fallbackPath.toAbsolutePath().toString());
-                properties.setProperty("trustStorePassword",
-                        ConfigUtil.get("db.trustStorePassword", "DB_TRUST_STORE_PASSWORD", ""));
-            } else if (Files.isRegularFile(workspaceFallbackPath)) {
-                properties.setProperty("trustStore", workspaceFallbackPath.toAbsolutePath().toString());
                 properties.setProperty("trustStorePassword",
                         ConfigUtil.get("db.trustStorePassword", "DB_TRUST_STORE_PASSWORD", ""));
             } else {
