@@ -2,6 +2,8 @@ package com.petcare.controllers;
 
 import com.petcare.models.Users;
 import com.petcare.services.AuthService;
+
+import com.petcare.utils.SessionUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,11 +16,28 @@ import java.sql.SQLException;
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login", "/dang-nhap"})
 public class LoginServlet extends HttpServlet {
 
+    private final AuthService authService = new AuthService();
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
+
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            Object successMsg = session.getAttribute("successMessage");
+            if (successMsg != null) {
+                request.setAttribute("successMessage", successMsg);
+                session.removeAttribute("successMessage");
+            }
+            Object regId = session.getAttribute("registeredIdentifier");
+            if (regId != null) {
+                request.setAttribute("identifier", regId);
+                session.removeAttribute("registeredIdentifier");
+            }
+        }
+
         request.getRequestDispatcher("/login.jsp").forward(request, response);
     }
 
@@ -79,7 +98,26 @@ public class LoginServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/admin/tai-khoan");
         } else {
             response.sendRedirect(request.getContextPath() + "/home");
+        try {
+            Users user = authService.authenticate(identifier, password);
+            boolean rememberMe = "on".equalsIgnoreCase(remember) || "true".equalsIgnoreCase(remember);
+            SessionUtil.storeAuthenticatedUser(request, user, rememberMe);
+
+            response.sendRedirect(request.getContextPath() + "/home");
+        } catch (IllegalArgumentException e) {
+            request.setAttribute("errorMessage", e.getMessage());
+            request.setAttribute("identifier", identifier);
+            request.getRequestDispatcher("/login.jsp").forward(request, response);
+        } catch (SQLException e) {
+            if (e.getErrorCode() == 229) {
+                request.setAttribute("errorMessage",
+                        "Tài khoản SQL 'petcare_backend' chưa được cấp quyền SELECT trên bảng dbo.Users. "
+                        + "Vui lòng chạy file database/grant_auth_permissions.sql trên SQL Server.");
+            } else {
+                request.setAttribute("errorMessage", "Lỗi truy vấn cơ sở dữ liệu SQL Server: " + e.getMessage());
+            }
+            request.setAttribute("identifier", identifier);
+            request.getRequestDispatcher("/login.jsp").forward(request, response);
         }
     }
 }
-
