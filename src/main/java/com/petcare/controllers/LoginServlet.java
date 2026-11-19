@@ -2,7 +2,6 @@ package com.petcare.controllers;
 
 import com.petcare.models.Users;
 import com.petcare.services.AuthService;
-
 import com.petcare.utils.SessionUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -68,42 +67,16 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        Users user;
-        try {
-            user = new AuthService().authenticate(identifier, password);
-        } catch (SQLException e) {
-            request.setAttribute("errorMessage", "Không thể kết nối hệ thống. Vui lòng thử lại sau.");
-            request.setAttribute("identifier", identifier);
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
-            return;
-        }
-
-        if (user == null) {
-            request.setAttribute("errorMessage", "Email hoặc mật khẩu không đúng, hoặc tài khoản đã bị khóa.");
-            request.setAttribute("identifier", identifier);
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
-            return;
-        }
-
-        // Lưu thông tin đăng nhập vào session
-        HttpSession session = request.getSession(true);
-        session.setAttribute("loggedInUserId", user.getUserId());
-        session.setAttribute("loggedInUser", user.getFullName());
-        session.setAttribute("loggedInRole", user.getRole());
-        if ("on".equals(remember) || "true".equals(remember)) {
-            session.setMaxInactiveInterval(7 * 24 * 60 * 60); // 7 ngày
-        }
-
-        if ("ADMIN".equals(user.getRole())) {
-            response.sendRedirect(request.getContextPath() + "/admin/tai-khoan");
-        } else {
-            response.sendRedirect(request.getContextPath() + "/home");
         try {
             Users user = authService.authenticate(identifier, password);
             boolean rememberMe = "on".equalsIgnoreCase(remember) || "true".equalsIgnoreCase(remember);
             SessionUtil.storeAuthenticatedUser(request, user, rememberMe);
 
-            response.sendRedirect(request.getContextPath() + "/home");
+            if (user.isAdmin()) {
+                response.sendRedirect(request.getContextPath() + "/admin/tai-khoan");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/home");
+            }
         } catch (IllegalArgumentException e) {
             request.setAttribute("errorMessage", e.getMessage());
             request.setAttribute("identifier", identifier);

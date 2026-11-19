@@ -4,16 +4,6 @@ import at.favre.lib.crypto.bcrypt.BCrypt;
 import com.petcare.daos.AccountDAO;
 import com.petcare.daos.AccountDAOImpl;
 import com.petcare.models.Users;
-
-
-import java.sql.SQLException;
-
-public class AuthService {
-
-    private final AccountDAO accountDAO;
-
-    public AuthService() {
-        this.accountDAO = new AccountDAOImpl();
 import com.petcare.utils.ValidationUtil;
 
 import java.nio.charset.StandardCharsets;
@@ -33,17 +23,6 @@ public class AuthService {
     }
 
     public static String hashPassword(String rawPassword) {
-        return BCrypt.withDefaults().hashToString(12, rawPassword.toCharArray());
-    }
-
-    /** Returns the authenticated account, or null if the identifier/password/active state does not match. */
-    public Users authenticate(String identifier, String rawPassword) throws SQLException {
-        Users user = accountDAO.findByIdentifierWithPasswordHash(identifier);
-        if (user == null || !user.isActive()) {
-            return null;
-        }
-        BCrypt.Result result = BCrypt.verifyer().verify(rawPassword.toCharArray(), user.getPasswordHash());
-        return result.verified ? user : null;
         if (rawPassword == null || rawPassword.isEmpty()) {
             throw new IllegalArgumentException("Mật khẩu không được để trống.");
         }
@@ -70,7 +49,7 @@ public class AuthService {
         String cleanPhone = ValidationUtil.normalizePhone(phone);
         String cleanEmail = ValidationUtil.normalizeEmail(email);
 
-        if (cleanName.isEmpty()) {
+        if (cleanName.isEmpty() || cleanName.length() > 100) {
             throw new IllegalArgumentException("Vui lòng nhập họ và tên.");
         }
         if (!ValidationUtil.isValidPhone(cleanPhone)) {
@@ -127,7 +106,7 @@ public class AuthService {
         String cleanPhone = ValidationUtil.normalizePhone(phone);
         String cleanEmail = ValidationUtil.normalizeEmail(email);
 
-        if (cleanName.isEmpty()) {
+        if (cleanName.isEmpty() || cleanName.length() > 100) {
             throw new IllegalArgumentException("Vui lòng nhập họ và tên.");
         }
         if (!ValidationUtil.isValidPhone(cleanPhone)) {
@@ -161,7 +140,9 @@ public class AuthService {
         current.setFullName(cleanName);
         current.setPhone(cleanPhone);
         current.setEmail(cleanEmail);
-        accountDAO.updateProfile(current);
+        if (!accountDAO.updateProfile(current)) {
+            throw new SQLException("Không thể cập nhật hồ sơ tài khoản.");
+        }
         return current;
     }
 
@@ -170,12 +151,18 @@ public class AuthService {
         if (current == null) {
             throw new IllegalArgumentException("Không tìm thấy thông tin tài khoản.");
         }
+        current = accountDAO.findByIdentifier(current.getEmail());
+        if (current == null || current.getUserId() != userId) {
+            throw new IllegalArgumentException("Không tìm thấy thông tin tài khoản.");
+        }
         if (currentPassword == null || !verifyPassword(currentPassword, current.getPasswordHash())) {
             throw new IllegalArgumentException("Mật khẩu hiện tại không chính xác.");
         }
         if (newPassword == null || newPassword.length() < 8) {
             throw new IllegalArgumentException("Mật khẩu mới phải có tối thiểu 8 ký tự.");
         }
-        accountDAO.updatePassword(userId, hashPassword(newPassword));
+        if (!accountDAO.updatePassword(userId, hashPassword(newPassword))) {
+            throw new SQLException("Không thể cập nhật mật khẩu tài khoản.");
+        }
     }
 }

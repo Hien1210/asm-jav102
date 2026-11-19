@@ -24,12 +24,21 @@ target/
 hs_err_pid*
 replay_pid*
 
+# Maven and local configuration
+out/
+.env
+application-local.properties
+/application.properties
+
+# Local database truststores
+certs/*.p12
+certs/*.jks
+
 # IntelliJ IDEA
 .idea/
 *.iml
 *.iws
 *.ipr
-out/
 
 # Smart Tomcat plugin runtime configs
 .smarttomcat/
@@ -41,16 +50,6 @@ out/
 
 # VS Code
 .vscode/
-
-# Maven and local configuration
-target/
-.env
-application-local.properties
-/application.properties
-
-# Local database truststores
-certs/*.p12
-certs/*.jks
 
 # OS generated files
 .DS_Store

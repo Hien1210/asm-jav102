@@ -1,9 +1,5 @@
 package com.petcare.models;
 
-import java.sql.Timestamp;
-
-public class Users {
-    private Integer userId;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -20,18 +16,6 @@ public class Users implements Serializable {
     private String phone;
     private String passwordHash;
     private String role;
-    private boolean active;
-    private Timestamp createdAt;
-
-    public Users() {
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-
     private boolean isActive;
     private LocalDateTime createdAt;
 
@@ -57,7 +41,6 @@ public class Users implements Serializable {
     }
 
     public void setUserId(int userId) {
-
         this.userId = userId;
     }
 
@@ -102,20 +85,6 @@ public class Users implements Serializable {
     }
 
     public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
         return isActive;
     }
 
