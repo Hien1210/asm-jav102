@@ -49,7 +49,7 @@ public class AuthService {
         String cleanPhone = ValidationUtil.normalizePhone(phone);
         String cleanEmail = ValidationUtil.normalizeEmail(email);
 
-        if (cleanName.isEmpty()) {
+        if (cleanName.isEmpty() || cleanName.length() > 100) {
             throw new IllegalArgumentException("Vui lòng nhập họ và tên.");
         }
         if (!ValidationUtil.isValidPhone(cleanPhone)) {
@@ -106,7 +106,7 @@ public class AuthService {
         String cleanPhone = ValidationUtil.normalizePhone(phone);
         String cleanEmail = ValidationUtil.normalizeEmail(email);
 
-        if (cleanName.isEmpty()) {
+        if (cleanName.isEmpty() || cleanName.length() > 100) {
             throw new IllegalArgumentException("Vui lòng nhập họ và tên.");
         }
         if (!ValidationUtil.isValidPhone(cleanPhone)) {
@@ -140,7 +140,9 @@ public class AuthService {
         current.setFullName(cleanName);
         current.setPhone(cleanPhone);
         current.setEmail(cleanEmail);
-        accountDAO.updateProfile(current);
+        if (!accountDAO.updateProfile(current)) {
+            throw new SQLException("Không thể cập nhật hồ sơ tài khoản.");
+        }
         return current;
     }
 
@@ -149,12 +151,18 @@ public class AuthService {
         if (current == null) {
             throw new IllegalArgumentException("Không tìm thấy thông tin tài khoản.");
         }
+        current = accountDAO.findByIdentifier(current.getEmail());
+        if (current == null || current.getUserId() != userId) {
+            throw new IllegalArgumentException("Không tìm thấy thông tin tài khoản.");
+        }
         if (currentPassword == null || !verifyPassword(currentPassword, current.getPasswordHash())) {
             throw new IllegalArgumentException("Mật khẩu hiện tại không chính xác.");
         }
         if (newPassword == null || newPassword.length() < 8) {
             throw new IllegalArgumentException("Mật khẩu mới phải có tối thiểu 8 ký tự.");
         }
-        accountDAO.updatePassword(userId, hashPassword(newPassword));
+        if (!accountDAO.updatePassword(userId, hashPassword(newPassword))) {
+            throw new SQLException("Không thể cập nhật mật khẩu tài khoản.");
+        }
     }
 }

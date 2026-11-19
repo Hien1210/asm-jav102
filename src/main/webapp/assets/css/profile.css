@@ -1,0 +1,418 @@
+/* ==========================================================================
+   PetCare — Refined Premium User Profile Stylesheet
+   Layered cleanly on top of home.css + login.css
+   ========================================================================== */
+
+.profile-stage {
+    padding: 36px 24px 80px;
+    background:
+        radial-gradient(ellipse 900px 420px at 14% -5%, rgba(0, 143, 104, 0.11) 0%, rgba(255, 255, 255, 0) 60%),
+        radial-gradient(ellipse 700px 360px at 88% 12%, rgba(16, 185, 129, 0.08) 0%, rgba(255, 255, 255, 0) 65%),
+        linear-gradient(180deg, #effaf5 0%, #f5fbf8 45%, #fafdfc 100%);
+}
+
+.profile-container {
+    max-width: 1160px;
+}
+
+/* Enhanced Hero Banner */
+.profile-hero-banner {
+    background: linear-gradient(135deg, #053e30 0%, #075c45 48%, #0a7f60 82%, #109b75 100%);
+    border-radius: 28px;
+    padding: 34px 36px 30px;
+    margin-bottom: 24px;
+    box-shadow:
+        0 26px 56px -16px rgba(5, 62, 48, 0.34),
+        0 4px 18px rgba(7, 92, 69, 0.14),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.profile-hero-paw-decor {
+    position: absolute;
+    right: 36px;
+    top: 18px;
+    width: 150px;
+    height: 150px;
+    color: rgba(255, 255, 255, 0.06);
+    pointer-events: none;
+    transform: rotate(-14deg);
+}
+
+.profile-hero-avatar {
+    width: 84px;
+    height: 84px;
+    border-radius: 24px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.10) 100%);
+    border: 2.5px solid rgba(255, 255, 255, 0.45);
+    font-size: 2rem;
+    box-shadow:
+        0 14px 30px rgba(0, 0, 0, 0.18),
+        0 0 0 6px rgba(167, 243, 208, 0.12);
+    transition: transform 0.25s ease;
+}
+
+.profile-hero-avatar-wrap:hover .profile-hero-avatar {
+    transform: scale(1.04) rotate(-2deg);
+}
+
+.profile-avatar-verified {
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #10b981;
+    border: 2.5px solid #075c45;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.profile-hero-title {
+    font-size: 1.85rem;
+    letter-spacing: -0.025em;
+}
+
+.profile-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.28);
+    display: inline-block;
+    animation: profilePulse 2.2s infinite;
+}
+
+@keyframes profilePulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.28); }
+    50% { box-shadow: 0 0 0 6px rgba(52, 211, 153, 0.08); }
+}
+
+.profile-kpi-card {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 14px 18px;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.profile-kpi-card:hover {
+    background: rgba(255, 255, 255, 0.18);
+    transform: translateY(-2px);
+}
+
+.profile-kpi-head {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: rgba(209, 250, 229, 0.9);
+}
+
+.profile-kpi-head svg {
+    opacity: 0.9;
+    flex-shrink: 0;
+}
+
+/* Live Customer Stats Strip */
+.profile-stats-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.profile-stat-tile {
+    background: #ffffff;
+    border: 1px solid #d5eee4;
+    border-radius: 20px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    box-shadow: 0 10px 26px -14px rgba(16, 34, 53, 0.12);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.profile-stat-tile:hover {
+    transform: translateY(-3px);
+    border-color: #008f68;
+    box-shadow: 0 18px 34px -14px rgba(7, 92, 69, 0.18);
+}
+
+.profile-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.profile-stat-icon.mint { background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); color: #047857; }
+.profile-stat-icon.sky  { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #1d4ed8; }
+.profile-stat-icon.amber { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #b45309; }
+.profile-stat-icon.rose { background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%); color: #be185d; }
+
+.profile-stat-body {
+    min-width: 0;
+}
+
+.profile-stat-label {
+    display: block;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 2px;
+}
+
+.profile-stat-num {
+    display: block;
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    font-size: 1.28rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.2;
+}
+
+.profile-stat-sub {
+    display: block;
+    font-size: 0.72rem;
+    color: #008f68;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+/* My Pets Preview Strip */
+.profile-pets-strip {
+    background: #ffffff;
+    border: 1px solid #d5eee4;
+    border-radius: 22px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 12px 28px -16px rgba(16, 34, 53, 0.10);
+}
+
+.profile-pets-strip-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.profile-pets-strip-head h2 {
+    margin: 0;
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: #102235;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-pets-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.profile-pet-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    padding: 10px 15px;
+    border-radius: 16px;
+    background: #f4fcf8;
+    border: 1px solid #ccece0;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.profile-pet-pill:hover {
+    background: #e6f8f0;
+    border-color: #008f68;
+    transform: translateY(-2px);
+}
+
+.profile-pet-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #075c45 0%, #008f68 100%);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.92rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.profile-pet-pill-info strong {
+    display: block;
+    font-size: 0.88rem;
+    color: #102235;
+    line-height: 1.25;
+}
+
+.profile-pet-pill-info span {
+    display: block;
+    font-size: 0.74rem;
+    color: #607080;
+}
+
+.profile-pet-add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 12px;
+    background: #e9fbf4;
+    border: 1px dashed #6ec9a9;
+    color: #075c45;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.profile-pet-add-btn:hover {
+    background: #d7f5e8;
+    border-color: #075c45;
+}
+
+/* Polished Panels */
+.profile-panel {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #ccece0;
+    border-radius: 24px;
+    padding: 30px 32px;
+    box-shadow: 0 22px 46px -18px rgba(16, 34, 53, 0.10);
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.profile-panel::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #075c45 0%, #008f68 55%, #34d399 100%);
+}
+
+.profile-panel:hover {
+    border-color: #9de0c9;
+    box-shadow: 0 26px 52px -18px rgba(7, 92, 69, 0.14);
+}
+
+.profile-panel.security-panel::before {
+    background: linear-gradient(90deg, #0f4c81 0%, #075c45 55%, #008f68 100%);
+}
+
+.profile-panel-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #e6faf2 0%, #cff5e6 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* Password live strength bar */
+.profile-pw-meter {
+    margin-top: 8px;
+}
+
+.profile-pw-bars {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.profile-pw-seg {
+    height: 4px;
+    border-radius: 999px;
+    background: #e2ece8;
+    transition: background 0.25s ease;
+}
+
+.profile-pw-hint-text {
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+/* Shortcut section heading + icon color variants */
+.profile-section-heading {
+    margin: 30px 0 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.profile-section-heading h2 {
+    margin: 0;
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    font-size: 1.08rem;
+    font-weight: 800;
+    color: #102235;
+}
+
+.profile-section-heading span {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.profile-shortcut-grid {
+    margin-top: 0;
+}
+
+.profile-shortcut-card {
+    border-radius: 20px;
+    padding: 20px 22px;
+    border: 1px solid #d5eee4;
+    background: linear-gradient(180deg, #ffffff 0%, #fcfefd 100%);
+}
+
+.profile-shortcut-card:hover .profile-shortcut-arrow {
+    transform: translateX(4px);
+    opacity: 1;
+}
+
+.profile-shortcut-arrow {
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.profile-shortcut-icon.ico-teal  { background: linear-gradient(135deg, #d8f8ec 0%, #b5f0db 100%); color: #065f46; }
+.profile-shortcut-icon.ico-blue  { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #1d4ed8; }
+.profile-shortcut-icon.ico-mint  { background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); color: #15803d; }
+.profile-shortcut-icon.ico-amber { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #b45309; }
+.profile-shortcut-icon.ico-pink  { background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%); color: #be185d; }
+.profile-shortcut-icon.ico-indigo { background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); color: #4338ca; }
+
+@media (max-width: 1024px) {
+    .profile-stats-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .profile-stats-strip {
+        grid-template-columns: 1fr;
+    }
+    .profile-hero-paw-decor {
+        display: none;
+    }
+}

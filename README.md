@@ -9,9 +9,9 @@ Runtime target: Apache Tomcat 10.1. Use jakarta.servlet imports, not javax.servl
 - utils: DBUtil, configuration, session, validation and date utilities
 - filter, listener, websocket: reserved packages, no implementation yet
 - src/main/resources: server-side configuration
-- src/main/web: JSP views by customer, staff and admin roles
-- src/main/web/assets: public CSS, JavaScript and images
-- src/main/web/WEB-INF: web.xml and shared JSP includes
+- src/main/webapp: JSP views by customer, staff and admin roles
+- src/main/webapp/assets: public CSS, JavaScript and images
+- src/main/webapp/WEB-INF: web.xml and shared JSP includes
 - database/petcare.sql: SQL schema; original PetCare.md is preserved
 - docs/legacy-swing: archived desktop scaffold, excluded from compilation
 
@@ -84,3 +84,8 @@ The external application-local.properties supplies db.trustStore and
 TLS verification succeeded with encrypt=true and trustServerCertificate=false.
 The latest SELECT 1 test was blocked by SQL Server login error 18456.
 The database administrator must inspect the server ERRORLOG state for this login.
+## Unified web directory
+All deployed JSP and assets now reside under src/main/webapp.
+The old web scaffold is preserved outside the build in docs/legacy-web.
+The new index.jsp, login.jsp, register.jsp and WEB-INF/web.xml are retained.
+Admin, staff and customer placeholder pages and their assets were copied across.
