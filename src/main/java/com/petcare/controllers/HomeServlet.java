@@ -2,6 +2,8 @@ package com.petcare.controllers;
 
 import com.petcare.model.ReviewItem;
 import com.petcare.model.ServiceCard;
+import com.petcare.models.Reviews;
+import com.petcare.services.ReviewService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -119,9 +121,32 @@ public class HomeServlet extends HttpServlet {
         return reviews;
     }
 
+    private final ReviewService reviewService = new ReviewService();
+
     private void loadHomePageData(HttpServletRequest req) {
         req.setAttribute("services", buildDefaultServices());
-        req.setAttribute("reviews", buildDefaultReviews());
+        List<ReviewItem> reviews = new ArrayList<>();
+        try {
+            List<Reviews> dbReviews = reviewService.getRecentPublicReviews(3);
+            for (Reviews r : dbReviews) {
+                if (r.getComment() != null && !r.getComment().isBlank()) {
+                    String stars = "★".repeat(Math.max(1, Math.min(5, r.getRating())));
+                    reviews.add(new ReviewItem(
+                            stars + " • " + r.getFormattedCreatedAt(),
+                            "\"" + r.getComment() + "\"",
+                            "assets/images/review-dog-may.jpg",
+                            r.getCustomerName() + " & Bé " + r.getPetName() + " (" + r.getPetSpecies() + ")",
+                            r.getSummaryLabel()
+                    ));
+                }
+            }
+        } catch (Exception ignored) {
+            // Fall back to default marketing reviews if DB is unavailable.
+        }
+        if (reviews.isEmpty()) {
+            reviews = buildDefaultReviews();
+        }
+        req.setAttribute("reviews", reviews);
     }
 
     @Override

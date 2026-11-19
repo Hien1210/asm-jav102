@@ -1,6 +1,64 @@
 # PetCare (asm-jav102) — Tổng hợp hiện trạng dự án
 
-## Kết quả kiểm thử và sửa lỗi 2026-11-17 (trạng thái mới nhất)
+## Cập nhật 2026-11-19 — Hoàn thiện đầy đủ chức năng role Khách hàng (`CUSTOMER`) & Nâng cấp giao diện Hồ sơ
+
+### 1. Chức năng role `CUSTOMER` đã triển khai theo đầy đủ schema `database/petcare.sql`
+
+- **Quản lý thú cưng (`/customer/thu-cung` — `QuanLyThuCungServlet`, `PetService`, `PetDAOImpl`, `customer/quanLyThuCung.jsp`)**:
+  - Đầy đủ CRUD trên `dbo.Pets` gồm tất cả cột SQL: `name`, `species`, `breed`, `weight_kg` (`> 0`, `<= 999.99`), `birth_date` (không ở tương lai), `medical_notes`, `created_at`.
+  - Chặn chỉnh sửa/xóa thú cưng không thuộc tài khoản đang đăng nhập và chặn xóa thú cưng đã có lịch hẹn (đếm số lịch hẹn + xử lý lỗi SQL `51062` / `547`).
+- **Đặt lịch chăm sóc & lưu trú (`/customer/dat-lich` — `DatLichServlet`, `BookingService`, `AppointmentDAOImpl`, `ComboDAOImpl`, `RoomDAOImpl`, `BusinessHoursDAOImpl`, `StaffDAOImpl`, `customer/datLich.jsp`)**:
+  - Giữ tương thích 100% luồng cũ (`action=addPet`, `action=book`) cho `scripts/smoke-test.ps1`.
+  - Hỗ trợ đủ 4 hình thức đặt lịch theo đúng stored procedures trong `petcare.sql`:
+    1. Đặt 1 dịch vụ lẻ (`dbo.BookServiceAppointment`).
+    2. Đặt nhiều dịch vụ trong cùng 1 lịch hẹn (`action=bookMulti`, truyền TVP `dbo.ServiceBookingItems`, chặn trùng dịch vụ và trùng khung giờ trên cùng thú cưng).
+    3. Đặt gói Combo ưu đãi (`action=bookCombo`, truyền `@combo_id`, tự động xếp khung giờ nối tiếp theo `duration_minutes` của từng dịch vụ trong `dbo.ComboServices`, đóng băng giá `combo_price_at_booking`).
+    4. Đặt phòng lưu trú (`action=bookBoarding` -> `dbo.BookBoardingAppointment`, tính số đêm và ước tính giá phòng tự động, chặn phòng `MAINTENANCE` hoặc trùng ngày).
+  - Hiển thị trực tiếp giờ mở cửa (`dbo.BusinessHours`) và ca trực nhân viên 7 ngày tới (`dbo.Shifts`).
+- **Lịch hẹn của tôi (`/customer/lich-hen` — `LichHenKhachHangServlet`, `customer/lichHenDanhSach.jsp`)**:
+  - Xem toàn bộ lịch hẹn của khách hàng với KPI tổng quan, bộ lọc theo `status` và `appointment_type` (`SERVICE` / `BOARDING`).
+  - Hiển thị đầy đủ chi tiết từng dòng dịch vụ (`AppointmentServices`), chi tiết lưu trú (`BoardingDetails`), bảng giá (`subtotal`, `adjustment`, `total`, đã trả, đang chờ, còn lại), lý do hủy và đánh giá đã gửi.
+  - Hủy lịch hẹn đang `PENDING` hoặc `CONFIRMED` với lý do bắt buộc qua `dbo.SetAppointmentStatus`.
+- **Thanh toán hóa đơn (`/customer/thanh-toan` — `ThanhToanServlet`, `PaymentService`, `PaymentDAOImpl`, `customer/thanhToan.jsp`)**:
+  - Xem danh sách lịch hẹn còn số dư (`AppointmentBalance`) và lịch sử toàn bộ giao dịch (`CHARGE` & `REFUND`) từ `dbo.Payments`.
+  - Khởi tạo thanh toán `CASH` (tại quầy, trạng thái `PENDING`) hoặc `ONLINE` (tự sinh mã tham chiếu `transaction_ref` duy nhất) có khóa chống trùng `payment_key` (UUID) qua `dbo.RecordPayment`.
+  - Xác nhận giao dịch `ONLINE` đang chờ (`PAID` qua `dbo.SetPaymentStatus` mô phỏng cổng thanh toán) hoặc hủy yêu cầu `PENDING` (`FAILED`) để giải phóng hạn mức. Chặn tự xác nhận `CASH` ở phía khách hàng và chặn thanh toán vượt số tiền còn lại.
+- **Đánh giá dịch vụ (`/customer/danh-gia` — `DanhGiaServlet`, `ReviewService`, `ReviewDAOImpl`, `customer/danhGia.jsp`)**:
+  - Liệt kê lịch hẹn `COMPLETED` chưa đánh giá, gửi đánh giá 1–5 sao + nhận xét (tối đa 1000 ký tự) qua `dbo.SubmitReview`, xem lịch sử đánh giá đã gửi.
+  - Trang chủ (`HomeServlet`) nạp đánh giá thật mới nhất từ DB (fallback về dữ liệu mặc định nếu chưa có) và escape HTML an toàn (`fn:escapeXml`) trên `index.jsp`.
+- **Thông báo của tôi (`/customer/thong-bao` — `ThongBaoServlet`, `NotificationService`, `NotificationDAOImpl`, `customer/thongBao.jsp`)**:
+  - Lưu lịch sử thông báo (`CONFIRMATION`, `CANCELLATION`, `OTHER`) vào `dbo.Notifications` (best-effort) kết hợp đẩy toast realtime qua WebSocket `NotificationEndpoint`; hỗ trợ lọc theo loại thông báo.
+- **Nâng cấp giao diện Hồ sơ người dùng (`/profile` — `ProfileServlet`, `profile.jsp`, `assets/css/profile.css`)**:
+  - Nâng cấp Hero Banner (hiệu ứng ánh sáng emerald, avatar có huy hiệu xác thực, badge trạng thái hoạt động có chấm nhịp sáng, KPI kèm icon).
+  - Bổ sung thanh thống kê trực tiếp cho `CUSTOMER` (số thú cưng, lịch hẹn & số lịch đang hoạt động, số tiền cần thanh toán, số đánh giá & thông báo), dải xem nhanh "Bé cưng của bạn", thanh đo độ mạnh mật khẩu & khớp mật khẩu trực tiếp khi đổi mật khẩu, và 6 thẻ tiện ích đầy đủ.
+  - Cập nhật dropdown điều hướng đầy đủ cho `CUSTOMER` ở `index.jsp`, `profile.jsp`, `services.jsp` và thanh điều hướng chung `WEB-INF/includes/customerNav.jspf`.
+
+### 2. SQL Migration & Hỗ trợ DB Local/Remote
+
+- Tạo script migration tăng dần (idempotent, chạy lại an toàn): `database/petcare_customer_features.sql`:
+  - Cập nhật/bổ sung stored procedures: `dbo.CreatePet` (thêm tham số tùy chọn `@medical_notes`), `dbo.UpdatePet`, `dbo.DeletePet`, `dbo.ListActiveStaffForService`, `dbo.CreateNotification`, `dbo.ListUserNotifications`.
+  - Cấp quyền `SELECT`/`EXECUTE` đầy đủ cho `petcare_booking_app`, `petcare_payment_app`, `petcare_admin_app`, `petcare_backend`.
+  - Seed dữ liệu mẫu idempotent cho `BusinessHours` (7 ngày), `Services` (6 dịch vụ), `Combos` + `ComboServices` (3 gói combo), `Rooms` (4 phòng), `StaffSkills` và `Shifts` 14 ngày tới cho nhân viên hiện có.
+- Mở rộng `DBUtil.java` hỗ trợ thêm tham số `DECIMAL`/`GUID`/`DATE`/`DATETIME2` cho fallback SQL Server local (`localhost\SQLEXPRESS`) khi server remote không truy cập được; tất cả DAO role `CUSTOMER` đều hỗ trợ cả JDBC lẫn fallback local.
+- **Lưu ý triển khai trên DB chung (`hung211.tail1f20d2.ts.net`)**: cần chạy thêm 1 lần `database/petcare_customer_features.sql` bằng tài khoản quản trị DB để cấp quyền `SELECT`/`EXECUTE` và tạo các thủ tục mới (`UpdatePet`, `DeletePet`, `CreateNotification`, `ListUserNotifications`) cùng seed combo/phòng (trên máy local `localhost\SQLEXPRESS` đã chạy xong 14/14 batch thành công).
+
+### 3. Bằng chứng kiểm thử (2026-11-19)
+
+| Nhóm | Kết quả |
+| --- | --- |
+| Compile toàn bộ `src/main/java` (`javac --release 17`) | **PASS** (82 file, 0 lỗi) |
+| Unit tests JUnit 5 (`src/test/java`) | **21/21 PASS** (gồm 7 test cũ + 14 test mới: `PetServiceTest`, `BookingServiceTest`, `PaymentServiceTest`, `ReviewServiceTest`) |
+| E2E tích hợp trên SQL Server thật (`localhost\SQLEXPRESS`) | **24/24 PASS** — đăng ký khách tạm, tải dịch vụ/combo/phòng/giờ mở cửa/ca trực, CRUD thú cưng, đặt dịch vụ lẻ/đa dịch vụ/combo/lưu trú, chặn xóa thú cưng có lịch, hủy lịch có lý do, thanh toán `CASH` -> `FAILED`, `ONLINE` -> `PAID`, chặn trả quá số dư, chặn đánh giá lịch chưa hoàn thành, hoàn thành & gửi đánh giá, chặn đánh giá trùng, lưu & lọc thông báo; đã dọn sạch dữ liệu test tạm sau khi chạy |
+| Kiểm tra cân bằng thẻ JSTL trên 10 file JSP/JSPF | **10/10 PASS** |
+| Trình duyệt / Tomcat thực tế & server remote | Chưa restart Tomcat và chưa chạy lại `scripts/smoke-test.ps1` trên HTTP hoặc mở Chrome kiểm tra trực quan trang `/profile` và `/customer/*`; cần build/redeploy WAR lên Tomcat để kiểm thử giao diện trực tiếp |
+
+### 4. Chức năng còn lại chưa triển khai (role `STAFF` & `ADMIN`)
+
+- Các module scaffold của **STAFF** (`LichLamViecServlet`, `LichHenNhanVienServlet`) và **ADMIN** (`QuanLyDichVuServlet`, `QuanLyComboServlet`, `QuanLyPhongServlet`, `QuanLyCaLamViecServlet`) vẫn đang chờ triển khai.
+
+---
+
+## Kết quả kiểm thử và sửa lỗi 2026-11-17 (trạng thái trước đó)
 
 Mục này thay thế các nhận định cũ về conflict/build bên dưới. Không còn conflict marker; code compile thành công. Đã restart SmartTomcat từ IntelliJ để nạp các lớp mới và kiểm thử trên `http://localhost:8080/asm-jav102`.
 

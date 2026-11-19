@@ -1,0 +1,35 @@
+<%@ page pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
+<header class="pc-header">
+    <div class="pc-header-top">
+        <a href="${pageContext.request.contextPath}/home" class="pc-brand">
+            <img src="${pageContext.request.contextPath}/assets/images/logo.png?v=4" alt="PetCare" />
+            <span>PetCare Khách hàng</span>
+        </a>
+        <div class="pc-user-bar">
+            <a href="${pageContext.request.contextPath}/profile" class="pc-user-chip">
+                <span>Xin chào, ${fn:escapeXml(sessionScope.loggedInUser)}</span>
+            </a>
+            <a href="${pageContext.request.contextPath}/home" class="pc-logout-link">Trang chủ</a>
+            <a href="${pageContext.request.contextPath}/logout" class="pc-logout-link">Đăng xuất</a>
+        </div>
+    </div>
+    <nav class="pc-subnav-wrap" aria-label="Menu khách hàng">
+        <div class="pc-subnav">
+            <a href="${pageContext.request.contextPath}/customer/dat-lich"
+               class="${activeCustomerNav == 'booking' ? 'active' : ''}">Đặt lịch</a>
+            <a href="${pageContext.request.contextPath}/customer/lich-hen"
+               class="${activeCustomerNav == 'appointments' ? 'active' : ''}">Lịch hẹn của tôi</a>
+            <a href="${pageContext.request.contextPath}/customer/thu-cung"
+               class="${activeCustomerNav == 'pets' ? 'active' : ''}">Thú cưng của tôi</a>
+            <a href="${pageContext.request.contextPath}/customer/thanh-toan"
+               class="${activeCustomerNav == 'payments' ? 'active' : ''}">Thanh toán</a>
+            <a href="${pageContext.request.contextPath}/customer/danh-gia"
+               class="${activeCustomerNav == 'reviews' ? 'active' : ''}">Đánh giá</a>
+            <a href="${pageContext.request.contextPath}/customer/thong-bao"
+               class="${activeCustomerNav == 'notifications' ? 'active' : ''}">Thông báo</a>
+            <a href="${pageContext.request.contextPath}/profile">Hồ sơ &amp; Mật khẩu</a>
+        </div>
+    </nav>
+</header>

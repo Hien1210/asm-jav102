@@ -66,4 +66,22 @@ public class Services {
     public void setActive(boolean active) {
         this.active = active;
     }
+
+    public String getFormattedPrice() {
+        return com.petcare.utils.DateUtil.formatVnd(price);
+    }
+
+    public String getCategoryLabel() {
+        if (category == null) {
+            return "";
+        }
+        return switch (category) {
+            case "GROOMING" -> "Grooming & Spa";
+            case "MEDICAL" -> "Khám thú y";
+            case "VACCINATION" -> "Tiêm phòng";
+            case "BOARDING" -> "Lưu trú";
+            case "OTHER" -> "Dịch vụ khác";
+            default -> category;
+        };
+    }
 }

@@ -11,6 +11,12 @@ public interface PetDAO {
 
     Pets findById(int petId) throws SQLException;
 
-    /** Writes go through dbo.CreatePet (see database/petcare_booking_demo.sql). */
+    /** Creates a pet (uses dbo.CreatePet with graceful fallback). */
     int create(Pets pet) throws SQLException;
+
+    /** Updates a pet belonging to the owner (uses dbo.UpdatePet with fallback). */
+    boolean update(Pets pet) throws SQLException;
+
+    /** Deletes a pet belonging to the owner if it has no appointments (uses dbo.DeletePet with fallback). */
+    boolean delete(int petId, int ownerId) throws SQLException;
 }
