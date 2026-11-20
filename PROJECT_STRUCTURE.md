@@ -17,6 +17,7 @@
 - LoginServlet.java
 - QuenMatKhauServlet.java (`/quen-mat-khau`) — yêu cầu đặt lại mật khẩu, gửi link qua email (Gmail SMTP), phản hồi chung chung chống dò định danh.
 - DatLaiMatKhauServlet.java (`/dat-lai-mat-khau`) — xác thực token từ email, đặt mật khẩu mới.
+- XacThucEmailServlet.java (`/xac-thuc-email`) — tiêu thụ token xác thực email gửi lúc đăng ký, redirect về `/login` kèm thông báo.
 - ProfileServlet.java (`/profile`, `/ho-so`) — hồ sơ cá nhân, đổi mật khẩu và thống kê tổng quan cho khách hàng (số thú cưng, lịch hẹn, công nợ, đánh giá, thông báo).
 - QuanLyCaLamViecServlet.java
 - QuanLyComboServlet.java
@@ -37,6 +38,7 @@
 - ComboDAO.java / ComboDAOImpl.java — tải các gói combo đang hoạt động kèm danh sách dịch vụ thành phần.
 - NotificationDAO.java / NotificationDAOImpl.java — lưu và tra cứu `dbo.Notifications`.
 - PasswordResetDAO.java / PasswordResetDAOImpl.java — tạo/kiểm tra token đặt lại mật khẩu (`dbo.PasswordResetTokens`, hash SHA-256, hết hạn, dùng 1 lần).
+- EmailVerificationDAO.java / EmailVerificationDAOImpl.java — tạo/kiểm tra token xác thực email khi đăng ký (`dbo.EmailVerificationTokens`). `hasPendingVerification` không bao giờ throw (fail-open nếu DB/migration chưa sẵn sàng).
 - PaymentDAO.java / PaymentDAOImpl.java — hóa đơn cần thanh toán, lịch sử thanh toán khách hàng, `dbo.RecordPayment`, `dbo.SetPaymentStatus`.
 - PetDAO.java / PetDAOImpl.java — CRUD đầy đủ `dbo.Pets` (`CreatePet`, `UpdatePet`, `DeletePet` kèm fallback).
 - ReviewDAO.java / ReviewDAOImpl.java — `dbo.SubmitReview`, danh sách lịch hoàn thành chưa đánh giá, đánh giá của khách và đánh giá công khai mới nhất.
@@ -76,7 +78,7 @@
 
 ## services
 
-- AuthService.java — đăng ký/đăng nhập/đổi hồ sơ/đổi mật khẩu; `requestPasswordReset`/`resetPasswordWithToken` gửi email đặt lại mật khẩu qua Gmail SMTP (token 1 lần, hết hạn 15 phút).
+- AuthService.java — đăng ký/đăng nhập/đổi hồ sơ/đổi mật khẩu; `requestPasswordReset`/`resetPasswordWithToken` gửi email đặt lại mật khẩu qua Gmail SMTP (token 1 lần, hết hạn 15 phút). `registerCustomer` gửi email xác thực (hết hạn 24 giờ, gửi trước-lưu token sau để tránh khoá tài khoản khi mail lỗi); `authenticate` chặn đăng nhập khi còn token xác thực chưa dùng.
 - BookingService.java — đặt dịch vụ đơn, đa dịch vụ, gói combo (tự động xếp nối tiếp tránh trùng giờ), phòng lưu trú và hủy lịch phía khách hàng.
 - NotificationService.java — lưu thông báo vào DB (best-effort) kết hợp đẩy toast realtime qua WebSocket.
 - PaymentService.java — kiểm tra quyền sở hữu/công nợ, tạo giao dịch `CASH`/`ONLINE`, xác nhận `ONLINE` (`PAID`) và hủy `PENDING` (`FAILED`).
@@ -119,7 +121,8 @@
 - `database/petcare_booking_demo.sql` — thủ tục đặt lịch cơ bản & seed ban đầu.
 - `database/grant_auth_permissions.sql` — cấp quyền bổ sung & tài khoản mẫu ADMIN/STAFF.
 - `database/petcare_customer_features.sql` — migration tăng dần (idempotent) cho đầy đủ chức năng `CUSTOMER`: `CreatePet` (hỗ trợ `medical_notes`), `UpdatePet`, `DeletePet`, `CreateNotification`, `ListUserNotifications`, cấp quyền `SELECT`/`EXECUTE` và seed dữ liệu mẫu (dịch vụ, combo, phòng lưu trú, giờ mở cửa, kỹ năng & ca trực nhân viên).
-- `database/petcare_password_reset.sql` — bảng `dbo.PasswordResetTokens` + `CreatePasswordResetToken`/`ConsumePasswordResetToken` cho tính năng quên mật khẩu qua email. Chưa áp dụng DB chính (chờ duyệt).
+- `database/petcare_password_reset.sql` — bảng `dbo.PasswordResetTokens` + `CreatePasswordResetToken`/`ConsumePasswordResetToken` cho tính năng quên mật khẩu qua email. **Đã áp dụng DB chính.**
+- `database/petcare_email_verification.sql` — bảng `dbo.EmailVerificationTokens` + `CreateEmailVerificationToken`/`ConsumeEmailVerificationToken` cho xác thực email khi đăng ký. Chưa áp dụng DB chính (chờ duyệt).
 
 ## Kiểm thử (cập nhật 2026-11-19)
 
@@ -214,6 +217,13 @@ The singular controller package was removed. Existing servlet URL mappings are u
 ## Quên mật khẩu qua Gmail SMTP — 20/11/2026
 - Thêm Jakarta Mail (`jakarta.mail-api` 2.1.3 + `angus-mail` 2.0.3) vào `pom.xml`; cấu hình `mail.smtp.*` qua `ConfigUtil` (placeholder trong `application.properties`, giá trị thật trong `application-local.properties` git-ignored).
 - `QuenMatKhauServlet` (`/quen-mat-khau`), `DatLaiMatKhauServlet` (`/dat-lai-mat-khau`), `quenMatKhau.jsp`, `datLaiMatKhau.jsp`; link "Quên mật khẩu?" trên `login.jsp` đã nối đúng (trước đó trỏ về chính nó).
-- `AuthService.requestPasswordReset`/`resetPasswordWithToken`, `PasswordResetDAO`/`PasswordResetDAOImpl`, `MailUtil`; token SHA-256, hết hạn 15 phút, dùng 1 lần. `database/petcare_password_reset.sql` (chưa áp dụng DB chính).
+- `AuthService.requestPasswordReset`/`resetPasswordWithToken`, `PasswordResetDAO`/`PasswordResetDAOImpl`, `MailUtil`; token SHA-256, hết hạn 15 phút, dùng 1 lần. `database/petcare_password_reset.sql` (đã áp dụng DB chính 20/11/2026).
 - Test mới: 5 test trong `AuthServiceTest` (mail sender giả, không gọi mạng thật). Maven 87 test: 84 đạt, 3 tích hợp bỏ qua; build WAR đạt.
 - Chi tiết và giới hạn đã biết: docs/PASSWORD_RESET.md.
+
+## Xác thực email khi đăng ký — 20/11/2026
+- `registerCustomer` gửi email xác thực sau khi tạo tài khoản (không đổi `is_active`/procedure cũ); gửi mail trước, chỉ lưu token nếu gửi thành công — tránh khoá tài khoản vĩnh viễn khi Gmail SMTP lỗi.
+- `AuthService.authenticate` chặn đăng nhập khi còn token xác thực chưa dùng/chưa hết hạn (24 giờ); `XacThucEmailServlet` (`/xac-thuc-email`) tiêu thụ token, redirect về `/login` (tái dùng alert có sẵn, không JSP mới).
+- `EmailVerificationDAO`/`EmailVerificationDAOImpl`, `database/petcare_email_verification.sql` (bảng + 2 procedure độc lập, không đụng `Users`/procedure cũ; chưa áp dụng DB chính). `hasPendingVerification` fail-open (không throw) nếu DB/migration chưa sẵn sàng.
+- Test mới: 6 test trong `AuthServiceTest`. Maven 93 test: 90 đạt, 3 tích hợp bỏ qua; build WAR đạt.
+- Chi tiết và giới hạn đã biết: docs/EMAIL_VERIFICATION.md.

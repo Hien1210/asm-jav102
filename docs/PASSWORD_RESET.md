@@ -12,7 +12,7 @@
 
 ## Database
 - `database/petcare_password_reset.sql`: bảng `dbo.PasswordResetTokens` (idempotent `IF OBJECT_ID... IS NULL`) + 2 stored procedure (`CreatePasswordResetToken`, `ConsumePasswordResetToken`) + GRANT cho role `petcare_admin_app`.
-- **Chưa áp dụng lên DB chính** — giống `admin_catalog.sql`, cần chạy thủ công trên SQL Server trước khi tính năng hoạt động thật.
+- **Đã áp dụng lên DB chính (20/11/2026)** — chạy bằng tài khoản db_owner/sysadmin (không phải `petcare_backend`, vì login này không có quyền CREATE TABLE/CREATE PROCEDURE).
 - DAO (`PasswordResetDAOImpl`) có fallback SQL thuần nếu procedure chưa tồn tại (lỗi 2812/229), theo đúng pattern 2 tầng của các DAO cũ hơn. **Không** có tầng fallback PowerShell/SQL Express cục bộ (tầng 3) — theo đúng tiền lệ của các DAO admin mới nhất (`AdminCatalogDAO`, `AdminOperationsDAO`) cũng không có tầng này.
 
 ## Mail
@@ -24,7 +24,7 @@
 ## Giới hạn đã biết
 - Chưa có rate-limit cho việc spam yêu cầu reset (có thể bị lạm dụng để gửi nhiều email tới cùng 1 địa chỉ). Chưa làm vì ngoài phạm vi yêu cầu ban đầu.
 - Chưa test gửi mail thật qua Gmail SMTP trong môi trường tự động (cần mạng + App Password thật); đã test qua JUnit với mail sender giả (không gọi mạng) và các nhánh validate/token.
-- Migration SQL chưa chạy trên DB chính — cần người quản trị DB chạy `database/petcare_password_reset.sql` trước khi dùng thật.
+- Migration SQL đã chạy trên DB chính (20/11/2026).
 
 ## Test
 - `AuthServiceTest`: 5 test mới — không tạo token khi định danh không tồn tại, tạo token khi định danh hợp lệ (mail sender giả), từ chối token sai/hết hạn, đặt lại mật khẩu thành công với token hợp lệ, từ chối mật khẩu mới quá ngắn.

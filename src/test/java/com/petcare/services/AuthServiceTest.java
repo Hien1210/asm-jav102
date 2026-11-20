@@ -1,6 +1,7 @@
 package com.petcare.services;
 
 import com.petcare.daos.AccountDAO;
+import com.petcare.daos.EmailVerificationDAO;
 import com.petcare.daos.PasswordResetDAO;
 import com.petcare.models.Users;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ class AuthServiceTest {
     @Test void overlongNameIsRejectedBeforeDatabaseWrite() {
         AuthService service = new AuthService(dao(true));
         assertThrows(IllegalArgumentException.class, () -> service.registerCustomer(
-                "a".repeat(101), "0901111222", "qa@example.test", "Password@123"));
+                "a".repeat(101), "0901111222", "qa@example.test", "Password@123", "http://x/verify"));
     }
 
     @Test void unsuccessfulProfileUpdateCannotReportSuccess() {
@@ -49,6 +50,99 @@ class AuthServiceTest {
                     default -> null;
                 });
         new AuthService(repository).changePassword(7, "OldPass@123", "NewPass@123");
+    }
+
+    private AccountDAO dao(boolean updateResult, Users createResult) {
+        return (AccountDAO) Proxy.newProxyInstance(getClass().getClassLoader(),
+                new Class[]{AccountDAO.class}, (p, m, a) -> switch (m.getName()) {
+                    case "findById", "findByIdentifier" -> new Users(7, "QA", "qa@example.test",
+                            "0901111222", "OldPass@123", "CUSTOMER", true, null);
+                    case "existsByEmail", "existsByPhone" -> false;
+                    case "updateProfile", "updatePassword" -> updateResult;
+                    case "create" -> createResult;
+                    default -> null;
+                });
+    }
+
+    private static class FakeEmailVerificationDAO implements EmailVerificationDAO {
+        int createCalls = 0;
+        boolean pending;
+        String consumeReturns;
+
+        @Override
+        public void createToken(int userId, String tokenHash, LocalDateTime expiresAt) {
+            createCalls++;
+        }
+
+        @Override
+        public Integer consumeToken(String tokenHash) {
+            return "match".equals(consumeReturns) ? 7 : null;
+        }
+
+        @Override
+        public boolean hasPendingVerification(int userId) {
+            return pending;
+        }
+    }
+
+    @Test void registeringSendsAVerificationEmailAndStoresItsToken() throws Exception {
+        Users created = new Users(9, "QA", "qa@example.test", "0901111222",
+                "hash", "CUSTOMER", true, null);
+        FakeEmailVerificationDAO verificationDao = new FakeEmailVerificationDAO();
+        AuthService service = new AuthService(dao(true, created), new PasswordResetDAOImplStub(),
+                verificationDao, (to, subject, body) -> { });
+        service.registerCustomer("QA", "0901111222", "qa@example.test", "Password@123", "http://x/verify");
+        assertEquals(1, verificationDao.createCalls);
+    }
+
+    @Test void registrationMailOutageNeverStoresAVerificationToken() throws Exception {
+        Users created = new Users(9, "QA", "qa@example.test", "0901111222",
+                "hash", "CUSTOMER", true, null);
+        FakeEmailVerificationDAO verificationDao = new FakeEmailVerificationDAO();
+        AuthService.MailSender brokenSender = (to, subject, body) -> { throw new RuntimeException("SMTP down"); };
+        AuthService service = new AuthService(dao(true, created), new PasswordResetDAOImplStub(),
+                verificationDao, brokenSender);
+        assertDoesNotThrow(() -> service.registerCustomer(
+                "QA", "0901111222", "qa@example.test", "Password@123", "http://x/verify"));
+        assertEquals(0, verificationDao.createCalls);
+    }
+
+    @Test void loginIsBlockedWhileEmailVerificationIsPending() {
+        FakeEmailVerificationDAO verificationDao = new FakeEmailVerificationDAO();
+        verificationDao.pending = true;
+        AuthService service = new AuthService(dao(true, null), new PasswordResetDAOImplStub(),
+                verificationDao, (to, subject, body) -> { });
+        assertThrows(IllegalArgumentException.class,
+                () -> service.authenticate("qa@example.test", "OldPass@123"));
+    }
+
+    @Test void loginSucceedsOnceEmailVerificationIsNoLongerPending() throws Exception {
+        FakeEmailVerificationDAO verificationDao = new FakeEmailVerificationDAO();
+        verificationDao.pending = false;
+        AuthService service = new AuthService(dao(true, null), new PasswordResetDAOImplStub(),
+                verificationDao, (to, subject, body) -> { });
+        assertDoesNotThrow(() -> service.authenticate("qa@example.test", "OldPass@123"));
+    }
+
+    @Test void verifyingWithAnInvalidTokenIsRejected() {
+        FakeEmailVerificationDAO verificationDao = new FakeEmailVerificationDAO();
+        verificationDao.consumeReturns = "no-match";
+        AuthService service = new AuthService(dao(true, null), new PasswordResetDAOImplStub(),
+                verificationDao, (to, subject, body) -> { });
+        assertThrows(IllegalArgumentException.class, () -> service.verifyEmail("some-token"));
+    }
+
+    @Test void verifyingWithAValidTokenSucceeds() {
+        FakeEmailVerificationDAO verificationDao = new FakeEmailVerificationDAO();
+        verificationDao.consumeReturns = "match";
+        AuthService service = new AuthService(dao(true, null), new PasswordResetDAOImplStub(),
+                verificationDao, (to, subject, body) -> { });
+        assertDoesNotThrow(() -> service.verifyEmail("some-token"));
+    }
+
+    private static class PasswordResetDAOImplStub implements PasswordResetDAO {
+        @Override public void createToken(int userId, String tokenHash, LocalDateTime expiresAt) { }
+        @Override public Integer consumeToken(String tokenHash) { return null; }
     }
 
     private static class FakePasswordResetDAO implements PasswordResetDAO {
