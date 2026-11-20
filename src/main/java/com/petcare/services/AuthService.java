@@ -8,6 +8,7 @@ import com.petcare.daos.EmailVerificationDAOImpl;
 import com.petcare.daos.PasswordResetDAO;
 import com.petcare.daos.PasswordResetDAOImpl;
 import com.petcare.models.Users;
+import com.petcare.utils.EmailTemplateUtil;
 import com.petcare.utils.MailUtil;
 import com.petcare.utils.ValidationUtil;
 
@@ -127,10 +128,8 @@ public class AuthService {
         try {
             String rawToken = generateSecureToken();
             String link = verifyPageBaseUrl + "?token=" + rawToken;
-            String body = "<p>Xin chào " + escapeHtml(user.getFullName()) + ",</p>"
-                    + "<p>Nhấn vào liên kết bên dưới để xác thực email và kích hoạt tài khoản PetCare của bạn. "
-                    + "Liên kết có hiệu lực trong " + VERIFICATION_TOKEN_VALID_HOURS + " giờ.</p>"
-                    + "<p><a href=\"" + link + "\">Xác thực email</a></p>";
+            String body = EmailTemplateUtil.buildEmailVerificationHtml(
+                    user.getFullName(), link, VERIFICATION_TOKEN_VALID_HOURS);
             mailSender.send(user.getEmail(), "PetCare - Xác thực email", body);
             emailVerificationDAO.createToken(user.getUserId(), sha256Hex(rawToken),
                     LocalDateTime.now().plusHours(VERIFICATION_TOKEN_VALID_HOURS));
@@ -254,11 +253,8 @@ public class AuthService {
                 LocalDateTime.now().plusMinutes(RESET_TOKEN_VALID_MINUTES));
         try {
             String link = resetPageBaseUrl + "?token=" + rawToken;
-            String body = "<p>Xin chào " + escapeHtml(user.getFullName()) + ",</p>"
-                    + "<p>Nhấn vào liên kết bên dưới để đặt lại mật khẩu PetCare của bạn. "
-                    + "Liên kết có hiệu lực trong " + RESET_TOKEN_VALID_MINUTES + " phút.</p>"
-                    + "<p><a href=\"" + link + "\">Đặt lại mật khẩu</a></p>"
-                    + "<p>Nếu bạn không yêu cầu việc này, hãy bỏ qua email này.</p>";
+            String body = EmailTemplateUtil.buildPasswordResetHtml(
+                    user.getFullName(), link, RESET_TOKEN_VALID_MINUTES);
             mailSender.send(user.getEmail(), "PetCare - Đặt lại mật khẩu", body);
         } catch (Exception mailError) {
             // Token is already stored; a mail outage should not fail the request or
@@ -299,12 +295,5 @@ public class AuthService {
         } catch (java.security.NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    private static String escapeHtml(String value) {
-        if (value == null) {
-            return "";
-        }
-        return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 }

@@ -91,6 +91,7 @@
 - DatabaseConnectionTest.java
 - DateUtil.java — múi giờ Việt Nam (`Asia/Ho_Chi_Minh`), định dạng ngày/giờ/VNĐ và nhãn thứ trong tuần.
 - DBUtil.java — kết nối SQL Server JDBC kèm fallback SQL Server local (`localhost\SQLEXPRESS`) hỗ trợ tham số `INT`/`BIT`/`DECIMAL`/`GUID`/`STRING`.
+- EmailTemplateUtil.java — tạo mẫu email HTML thương hiệu PetCare (xác thực email đăng ký, đặt lại mật khẩu) tương thích đa nền tảng (Gmail, Outlook, Apple Mail), đồng bộ bảng màu Emerald/Forest Green/Mint từ UI web.
 - MailUtil.java — gửi email qua Gmail SMTP (Jakarta Mail), cấu hình qua `mail.smtp.*` trong `ConfigUtil`.
 - SessionUtil.java
 - ValidationUtil.java
@@ -227,3 +228,9 @@ The singular controller package was removed. Existing servlet URL mappings are u
 - `EmailVerificationDAO`/`EmailVerificationDAOImpl`, `database/petcare_email_verification.sql` (bảng + 2 procedure độc lập, không đụng `Users`/procedure cũ; chưa áp dụng DB chính). `hasPendingVerification` fail-open (không throw) nếu DB/migration chưa sẵn sàng.
 - Test mới: 6 test trong `AuthServiceTest`. Maven 93 test: 90 đạt, 3 tích hợp bỏ qua; build WAR đạt.
 - Chi tiết và giới hạn đã biết: docs/EMAIL_VERIFICATION.md.
+
+## Thiết kế Email HTML đồng bộ nhận diện PetCare — 20/11/2026
+- Tạo `EmailTemplateUtil` trong `com.petcare.utils`: sinh HTML email tương thích chuẩn client (Gmail, Outlook, Apple Mail) dạng card bo góc 18px, đổ bóng mềm và viền `#C5ECE0`.
+- Đồng bộ nhận diện thương hiệu từ UI web (`login.css`): Header gradient Forest Green `#075C45` sang Emerald `#008F68`, huy hiệu chân chó `🐾 PetCare`, subtitle `Pet Spa & Grooming Lounge`, nút CTA gradient xanh nổi bật, hộp cảnh báo thời hạn (24h xác thực, 15 phút đặt lại mật khẩu), link dự phòng fallback và footer chăm sóc khách hàng.
+- `AuthService` chuyển sang dùng `EmailTemplateUtil.buildEmailVerificationHtml` và `EmailTemplateUtil.buildPasswordResetHtml`, tích hợp sẵn HTML entity escaping chống chèn mã độc.
+- Test mới: 6 test trong `EmailTemplateUtilTest`. Toàn bộ test suite: 99 test (96 đạt, 3 tích hợp bỏ qua); đóng gói WAR đạt.
