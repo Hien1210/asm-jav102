@@ -112,7 +112,7 @@
                 <div class="form-group">
                     <div class="form-label-row">
                         <label for="password" class="form-label">Mật khẩu tài khoản <span class="req">*</span></label>
-                        <a href="${pageContext.request.contextPath}/login" class="forgot-link">Quên mật khẩu?</a>
+                        <a href="${pageContext.request.contextPath}/quen-mat-khau" class="forgot-link">Quên mật khẩu?</a>
                     </div>
                     <div class="input-wrapper">
                         <span class="input-icon-left">

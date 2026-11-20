@@ -458,3 +458,29 @@ Phạm vi người dùng xác nhận: chỉ quản lý tài khoản và quyền 
 - Ba protected JSP staff dùng staff.css mới: lịch hẹn có tổng quan lượt dịch vụ, khung giờ/tên bé/thao tác; lịch làm việc có bảng ca; tại quầy có ba bước và thẻ thú cưng.
 - Preview riêng không DB: 9 trạng thái render HTTP đạt, ba trang tại 320/768/1024px không tràn; đã quan sát 1440px và 390px, thử menu bàn phím và form ONLINE. Maven 82 test: 79 đạt, 3 tích hợp bỏ qua; build WAR đạt.
 - Chi tiết thiết kế và ảnh: docs/STAFF_UI_DESIGN.md. Không đổi controller/DAO hoặc deploy server chính.
+
+## Quên mật khẩu qua Gmail SMTP — 20/11/2026
+
+Theo yêu cầu người dùng: link "Quên mật khẩu?" trên `login.jsp` trước đó chết (trỏ về chính `/login`). Đã làm theo thứ tự thư viện → cấu hình → logic như yêu cầu.
+
+- Thêm `jakarta.mail-api:2.1.3` + `org.eclipse.angus:angus-mail:2.0.3` vào `pom.xml`. `MailUtil.send(to, subject, htmlBody)` (mới, trong `utils`) gửi qua Gmail SMTP (`smtp.gmail.com:587`, STARTTLS, App Password — không dùng mật khẩu Gmail thật).
+- Cấu hình `mail.smtp.*` theo đúng pattern đã có với DB: placeholder an toàn trong `src/main/resources/application.properties` (đóng gói vào WAR), giá trị thật trong `application-local.properties` ở root (git-ignored, không đóng gói).
+- Luồng: `/quen-mat-khau` (GET form, POST gửi email — **luôn trả lời chung chung** dù định danh có tồn tại hay không, chống dò email/SĐT) → email chứa link `/dat-lai-mat-khau?token=...` (hết hạn 15 phút, dùng 1 lần) → `/dat-lai-mat-khau` đặt mật khẩu mới.
+- **Bảo mật token**: chỉ lưu SHA-256 hash của token (32 byte `SecureRandom`, Base64 URL-safe) trong DB — không bao giờ lưu token gốc, giống cách không lưu mật khẩu gốc. Mỗi lần yêu cầu mới sẽ xoá token chưa dùng cũ của user đó.
+- `database/petcare_password_reset.sql`: bảng `dbo.PasswordResetTokens` (idempotent) + 2 procedure (`CreatePasswordResetToken`, `ConsumePasswordResetToken`) + GRANT cho role `petcare_admin_app`. **Đã chạy xong trên DB chính** (gặp lỗi "CREATE TABLE/PROCEDURE permission denied" khi chạy bằng tài khoản `petcare_backend` — phải đăng nhập SSMS bằng tài khoản db_owner/sysadmin mới chạy được; đã chạy lại đúng cách và xác nhận OK).
+- `AuthService` thêm `requestPasswordReset`/`resetPasswordWithToken`; việc gửi mail đi qua interface nội bộ `AuthService.MailSender` (mặc định = `MailUtil::send`) để test không gọi mạng thật — ban đầu quên làm việc này, 1 test JUnit thực sự gửi mail thật mất ~5 giây mới phát hiện ra, đã sửa.
+- Test: 5 test mới trong `AuthServiceTest`. Maven 87 test: 84 đạt, 3 tích hợp DB bỏ qua; build WAR đạt (đã kiểm tra file `application.properties` đóng gói trong WAR chỉ có placeholder, không lộ App Password thật).
+- **Đã commit và push lên `origin/Thanhhien`** (`a01734c`). Chi tiết & giới hạn đã biết (chưa có rate-limit chống spam yêu cầu reset): docs/PASSWORD_RESET.md.
+
+## Xác thực email khi đăng ký qua Gmail SMTP — 20/11/2026
+
+Tiếp theo tính năng quên mật khẩu ở trên — theo yêu cầu người dùng, tài khoản mới đăng ký phải xác thực email qua link gửi về Gmail trước khi được đăng nhập (không chỉ gửi mail chào mừng thông thường).
+
+- `AuthService.registerCustomer` thêm tham số `verifyPageBaseUrl`, vẫn tạo tài khoản `is_active = true` như cũ (**không đổi gì ở bảng `Users` hay procedure `GetAccountById`/`FindAccountByIdentifier` đang chạy sẵn trên DB chính** — tránh phải sửa + chạy lại migration cũ bằng tay thêm 1 lần nữa).
+- Trạng thái "đang chờ xác thực" chỉ suy ra từ việc **còn tồn tại 1 token `EmailVerificationTokens` chưa dùng/chưa hết hạn cho user đó** — bảng + 2 procedure hoàn toàn mới, độc lập, không đụng tới DAO/procedure cũ nào. `AuthService.authenticate` chặn đăng nhập nếu còn token này, với thông báo riêng (khác "tài khoản bị khóa" của admin).
+- **Đã cố ý thiết kế chống khoá tài khoản vĩnh viễn khi mail lỗi**: trong `registerCustomer`, gửi email TRƯỚC, chỉ lưu token NẾU gửi thành công — nếu Gmail SMTP lỗi, tài khoản mới không bị chặn đăng nhập (vì chặn mà người dùng chưa từng nhận được link, phải chờ 24h mới hết hạn, sẽ tệ hơn không có tính năng). Đồng thời `EmailVerificationDAOImpl.hasPendingVerification` **không bao giờ throw lỗi** (fail-open) — nếu quên chạy migration hoặc DB trục trặc, đăng nhập của mọi tài khoản khác vẫn hoạt động bình thường, tính năng chỉ "chưa bật" cho tài khoản đó.
+- `database/petcare_email_verification.sql`: bảng `dbo.EmailVerificationTokens` + `CreateEmailVerificationToken`/`ConsumeEmailVerificationToken` + GRANT EXECUTE 2 procedure + **GRANT SELECT trực tiếp trên bảng** (vì việc kiểm tra "còn token chờ không" là SELECT thuần không qua procedure, nên không được hưởng ownership chaining). **Chưa áp dụng DB chính** — cần ai đó trong nhóm tự chạy file này bằng tài khoản db_owner/sysadmin (không phải `petcare_backend`) trước khi tính năng hoạt động thật; trước khi chạy, đăng ký tài khoản vẫn hoạt động bình thường (không bị chặn đăng nhập) nhờ thiết kế fail-open ở trên.
+- `XacThucEmailServlet` (`/xac-thuc-email`) tiêu thụ token rồi redirect về `/login` kèm thông báo — tái dùng khung alert có sẵn của `login.jsp`, không tạo JSP mới.
+- Dùng lại nguyên `MailUtil`/`AuthService.MailSender` và hàm sinh/băm token (đổi tên `generateResetToken` → `generateSecureToken` để dùng chung cho cả 2 tính năng) đã viết ở mục trên — không viết lại logic trùng lặp.
+- Test: 6 test mới trong `AuthServiceTest`. Maven 93 test: 90 đạt, 3 tích hợp DB bỏ qua; build WAR đạt.
+- **Đã commit và push lên `origin/Thanhhien`** (`f060a00`). Chi tiết & giới hạn đã biết (chưa có nút gửi lại email xác thực): docs/EMAIL_VERIFICATION.md.
