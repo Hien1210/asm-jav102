@@ -534,3 +534,29 @@ Tiếp theo tính năng quên mật khẩu ở trên — theo yêu cầu ngườ
 - Dùng lại nguyên `MailUtil`/`AuthService.MailSender` và hàm sinh/băm token (đổi tên `generateResetToken` → `generateSecureToken` để dùng chung cho cả 2 tính năng) đã viết ở mục trên — không viết lại logic trùng lặp.
 - Test: 6 test mới trong `AuthServiceTest`. Maven 93 test: 90 đạt, 3 tích hợp DB bỏ qua; build WAR đạt.
 - **Đã commit và push lên `origin/Thanhhien`** (`f060a00`). Chi tiết & giới hạn đã biết (chưa có nút gửi lại email xác thực): docs/EMAIL_VERIFICATION.md.
+
+## Thiết kế Email HTML đồng bộ nhận diện PetCare (Xác thực đăng ký & Đặt lại mật khẩu) — 20/11/2026
+
+Theo yêu cầu người dùng: email gửi từ Gmail SMTP trước đó chỉ là văn bản thô (plain text `p`/`a`), chưa có thiết kế giao diện và không đồng bộ với thương hiệu website. Đã nâng cấp toàn diện giao diện email HTML.
+
+- **`EmailTemplateUtil.java` (mới, `com.petcare.utils`)**:
+  - Thiết kế chuẩn Email Responsive dạng thẻ (Card container `max-width: 580px`, bo góc `18px`, viền `#C5ECE0`, bóng đổ mềm), tương thích đa nền tảng (Gmail app/web, Outlook, Apple Mail, Webmail).
+  - **Đồng bộ màu sắc từ UI web (`login.css` & `home.css`)**:
+    - Nền bao quanh: `#F1FBF7` (Very Light Mint).
+    - Header banner: Gradient chuyển màu từ Deep Forest Green `#075C45` sang Emerald Green `#008F68`.
+    - Biểu tượng thương hiệu: Badge `🐾 PetCare` nổi bật cùng phụ đề `Pet Spa & Grooming Lounge` màu `#D9F7EC`.
+    - Thẻ phân loại hành động (Badge pill): `✨ XÁC THỰC TÀI KHOẢN` (cho đăng ký) hoặc `🔒 BẢO MẬT TÀI KHOẢN` (cho quên mật khẩu).
+    - Lời chào cá nhân hóa tên khách hàng (tự động escape HTML chống injection), hiển thị text màu Dark Navy `#102235`.
+    - Nút bấm Call-To-Action (CTA) lớn bo tròn 10px, gradient xanh ngọc, bóng đổ 3D, dễ bấm trên điện thoại.
+    - Hộp thông báo thời hạn (Expiry box): Nền xanh bạc hà `#F0FDF4` (24 giờ cho xác thực) và nền vàng ấm `#FFFBEB` (15 phút cho đặt lại mật khẩu) giúp nhấn mạnh tính cấp thiết và an toàn bảo mật.
+    - Đường dẫn dự phòng (Fallback URL): Hiển thị link đầy đủ để người dùng sao chép dán vào trình duyệt khi app mail chặn bấm nút.
+    - Lưu ý bảo mật: Nhắc nhở người dùng an tâm bỏ qua email nếu không phải mình thực hiện.
+    - Footer chuyên nghiệp: Thông tin bản quyền © 2026 PetCare, hotline `1900 8888`, email hỗ trợ `support@petcare.vn`.
+- **Cập nhật `AuthService.java`**:
+  - `sendVerificationEmailBestEffort` gọi `EmailTemplateUtil.buildEmailVerificationHtml(user.getFullName(), link, VERIFICATION_TOKEN_VALID_HOURS)`.
+  - `requestPasswordReset` gọi `EmailTemplateUtil.buildPasswordResetHtml(user.getFullName(), link, RESET_TOKEN_VALID_MINUTES)`.
+  - Toàn bộ tham số người dùng truyền vào email đều được escape HTML an toàn.
+- **Kiểm thử**:
+  - `EmailTemplateUtilTest.java` (6 test mới): Kiểm tra thương hiệu PetCare, nội dung thẻ tag, tên người nhận, link token, thời hạn 24h / 15 phút, fallback khi tên rỗng/null ("Quý khách"), và kiểm tra escape ký tự đặc biệt (`<`, `>`, `&`, `"`, `'`).
+  - Chạy toàn bộ test suite Maven: **99 test (96 PASS, 3 tích hợp QA bỏ qua)**.
+  - Đóng gói WAR `mvn package -DskipTests`: **BUILD SUCCESS** (`target/petcare.war`).
