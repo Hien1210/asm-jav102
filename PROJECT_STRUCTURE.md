@@ -103,12 +103,12 @@
 
 ## webapp (Customer UI)
 
-- `WEB-INF/includes/customerNav.jspf` — thanh điều hướng chung cho cổng Khách hàng (`/customer/*`).
-- `assets/css/customer.css` — stylesheet thống nhất cho toàn bộ trang role `CUSTOMER`.
-- `assets/css/profile.css` — stylesheet nâng cấp giao diện trang hồ sơ người dùng (`/profile`).
-- `profile.jsp` — trang hồ sơ thành viên kèm banner kính mờ, thống kê hoạt động trực tiếp, danh sách bé cưng nhanh, form hồ sơ & đổi mật khẩu (có thanh đo độ mạnh mật khẩu) và 6 thẻ tiện ích.
+- `WEB-INF/includes/customerNav.jspf` — thanh điều hướng chung cổng Khách hàng (`/customer/*`): topbar xanh rừng + avatar chữ cái đầu + subnav 7 mục có icon SVG.
+- `assets/css/customer.css` — stylesheet cổng Khách hàng (`?v=2`) đồng bộ tông Botanical Atelier (`#075c45`/`#f5f7f6`) với trang `/profile`, gồm các thành phần đặt lịch `.bk-*`.
+- `assets/css/profile.css` — stylesheet giao diện hồ sơ người dùng (`/profile`, v2): kiến trúc `.pf-*` độc lập với tông màu theo vai trò (`CUSTOMER` xanh ngọc rừng, `STAFF` xanh navy, `ADMIN` xanh lá đậm), bố cục cover-avatar + 2 cột bất đối xứng và responsive 0px tràn ngang.
+- `profile.jsp` — trang hồ sơ tài khoản đồng bộ `home.css?v=16` & `profile.css?v=2`: thẻ định danh cover-avatar, bố cục 2 cột (cột trái: tổng quan 2x2 Bento, danh sách bé cưng nhanh hoặc lối tắt STAFF/ADMIN, trạng thái & bảo mật; cột phải: thanh chuyển nhanh, form cập nhật hồ sơ có phát hiện thay đổi & hoàn tác, form đổi mật khẩu kèm thanh đo độ mạnh + 4 tiêu chí trực tiếp) và khu tiện ích phân theo vai trò.
 - `customer/quanLyThuCung.jsp` — quản lý thú cưng (thêm/sửa/xóa, cân nặng, ngày sinh, ghi chú sức khỏe).
-- `customer/datLich.jsp` — trung tâm đặt lịch 4 chế độ (Dịch vụ lẻ, Nhiều dịch vụ, Gói Combo, Phòng lưu trú) kèm giờ mở cửa & ca trực nhân viên.
+- `customer/datLich.jsp` — trung tâm đặt lịch 4 chế độ (Dịch vụ lẻ, Nhiều dịch vụ, Gói Combo, Phòng lưu trú) với hero banner + thanh tiến trình 2 bước, thẻ chọn nhanh bé cưng, gợi ý loài nhanh, thẻ xem trước 4 chế độ khi chưa có thú cưng, 4 thẻ chọn chế độ đặt lịch, giờ mở cửa & ca trực nhân viên.
 - `customer/lichHenDanhSach.jsp` — danh sách lịch hẹn của tôi, lọc trạng thái/loại, chi tiết hóa đơn và hủy lịch kèm lý do.
 - `customer/thanhToan.jsp` — thanh toán hóa đơn `ONLINE`/`CASH`, xác nhận/hủy giao dịch đang chờ và lịch sử thanh toán.
 - `customer/danhGia.jsp` — gửi đánh giá 1-5 sao cho lịch hẹn `COMPLETED` và xem lại đánh giá đã gửi.
@@ -227,3 +227,13 @@ The singular controller package was removed. Existing servlet URL mappings are u
 - `EmailVerificationDAO`/`EmailVerificationDAOImpl`, `database/petcare_email_verification.sql` (bảng + 2 procedure độc lập, không đụng `Users`/procedure cũ; chưa áp dụng DB chính). `hasPendingVerification` fail-open (không throw) nếu DB/migration chưa sẵn sàng.
 - Test mới: 6 test trong `AuthServiceTest`. Maven 93 test: 90 đạt, 3 tích hợp bỏ qua; build WAR đạt.
 - Chi tiết và giới hạn đã biết: docs/EMAIL_VERIFICATION.md.
+
+## Làm đẹp giao diện hồ sơ người dùng — 21/11/2026
+- Thiết kế lại `src/main/webapp/profile.jsp` và `src/main/webapp/assets/css/profile.css` (`?v=2`, đồng bộ `home.css?v=16`), giữ nguyên backend `ProfileServlet` và toàn bộ contract form (`action=updateProfile`, `action=changePassword`, `data-user-id`, escape `fn:escapeXml`).
+- Bố cục mới: thẻ định danh dạng cover + avatar nổi (đổi tông màu tự động theo vai trò CUSTOMER/STAFF/ADMIN), workspace 2 cột (cột trái tổng quan 2x2 Bento + bé cưng/lối tắt vai trò + trạng thái phiên; cột phải form 2 cột gọn gàng có trạng thái chưa lưu/hoàn tác và bộ kiểm tra 4 tiêu chí mật khẩu trực tiếp), khu tiện ích phân theo vai trò (sửa lỗi trùng thẻ "Thanh toán lịch hẹn" ở bản cũ, đồng bộ dropdown header cho đủ 3 vai trò).
+- Đã kiểm tra cân bằng thẻ JSTL/SVG và kiểm thử trực quan qua preview cục bộ (0px tràn ngang tại 1440px, 847px, 390px; test đủ tương tác form/mật khẩu/đóng thông báo; 0 lỗi console). Không sửa backend Java hay DB.
+
+## Nâng cấp giao diện Đặt lịch & Cổng Khách hàng — 21/11/2026
+- Nâng cấp `WEB-INF/includes/customerNav.jspf`, `assets/css/customer.css` (`?v=2`, cập nhật cache-bust trên 5 JSP khách hàng) và thiết kế lại `customer/datLich.jsp` đồng bộ với bảng màu Botanical Atelier của `/profile`.
+- `datLich.jsp`: thêm hero banner kèm stepper 2 bước, khung nhắc thân thiện + nút chọn nhanh loài (`Chó`/`Mèo`) & nút submit chính rõ ràng khi chưa có thú cưng, thẻ xem trước 4 hình thức đặt lịch lấp khoảng trống, thẻ chọn nhanh bé cưng đồng bộ dropdown giữa 4 tab, 4 thẻ chọn chế độ đặt lịch trực quan, hộp ước tính lưu trú nổi bật, cột phải giờ mở cửa dạng badge + ca trực có avatar + thẻ lưu ý.
+- Giữ nguyên backend `DatLichServlet` và toàn bộ contract form/option regex cho `scripts/smoke-test.ps1`. Đã kiểm tra cân bằng thẻ JSTL/HTML/SVG và kiểm thử trực quan ở 1440px & 390px cho cả 2 trạng thái (0 thú cưng & có thú cưng): 0px tràn ngang, 0 lỗi console.

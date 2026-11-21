@@ -1,5 +1,55 @@
 # PetCare (asm-jav102) — Tổng hợp hiện trạng dự án
 
+## Nâng cấp giao diện Đặt lịch & Cổng Khách hàng (`/customer/dat-lich`) 2026-11-21
+
+Làm mới toàn diện giao diện trang **Đặt lịch chăm sóc & lưu trú** theo ảnh người dùng gửi, đồng thời đồng bộ khung điều hướng và stylesheet chung của cổng Khách hàng với trang `/profile` mới (không thay đổi backend Java hay DB, giữ nguyên contract form & regex `<option>` của `scripts/smoke-test.ps1`).
+
+- **`src/main/webapp/WEB-INF/includes/customerNav.jspf`**:
+  - Topbar chuyển sang gradient xanh rừng `#043629 → #075c45 → #0d8262`, logo có khung trắng nổi + badge `Khách hàng`, chip tài khoản có avatar chữ cái đầu, nút `Trang chủ` và `Đăng xuất` có icon.
+  - Subnav sticky kính mờ gồm 7 mục kèm icon SVG và trạng thái active dạng pill xanh nhẹ.
+- **`src/main/webapp/assets/css/customer.css`** (bản v2, đã tăng `?v=2` ở `datLich.jsp`, `lichHenDanhSach.jsp`, `quanLyThuCung.jsp`, `danhGia.jsp`, `thongBao.jsp`):
+  - Đồng bộ nền `#f5f7f6`, thẻ trắng bo góc `20px`, input `#f8fafc` có focus ring xanh ngọc, nút chính có độ tương phản cao, và chặn tràn ngang di động (`overflow-x: clip` + `overflow: hidden` trên `.pc-subnav-wrap`).
+  - Bổ sung nhóm class `.bk-*` chuyên biệt cho luồng đặt lịch.
+- **`src/main/webapp/customer/datLich.jsp`**:
+  - Thêm **Hero Banner** kèm nút `Quản lý thú cưng` / `Lịch hẹn của tôi` và **Stepper 2 bước** tự động đánh dấu hoàn thành Bước 1 khi đã có thú cưng.
+  - **Bước 1 (Thú cưng của bạn)**:
+    - Khi chưa có thú cưng (`0 bé`): hiển thị khung hướng dẫn thân thiện, nút chọn nhanh loài (`Chó` / `Mèo`) điền trực tiếp vào ô loài, nút **+ Thêm thú cưng** đổi từ ghost xám mờ sang nút chính xanh rừng nổi bật, và thêm thẻ **xem trước 4 hình thức đặt lịch** bên dưới để bố cục đầy đặn, rõ ràng.
+    - Khi đã có thú cưng: hiển thị dải **thẻ bé cưng** chọn nhanh (bấm vào bé nào tự động đồng bộ `select[name="petId"]` ở cả 4 tab) cùng khung `+ Thêm thú cưng nhanh` đóng/mở gọn gàng không còn tam giác mặc định của trình duyệt.
+  - **Bước 2 (4 hình thức đặt lịch)**: nâng cấp 4 nút tab thành **4 thẻ chế độ có icon & mô tả ngắn** (`Dịch vụ lẻ`, `Nhiều dịch vụ`, `Gói Combo`, `Phòng lưu trú`), hộp ước tính chi phí lưu trú nổi bật.
+  - **Cột phải**: thẻ **Giờ mở cửa cơ sở** kèm badge giờ/đóng cửa sắc nét, thẻ **Ca trực sắp tới** có số lượng ca và avatar chữ cái đầu từng nhân viên, cùng thẻ **Lưu ý khi đặt lịch** gọn gàng.
+
+### Đã kiểm chứng
+- Kiểm tra cân bằng thẻ JSTL, HTML (`div` 94/94, `section` 7/7, `form` 5/5) và SVG (`customerNav.jspf` 9/9, `datLich.jsp` 21/21): **PASS**.
+- Kiểm thử trực quan trên trình duyệt qua preview cục bộ (cả trạng thái 0 thú cưng và 2 thú cưng):
+  - **Desktop `1440×900`**: `0px` tràn ngang, `0` lỗi console; nút gợi ý nhanh `Mèo` điền đúng input; chọn thẻ bé cưng `Bơ` đồng bộ đúng cả 4 dropdown `petId`; chuyển tab `Dịch vụ lẻ` / `Gói Combo` / `Phòng lưu trú` gọn trong cột trái; hộp ước tính lưu trú tính đúng `1 đêm × 250.000 đ = 250.000 đ`.
+  - **Mobile `390×844`**: `0px` tràn ngang ở cả 2 trạng thái (đã sửa lỗi tràn subnav `457.2px` và lỗi độ ưu tiên CSS chữ cái đầu trên thẻ bé cưng ở lần kiểm đầu).
+
+## Làm đẹp giao diện hồ sơ người dùng (`/profile`) 2026-11-21
+
+Nâng cấp toàn diện giao diện trang hồ sơ tài khoản mà không thay đổi backend (`ProfileServlet.java`), giữ nguyên 100% contract form (`action=updateProfile`, `action=changePassword`, `data-user-id`, escape `fn:escapeXml`) tương thích với `scripts/smoke-test.ps1`.
+
+- **`src/main/webapp/assets/css/profile.css`** (viết mới v2 với hệ class `.pf-*` độc lập, tránh xung đột CSS cũ trong `home.css`):
+  - Tông nền sáng ấm (`#f5f7f6`) làm nổi bật bề mặt thẻ trắng sắc nét, viền hairline trung tính thay cho kiểu xếp chồng nhiều khối viền xanh đặc trước đây.
+  - Hỗ trợ bảng màu theo vai trò: `CUSTOMER` (xanh rừng `#075c45` + điểm nhấn vàng champagne), `STAFF` (xanh navy `#172e58`/`#1e3a8a` đồng bộ `staff.css`), `ADMIN` (xanh botanical `#165847` đồng bộ `admin.css`).
+  - Responsive hoàn chỉnh cho Desktop (`1440px`), Tablet (`847px` — ẩn `.main-nav` dưới `1080px` tránh đè logo/pill) và Mobile (`390px` — 0px tràn ngang).
+- **`src/main/webapp/profile.jsp`**:
+  - Đồng bộ cache-bust `home.css?v=16` (trước đó bị cũ ở `?v=9`), `profile.css?v=2`, và đồng bộ dropdown header cho cả `CUSTOMER`, `STAFF` (thêm class `header-user-role-tag-staff`), `ADMIN`.
+  - **Thẻ định danh Cover + Avatar nổi**: hiển thị tên, vai trò, trạng thái hoạt động, ID, SĐT, email, ngày tham gia và nút hành động chính phù hợp từng vai trò (bỏ lặp lại các hộp KPI SĐT/Email lớn như bản cũ).
+  - **Bố cục Workspace 2 cột**:
+    - Cột trái: thẻ **Tổng quan hoạt động** dạng lưới 2×2 cân đối (`Thú cưng`, `Lịch hẹn`, `Hóa đơn` có đánh dấu màu hổ phách khi còn công nợ, `Đánh giá`), thẻ **Bé cưng của bạn** đặt lịch nhanh 1 chạm (hoặc lối tắt nghiệp vụ cho `STAFF`/`ADMIN`), và thẻ **Trạng thái & Bảo mật** kèm nút đăng xuất rõ ràng.
+    - Cột phải: thanh chuyển nhanh 3 mục (`Thông tin cá nhân`, `Đổi mật khẩu`, `Tiện ích nhanh`), form **Thông tin cá nhân** bố trí SĐT + Email 2 cột kèm chip phát hiện *"Có thay đổi chưa lưu"* & nút **Hoàn tác**, form **Bảo mật & Đổi mật khẩu** có thanh đo độ mạnh 4 nấc + 4 chip tiêu chí tự bật xanh khi gõ (`Từ 8 ký tự`, `Chữ hoa & thường`, `Có chữ số`, `Ký tự đặc biệt`) + trạng thái khớp mật khẩu.
+  - **Khu tiện ích theo vai trò**: sửa lỗi trùng 2 thẻ thanh toán (`Thanh toán hóa đơn` + `Thanh toán lịch hẹn`) khiến lưới bị lệch 7 thẻ ở bản cũ; nay hiển thị đúng 6 thẻ cân đối cho `CUSTOMER`, 3 thẻ cho `STAFF`, và 6 thẻ cho `ADMIN`.
+  - Thông báo thành công/lỗi có nút đóng trực tiếp.
+
+### Đã kiểm chứng
+- Kiểm tra cân bằng thẻ JSTL (`c:if` 16/16, `c:choose` 13/13, `c:when` 23/23, `c:otherwise` 11/11, `c:forEach` 1/1) và SVG (`95/95`): **PASS**, không sót thẻ EL/JSTL.
+- Kiểm thử trực quan trên trình duyệt thật qua preview cục bộ (nạp trực tiếp `home.css`, `login.css`, `profile.css`, `pw-toggle.js`, `logo.png`; không kết nối DB/Tomcat thật):
+  - **Desktop `1440×900`** (CUSTOMER & STAFF): `0px` tràn ngang, 0 lỗi console, 4 ô thống kê căn đều `145.7×117.1px`, 2 bảng màu xanh rừng/navy hiển thị chính xác.
+  - **Tablet `847×900`**: `0px` tràn ngang, header gọn không chồng chữ.
+  - **Mobile `390×844`**: `0px` tràn ngang (đã phát hiện và sửa lỗi tràn `+10.4px` ở lần đo đầu), `ID #12` và 3 tab điều hướng nhanh đều nằm gọn trên 1 dòng.
+  - **Tương tác UI**: sửa tên → hiện chip chưa lưu & nút hoàn tác → bấm hoàn tác khôi phục đúng; nhập mật khẩu mạnh → 4/4 tiêu chí sáng xanh + báo *"Mật khẩu rất mạnh"* + *"✓ Khớp mật khẩu"*; nút ẩn/hiện mật khẩu và nút đóng thông báo hoạt động đúng.
+- Lưu ý: cần reload/redeploy webapp trên Tomcat đang chạy (và Ctrl+F5 nếu trình duyệt cache mạnh) để nhận bản JSP/CSS mới.
+
 ## Đổi giao diện khu vực nhân viên cho khác khách hàng 2026-11-19
 
 Theo yêu cầu: giao diện nhân viên phải khác khách hàng để dễ phân biệt. Chưa commit.
