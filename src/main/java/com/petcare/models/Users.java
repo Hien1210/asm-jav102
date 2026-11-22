@@ -18,6 +18,9 @@ public class Users implements Serializable {
     private String role;
     private boolean isActive;
     private LocalDateTime createdAt;
+    private String avatarUrl;
+    private String bannerUrl;
+    private boolean mediaLoaded;
 
     public Users() {
         this.role = ROLE_CUSTOMER;
@@ -110,5 +113,29 @@ public class Users implements Serializable {
 
     public boolean isCustomer() {
         return ROLE_CUSTOMER.equalsIgnoreCase(this.role);
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public String getBannerUrl() {
+        return bannerUrl;
+    }
+
+    public void setBannerUrl(String bannerUrl) {
+        this.bannerUrl = bannerUrl;
+    }
+
+    public boolean isMediaLoaded() {
+        return mediaLoaded;
+    }
+
+    public void setMediaLoaded(boolean mediaLoaded) {
+        this.mediaLoaded = mediaLoaded;
     }
 }

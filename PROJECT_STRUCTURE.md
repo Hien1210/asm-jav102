@@ -18,7 +18,8 @@
 - QuenMatKhauServlet.java (`/quen-mat-khau`) — yêu cầu đặt lại mật khẩu, gửi link qua email (Gmail SMTP), phản hồi chung chung chống dò định danh.
 - DatLaiMatKhauServlet.java (`/dat-lai-mat-khau`) — xác thực token từ email, đặt mật khẩu mới.
 - XacThucEmailServlet.java (`/xac-thuc-email`) — tiêu thụ token xác thực email gửi lúc đăng ký, redirect về `/login` kèm thông báo.
-- ProfileServlet.java (`/profile`, `/ho-so`) — hồ sơ cá nhân, đổi mật khẩu và thống kê tổng quan cho khách hàng (số thú cưng, lịch hẹn, công nợ, đánh giá, thông báo).
+- ProfileServlet.java (`/profile`, `/ho-so`) — hồ sơ cá nhân, đổi mật khẩu, nạp avatar/banner từ `UserMediaDAO` và thống kê tổng quan cho khách hàng (số thú cưng, lịch hẹn, công nợ, đánh giá, thông báo).
+- ProfileMediaServlet.java (`/profile/media`) — nhận upload ảnh đã cắt (multipart `avatar`/`banner`), xác thực magic bytes, tải lên Cloudinary (`petcare/avatars`, `petcare/banners`), lưu URL vào `dbo.UserMedia`, xóa ảnh cũ best-effort và hỗ trợ khôi phục mặc định (`action=remove`).
 - QuanLyCaLamViecServlet.java
 - QuanLyComboServlet.java
 - QuanLyDichVuServlet.java
@@ -45,6 +46,7 @@
 - RoomDAO.java / RoomDAOImpl.java — danh sách phòng mở đặt và phòng trống theo khoảng ngày.
 - ServiceDAO.java / ServiceDAOImpl.java
 - StaffDAO.java / StaffDAOImpl.java — nhân viên có kỹ năng theo dịch vụ và ca trực sắp tới `dbo.Shifts`.
+- UserMediaDAO.java / UserMediaDAOImpl.java — đọc/cập nhật `avatar_url` & `banner_url` trong bảng `dbo.UserMedia` (hỗ trợ cả stored procedure, fallback SQL và SQL Server cục bộ; đọc fail-open nếu DB chưa chạy migration).
 
 ## filter
 
@@ -87,6 +89,7 @@
 
 ## utils
 
+- CloudinaryUtil.java — client REST ký chữ ký SHA-1 thuần JDK (`java.net.http.HttpClient`, không thêm dependency ngoài) cho Cloudinary Upload API v1_1: đọc `cloudinary.url` / `CLOUDINARY_URL`, kiểm tra magic bytes (JPG/PNG/WebP/GIF, tối đa 8 MB), upload ảnh và xóa ảnh cũ theo URL.
 - ConfigUtil.java
 - DatabaseConnectionTest.java
 - DateUtil.java — múi giờ Việt Nam (`Asia/Ho_Chi_Minh`), định dạng ngày/giờ/VNĐ và nhãn thứ trong tuần.
@@ -124,6 +127,7 @@
 - `database/petcare_customer_features.sql` — migration tăng dần (idempotent) cho đầy đủ chức năng `CUSTOMER`: `CreatePet` (hỗ trợ `medical_notes`), `UpdatePet`, `DeletePet`, `CreateNotification`, `ListUserNotifications`, cấp quyền `SELECT`/`EXECUTE` và seed dữ liệu mẫu (dịch vụ, combo, phòng lưu trú, giờ mở cửa, kỹ năng & ca trực nhân viên).
 - `database/petcare_password_reset.sql` — bảng `dbo.PasswordResetTokens` + `CreatePasswordResetToken`/`ConsumePasswordResetToken` cho tính năng quên mật khẩu qua email. **Đã áp dụng DB chính.**
 - `database/petcare_email_verification.sql` — bảng `dbo.EmailVerificationTokens` + `CreateEmailVerificationToken`/`ConsumeEmailVerificationToken` cho xác thực email khi đăng ký. Chưa áp dụng DB chính (chờ duyệt).
+- `database/petcare_user_media.sql` — bảng `dbo.UserMedia` (`user_id`, `avatar_url`, `banner_url`) + 3 stored procedure (`GetUserMedia`, `UpsertUserAvatar`, `UpsertUserBanner`). Đã áp dụng trên SQL Server cục bộ (`localhost\SQLEXPRESS`).
 
 ## Kiểm thử (cập nhật 2026-11-19)
 
@@ -244,3 +248,9 @@ The singular controller package was removed. Existing servlet URL mappings are u
 - Nâng cấp `WEB-INF/includes/customerNav.jspf`, `assets/css/customer.css` (`?v=2`, cập nhật cache-bust trên 5 JSP khách hàng) và thiết kế lại `customer/datLich.jsp` đồng bộ với bảng màu Botanical Atelier của `/profile`.
 - `datLich.jsp`: thêm hero banner kèm stepper 2 bước, khung nhắc thân thiện + nút chọn nhanh loài (`Chó`/`Mèo`) & nút submit chính rõ ràng khi chưa có thú cưng, thẻ xem trước 4 hình thức đặt lịch lấp khoảng trống, thẻ chọn nhanh bé cưng đồng bộ dropdown giữa 4 tab, 4 thẻ chọn chế độ đặt lịch trực quan, hộp ước tính lưu trú nổi bật, cột phải giờ mở cửa dạng badge + ca trực có avatar + thẻ lưu ý.
 - Giữ nguyên backend `DatLichServlet` và toàn bộ contract form/option regex cho `scripts/smoke-test.ps1`. Đã kiểm tra cân bằng thẻ JSTL/HTML/SVG và kiểm thử trực quan ở 1440px & 390px cho cả 2 trạng thái (0 thú cưng & có thú cưng): 0px tràn ngang, 0 lỗi console.
+
+## Tích hợp Cloudinary & Trình chỉnh sửa Avatar / Banner hồ sơ — 21/11/2026
+- `CloudinaryUtil` (thuần JDK `HttpClient` + ký SHA-1, không cần thêm thư viện ngoài), `UserMediaDAO`/`UserMediaDAOImpl`, `ProfileMediaServlet` (`/profile/media`, `@MultipartConfig` 8 MB), mở rộng `Users`/`SessionUtil`/`ProfileServlet`/`LoginServlet` giữ nguyên bảo toàn media qua `AuthFilter`.
+- `database/petcare_user_media.sql` (bảng `dbo.UserMedia` + 3 SP độc lập không đụng `dbo.Users`, đã áp dụng trên `localhost\SQLEXPRESS`). Cấu hình Cloudinary đặt ở `application-local.properties` và SmartTomcat `.idea/workspace.xml` (đều git-ignored), mẫu ở `application.properties`.
+- `assets/js/profile-media-editor.js` (`?v=2`), `assets/css/profile.css` (`?v=4`), `profile.jsp`, `customerNav.jspf`, `index.jsp`: nút đổi avatar & ảnh bìa kèm trình cắt ảnh chi tiết (kéo thả, cuộn chuột thu phóng, zoom 100–300%, xoay ±90° & xoay mịn ±45°, lật ngang/dọc, dịch chuyển từng px bằng nút/phím mũi tên, chỉnh độ sáng/tương phản, xem trước trực tiếp, khôi phục mặc định) và đồng bộ avatar lên thanh điều hướng.
+- Kiểm thử: 5 test mới trong `CloudinaryUtilTest` (tổng 104 test: 101 đạt, 3 tích hợp bỏ qua; build WAR đạt), E2E upload ảnh thật lên Cloudinary `dut8qxmt` (CDN HTTP 200) + lưu/đọc `dbo.UserMedia` + dọn sạch ảnh test, và kiểm thử trực quan hộp thoại cắt Avatar/Banner trên trình duyệt.

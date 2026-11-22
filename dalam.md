@@ -1,5 +1,29 @@
 # PetCare (asm-jav102) — Tổng hợp hiện trạng dự án
 
+## Sửa lỗi IntelliJ Build `cannot find symbol` sau merge nhánh `Thanhhien` 2026-11-21
+
+- **Nguyên nhân**: commit `7c3fbfca` từ nhánh `Thanhhien` đưa lại file `.idea/modules.xml` trỏ tới `$PROJECT_DIR$/.idea/asm-jav102.iml` (không tồn tại và lệch `$MODULE_DIR$` so với cấu hình Maven external storage ở `$PROJECT_DIR$/asm-jav102.iml`), khiến IntelliJ JPS Build không nhận diện source root `src/main/java` (`cannot find symbol class AppointmentDAO`, `Appointments`... trong `BookingServiceTest.java`) dù `mvn test` biên dịch và pass 100%.
+- **Đã sửa**: gỡ `.idea/modules.xml` khỏi working tree và git index (`git rm .idea/modules.xml`) để IntelliJ quay về cấu hình Maven chuẩn trong `pom.xml`. Sau đó trong IntelliJ chỉ cần bấm **Reload All Maven Projects** (biểu tượng `m` → ↻) và **Build → Rebuild Project**.
+
+## Tích hợp Cloudinary & Trình chỉnh sửa Avatar / Banner chi tiết (`/profile/media`) 2026-11-21
+
+Tích hợp Cloudinary upload ảnh từ cấu hình có sẵn trên máy (`cloud_name: dut8qxmt`, lưu trong `application-local.properties` và `.idea/workspace.xml` đều git-ignored; không lưu secret vào file git-tracked) cho phép người dùng đổi **ảnh đại diện (Avatar)** và **ảnh bìa (Banner)** kèm trình canh chỉnh chi tiết trước khi tải lên.
+
+- **Backend (thuần JDK 17, không thêm dependency ngoài)**:
+  - **`CloudinaryUtil.java`**: ký chữ ký SHA-1 theo chuẩn Cloudinary Upload API v1_1 qua `java.net.http.HttpClient`, đọc `cloudinary.url`/`CLOUDINARY_URL` hoặc 3 key tách riêng, kiểm tra dung lượng (tối đa 8 MB) & magic bytes (`JPG`, `PNG`, `WebP`, `GIF`), upload vào `petcare/avatars` hoặc `petcare/banners` và tự động xóa ảnh Cloudinary cũ khi thay/gỡ (best-effort).
+  - **`database/petcare_user_media.sql`** + **`UserMediaDAO`/`UserMediaDAOImpl`**: bảng `dbo.UserMedia` (`user_id`, `avatar_url`, `banner_url`, `updated_at`) và 3 stored procedure (`GetUserMedia`, `UpsertUserAvatar`, `UpsertUserBanner`), độc lập không đụng `dbo.Users`; hàm đọc fail-open nếu DB khác chưa chạy migration. **Đã chạy thành công 7/7 batch trên `localhost\SQLEXPRESS` (`PetCare`).**
+  - **`ProfileMediaServlet.java`** (`/profile/media`, `@MultipartConfig`): xác thực phiên & trạng thái tài khoản, hỗ trợ `action=upload` và `action=remove` cho `type=avatar|banner`, rollback xóa ảnh Cloudinary nếu lưu DB lỗi, trả JSON cập nhật UI trực tiếp.
+  - **`Users.java`**, **`SessionUtil.java`**, **`ProfileServlet.java`**, **`LoginServlet.java`**: nạp `avatarUrl`/`bannerUrl` lúc đăng nhập & vào `/profile`, đồng thời bảo toàn media trong session khi `AuthFilter` làm mới `currentUser` trên các route `/customer/*`, `/staff/*`, `/admin/*`.
+- **Frontend — Trình canh chỉnh ảnh chi tiết (`profile-media-editor.js?v=2`, `profile.css?v=4`, `profile.jsp`, `customerNav.jspf`, `index.jsp`)**:
+  - Nút đổi ảnh đại diện (camera badge + hover overlay) và nút **Đổi ảnh bìa** dạng kính mờ ngay trên thẻ hồ sơ; đồng bộ hiển thị avatar mới lên thanh điều hướng của `/profile`, `/home` và cổng Khách hàng.
+  - Hộp thoại **Chỉnh sửa ảnh** hỗ trợ kéo thả/chọn file, khung cắt đúng tỷ lệ (`512×512` cho Avatar, `1600×374` cho Banner) có lưới 1/3 và vùng ngoài làm tối nổi bật khung cắt, kéo ảnh bằng chuột/cảm ứng, cuộn chuột thu phóng, slider Zoom `100%–300%`, xoay nhanh `±90°` & xoay mịn `±45°`, lật ngang/lọc dọc, dịch chuyển từng pixel bằng nút mũi tên hoặc phím mũi tên bàn phím, chỉnh Độ sáng & Tương phản (`75%–130%`), xem trước trực tiếp và nút **Khôi phục mặc định**.
+
+### Đã kiểm chứng
+- **Maven JUnit + WAR build**: **104 test (101 đạt, 0 lỗi, 3 tích hợp bỏ qua)** gồm 5 test mới trong `CloudinaryUtilTest` (parse URI có dấu `_`, test vector SHA-1 Cloudinary, tách `public_id`, kiểm tra magic bytes); đóng gói `target/petcare.war` thành công.
+- **E2E thật với Cloudinary & SQL Server cục bộ**: tải ảnh PNG thật lên `dut8qxmt` (`petcare/qa-smoke`) → nhận `https://res.cloudinary.com/dut8qxmt/...` (CDN HTTP `200`) → lưu & đọc khớp qua `UserMediaDAOImpl` trên `localhost\SQLEXPRESS` → hoàn trả DB và xóa ảnh tạm trên Cloudinary sạch sẽ.
+- **Kiểm thử trực quan trình duyệt**: đã kiểm tra hộp thoại cắt Avatar & Banner, áp dụng ảnh lên hồ sơ + header (`0px` tràn ngang, `0` lỗi console); đã phát hiện và sửa 2 lỗi nhỏ trong quá trình kiểm thử (scope biến CSS `--pf-*` cho modal và đảo vùng sáng/tối của mặt nạ cắt canvas).
+- **Lưu ý**: trên DB dùng chung từ xa (`hung211.tail1f20d2.ts.net`), cần chạy thêm 1 lần `database/petcare_user_media.sql` bằng tài khoản quản trị DB nếu muốn lưu avatar/banner trên server chung. Cần **Restart SmartTomcat** trong IntelliJ để nạp servlet mới và biến môi trường `CLOUDINARY_URL` vừa cấu hình sẵn trong `.idea/workspace.xml`.
+
 ## Nâng cấp giao diện Đặt lịch & Cổng Khách hàng (`/customer/dat-lich`) 2026-11-21
 
 Làm mới toàn diện giao diện trang **Đặt lịch chăm sóc & lưu trú** theo ảnh người dùng gửi, đồng thời đồng bộ khung điều hướng và stylesheet chung của cổng Khách hàng với trang `/profile` mới (không thay đổi backend Java hay DB, giữ nguyên contract form & regex `<option>` của `scripts/smoke-test.ps1`).

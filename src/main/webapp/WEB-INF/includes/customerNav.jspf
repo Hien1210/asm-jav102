@@ -15,8 +15,13 @@
 
         <div class="pc-user-bar">
             <a href="${pageContext.request.contextPath}/profile" class="pc-user-chip" title="Xem hồ sơ cá nhân">
-                <span class="pc-user-avatar" aria-hidden="true">
-                    ${fn:toUpperCase(fn:substring(fn:trim(sessionScope.loggedInUser), 0, 1))}
+                <span class="pc-user-avatar${not empty sessionScope.loggedInAvatarUrl ? ' has-photo' : ''}" aria-hidden="true">
+                    <c:choose>
+                        <c:when test="${not empty sessionScope.loggedInAvatarUrl}">
+                            <img src="${fn:escapeXml(sessionScope.loggedInAvatarUrl)}" alt="" />
+                        </c:when>
+                        <c:otherwise>${fn:toUpperCase(fn:substring(fn:trim(sessionScope.loggedInUser), 0, 1))}</c:otherwise>
+                    </c:choose>
                 </span>
                 <span class="pc-user-greeting">Xin chào, <strong>${fn:escapeXml(sessionScope.loggedInUser)}</strong></span>
             </a>

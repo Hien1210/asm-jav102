@@ -39,7 +39,14 @@ public final class ConfigUtil {
     public static String get(String key, String environment, String fallback) {
         // An explicitly selected external file takes precedence over inherited environment.
         if (EXTERNAL.containsKey(key)) return EXTERNAL.getProperty(key);
-        String value = System.getenv(environment);
-        return value != null ? value : SETTINGS.getProperty(key, fallback);
+        if (environment != null && !environment.isBlank()) {
+            String value = System.getenv(environment);
+            if (value != null && !value.isBlank()) return value;
+            String prop = System.getProperty(environment);
+            if (prop != null && !prop.isBlank()) return prop;
+        }
+        String keyProp = System.getProperty(key);
+        if (keyProp != null && !keyProp.isBlank()) return keyProp;
+        return SETTINGS.getProperty(key, fallback);
     }
 }

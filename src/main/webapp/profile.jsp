@@ -16,7 +16,7 @@
         rel="stylesheet" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css?v=16" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/login.css?v=2" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/profile.css?v=2" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/profile.css?v=4" />
 </head>
 
 <body data-ctx="${pageContext.request.contextPath}" data-user-id="${sessionScope.loggedInUserId}">
@@ -42,8 +42,11 @@
                 <div class="header-user-wrap">
                     <div class="header-user-trigger">
                         <a href="${pageContext.request.contextPath}/profile" class="header-user-pill">
-                            <span class="header-user-avatar-circle">
-                                ${fn:toUpperCase(fn:substring(fn:trim(sessionScope.loggedInUser), 0, 1))}
+                            <span class="header-user-avatar-circle${not empty sessionScope.loggedInAvatarUrl ? ' has-photo' : ''}" data-pf-avatar-slot>
+                                <c:if test="${not empty sessionScope.loggedInAvatarUrl}">
+                                    <img src="${fn:escapeXml(sessionScope.loggedInAvatarUrl)}" alt="Ảnh đại diện" class="pf-avatar-img" />
+                                </c:if>
+                                <span data-pf-avatar-letter${not empty sessionScope.loggedInAvatarUrl ? ' hidden' : ''}>${fn:toUpperCase(fn:substring(fn:trim(sessionScope.loggedInUser), 0, 1))}</span>
                             </span>
                             <span class="header-user-info">
                                 <span class="header-user-name">${fn:escapeXml(sessionScope.loggedInUser)}</span>
@@ -63,8 +66,11 @@
 
                         <div class="header-user-dropdown">
                             <div class="dropdown-user-head">
-                                <span class="dropdown-user-avatar">
-                                    ${fn:toUpperCase(fn:substring(fn:trim(sessionScope.loggedInUser), 0, 1))}
+                                <span class="dropdown-user-avatar${not empty sessionScope.loggedInAvatarUrl ? ' has-photo' : ''}" data-pf-avatar-slot>
+                                    <c:if test="${not empty sessionScope.loggedInAvatarUrl}">
+                                        <img src="${fn:escapeXml(sessionScope.loggedInAvatarUrl)}" alt="Ảnh đại diện" class="pf-avatar-img" />
+                                    </c:if>
+                                    <span data-pf-avatar-letter${not empty sessionScope.loggedInAvatarUrl ? ' hidden' : ''}>${fn:toUpperCase(fn:substring(fn:trim(sessionScope.loggedInUser), 0, 1))}</span>
                                 </span>
                                 <div class="dropdown-user-meta">
                                     <strong>${fn:escapeXml(sessionScope.loggedInUser)}</strong>
@@ -179,8 +185,19 @@
         <div class="pf-container">
 
             <!-- 1. ARCHITECTURAL IDENTITY COVER CARD -->
-            <section class="pf-identity-card pf-animate" aria-label="Hồ sơ của người dùng">
-                <div class="pf-cover">
+            <c:set var="userInitial" value="${fn:toUpperCase(fn:substring(fn:trim(sessionScope.currentUser.fullName), 0, 1))}" />
+            <c:set var="curAvatarUrl" value="${not empty sessionScope.currentUser.avatarUrl ? sessionScope.currentUser.avatarUrl : sessionScope.loggedInAvatarUrl}" />
+            <c:set var="curBannerUrl" value="${not empty sessionScope.currentUser.bannerUrl ? sessionScope.currentUser.bannerUrl : sessionScope.loggedInBannerUrl}" />
+
+            <section class="pf-identity-card pf-animate" aria-label="Hồ sơ của người dùng"
+                     data-avatar-url="${fn:escapeXml(curAvatarUrl)}"
+                     data-banner-url="${fn:escapeXml(curBannerUrl)}"
+                     data-user-initial="${fn:escapeXml(userInitial)}">
+                <div class="pf-cover${not empty curBannerUrl ? ' has-banner-photo' : ''}" id="pfCoverBanner">
+                    <c:if test="${not empty curBannerUrl}">
+                        <img src="${fn:escapeXml(curBannerUrl)}" alt="Ảnh bìa hồ sơ" class="pf-cover-photo" />
+                    </c:if>
+
                     <span class="pf-cover-kicker">
                         <span class="pf-cover-kicker-dot" aria-hidden="true"></span>
                         <c:choose>
@@ -190,14 +207,25 @@
                         </c:choose>
                     </span>
 
-                    <span class="pf-cover-id-chip" title="Mã tài khoản">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
-                            <rect x="3" y="4" width="18" height="16" rx="2"></rect>
-                            <line x1="7" y1="10" x2="17" y2="10"></line>
-                            <line x1="7" y1="14" x2="13" y2="14"></line>
+                    <div class="pf-cover-top-right">
+                        <span class="pf-cover-id-chip" title="Mã tài khoản">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                                <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                                <line x1="7" y1="10" x2="17" y2="10"></line>
+                                <line x1="7" y1="14" x2="13" y2="14"></line>
+                            </svg>
+                            <span>ID #${sessionScope.currentUser.userId}</span>
+                        </span>
+                    </div>
+
+                    <button type="button" class="pf-cover-edit-btn" data-open-media-editor="banner"
+                            title="Thay đổi hoặc canh chỉnh ảnh bìa">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
                         </svg>
-                        <span>ID #${sessionScope.currentUser.userId}</span>
-                    </span>
+                        <span>Đổi ảnh bìa</span>
+                    </button>
 
                     <svg class="pf-cover-paw" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <circle cx="7" cy="7.5" r="2.2" />
@@ -212,16 +240,34 @@
                 <div class="pf-identity-body">
                     <div class="pf-identity-left">
                         <div class="pf-avatar-wrap">
-                            <span class="pf-avatar" aria-hidden="true">
-                                ${fn:toUpperCase(fn:substring(fn:trim(sessionScope.currentUser.fullName), 0, 1))}
+                            <span class="pf-avatar${not empty curAvatarUrl ? ' has-photo' : ''}" data-pf-avatar-slot>
+                                <c:if test="${not empty curAvatarUrl}">
+                                    <img src="${fn:escapeXml(curAvatarUrl)}" alt="Ảnh đại diện" class="pf-avatar-img" />
+                                </c:if>
+                                <span data-pf-avatar-letter${not empty curAvatarUrl ? ' hidden' : ''}>${fn:escapeXml(userInitial)}</span>
+                                <button type="button" class="pf-avatar-hover-mask" data-open-media-editor="avatar"
+                                        aria-label="Đổi ảnh đại diện">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                        <circle cx="12" cy="13" r="4"></circle>
+                                    </svg>
+                                    <span>Đổi ảnh</span>
+                                </button>
                             </span>
                             <c:if test="${sessionScope.currentUser.active}">
-                                <span class="pf-avatar-verified" title="Tài khoản đang hoạt động">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
+                                <span class="pf-avatar-verified-top" title="Tài khoản đang hoạt động">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" aria-hidden="true">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
                                 </span>
                             </c:if>
+                            <button type="button" class="pf-avatar-edit-btn" data-open-media-editor="avatar"
+                                    title="Đổi hoặc canh chỉnh ảnh đại diện" aria-label="Đổi ảnh đại diện">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                    <circle cx="12" cy="13" r="4"></circle>
+                                </svg>
+                            </button>
                         </div>
 
                         <div class="pf-identity-info">
@@ -1536,6 +1582,153 @@
             });
         })();
     </script>
+    <!-- PRECISION IMAGE CROP & CLOUDINARY UPLOAD STUDIO MODAL -->
+    <div id="pfMediaModal" class="pf-modal" role="dialog" aria-modal="true" aria-labelledby="pfMediaTitle" hidden>
+        <div class="pf-modal-backdrop" data-close-media-modal></div>
+        <div class="pf-modal-dialog">
+            <div class="pf-modal-head">
+                <div>
+                    <h2 class="pf-modal-title" id="pfMediaTitle">Chỉnh sửa ảnh đại diện</h2>
+                    <p class="pf-modal-sub" id="pfMediaSub">Kéo thả, phóng to/thu nhỏ, xoay và canh khung chính xác trước khi lưu lên Cloudinary.</p>
+                </div>
+                <button type="button" class="pf-modal-close" data-close-media-modal aria-label="Đóng trình chỉnh sửa ảnh">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="pf-modal-body">
+                <div id="pfMediaError" class="pf-media-error" role="alert" hidden></div>
+                <input type="file" id="pfMediaFileInput" accept="image/jpeg,image/png,image/webp,image/gif" hidden />
+
+                <!-- DROPZONE -->
+                <div id="pfMediaDropzone" class="pf-dropzone" role="button" tabindex="0">
+                    <span class="pf-dropzone-ico" aria-hidden="true">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                    </span>
+                    <strong>Chọn ảnh từ máy hoặc kéo thả vào đây</strong>
+                    <span>Hỗ trợ JPG, PNG, WebP, GIF &bull; Tối đa 8 MB &bull; Tối ưu tự động qua Cloudinary CDN</span>
+                </div>
+
+                <!-- STUDIO EDITOR -->
+                <div id="pfMediaEditorWrap" class="pf-editor-layout" hidden>
+                    <div class="pf-crop-stage-card">
+                        <div class="pf-crop-stage" id="pfCropStage" title="Kéo ảnh để di chuyển, cuộn chuột để thu phóng">
+                            <canvas id="pfCropCanvas" class="pf-crop-canvas"></canvas>
+                        </div>
+                        <div class="pf-stage-bar">
+                            <span>Kéo ảnh · Cuộn chuột thu phóng · Phím mũi tên canh từng px</span>
+                            <span id="pfPosReadout">X: 0px · Y: 0px</span>
+                        </div>
+                    </div>
+
+                    <div class="pf-studio-panel">
+                        <!-- LIVE PREVIEW -->
+                        <div class="pf-preview-box" id="pfLivePreviewWrap">
+                            <div class="pf-preview-frame">
+                                <canvas id="pfLivePreviewCanvas"></canvas>
+                            </div>
+                            <div class="pf-preview-meta">
+                                <strong>Xem trước thực tế</strong>
+                                <span>Hiển thị đúng tỷ lệ sau khi lưu lên hồ sơ của bạn.</span>
+                            </div>
+                        </div>
+
+                        <!-- ZOOM & ROTATION -->
+                        <div class="pf-ctrl-group">
+                            <div class="pf-ctrl-row">
+                                <div class="pf-ctrl-head">
+                                    <label for="pfZoomRange">Thu phóng (Zoom)</label>
+                                    <output id="pfZoomVal">100%</output>
+                                </div>
+                                <div class="pf-slider-line">
+                                    <button type="button" class="pf-mini-btn" id="pfBtnZoomOut" aria-label="Thu nhỏ">&minus;</button>
+                                    <input type="range" id="pfZoomRange" class="pf-range" min="100" max="300" step="1" value="100" />
+                                    <button type="button" class="pf-mini-btn" id="pfBtnZoomIn" aria-label="Phóng to">+</button>
+                                </div>
+                            </div>
+
+                            <div class="pf-ctrl-row">
+                                <div class="pf-ctrl-head">
+                                    <label for="pfRotateRange">Góc xoay chi tiết</label>
+                                    <output id="pfRotateVal">0&deg;</output>
+                                </div>
+                                <div class="pf-slider-line">
+                                    <button type="button" class="pf-mini-btn" id="pfBtnRotLeft" title="Xoay trái 90°">-90&deg;</button>
+                                    <input type="range" id="pfRotateRange" class="pf-range" min="-45" max="45" step="1" value="0" />
+                                    <button type="button" class="pf-mini-btn" id="pfBtnRotRight" title="Xoay phải 90°">+90&deg;</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FLIP, NUDGE & LIGHT -->
+                        <div class="pf-ctrl-group">
+                            <div class="pf-tool-bar">
+                                <button type="button" class="pf-mini-btn" id="pfBtnFlipH">Lật ngang</button>
+                                <button type="button" class="pf-mini-btn" id="pfBtnFlipV">Lật dọc</button>
+                                <button type="button" class="pf-mini-btn" id="pfBtnCenterCrop">Canh giữa</button>
+                                <button type="button" class="pf-mini-btn" id="pfBtnResetCrop">Đặt lại</button>
+                            </div>
+
+                            <div class="pf-nudge-row">
+                                <span style="font-size:0.75rem;font-weight:700;color:var(--pf-ink-2);">Dịch chuyển mịn</span>
+                                <div class="pf-nudge-pad">
+                                    <button type="button" class="pf-mini-btn" data-nudge="left" aria-label="Dịch trái">&larr;</button>
+                                    <button type="button" class="pf-mini-btn" data-nudge="up" aria-label="Dịch lên">&uarr;</button>
+                                    <button type="button" class="pf-mini-btn" data-nudge="down" aria-label="Dịch xuống">&darr;</button>
+                                    <button type="button" class="pf-mini-btn" data-nudge="right" aria-label="Dịch phải">&rarr;</button>
+                                </div>
+                            </div>
+
+                            <div class="pf-ctrl-2col">
+                                <div class="pf-ctrl-row">
+                                    <div class="pf-ctrl-head">
+                                        <label for="pfBrightRange">Độ sáng</label>
+                                        <output id="pfBrightVal">100%</output>
+                                    </div>
+                                    <input type="range" id="pfBrightRange" class="pf-range" min="75" max="130" step="1" value="100" />
+                                </div>
+
+                                <div class="pf-ctrl-row">
+                                    <div class="pf-ctrl-head">
+                                        <label for="pfContrastRange">Tương phản</label>
+                                        <output id="pfContrastVal">100%</output>
+                                    </div>
+                                    <input type="range" id="pfContrastRange" class="pf-range" min="75" max="130" step="1" value="100" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pf-modal-foot">
+                <div class="pf-modal-foot-left">
+                    <button type="button" class="pf-btn pf-btn-secondary" id="pfBtnChooseAnother" hidden>Chọn ảnh khác</button>
+                    <button type="button" class="pf-btn pf-btn-danger-soft" id="pfBtnRemoveMedia" hidden>Khôi phục mặc định</button>
+                </div>
+                <div class="pf-modal-foot-right">
+                    <button type="button" class="pf-btn pf-btn-secondary" id="pfBtnCancelMedia" data-close-media-modal>Hủy</button>
+                    <button type="button" class="pf-btn pf-btn-primary" id="pfBtnSaveMedia" disabled>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <span>Lưu &amp; tải lên Cloudinary</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="${pageContext.request.contextPath}/assets/js/profile-media-editor.js?v=2"></script>
     <script src="${pageContext.request.contextPath}/assets/js/pw-toggle.js?v=1"></script>
     <script src="${pageContext.request.contextPath}/assets/js/notifications.js"></script>
 </body>
