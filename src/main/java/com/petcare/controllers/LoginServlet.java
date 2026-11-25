@@ -1,5 +1,7 @@
 package com.petcare.controllers;
 
+import com.petcare.daos.UserMediaDAO;
+import com.petcare.daos.UserMediaDAOImpl;
 import com.petcare.models.Users;
 import com.petcare.services.AuthService;
 import com.petcare.utils.SessionUtil;
@@ -16,13 +18,19 @@ import java.sql.SQLException;
 public class LoginServlet extends HttpServlet {
 
     private final AuthService authService;
+    private final UserMediaDAO userMediaDAO;
 
     public LoginServlet() {
-        this(new AuthService());
+        this(new AuthService(), new UserMediaDAOImpl());
     }
 
     LoginServlet(AuthService authService) {
+        this(authService, null);
+    }
+
+    LoginServlet(AuthService authService, UserMediaDAO userMediaDAO) {
         this.authService = authService;
+        this.userMediaDAO = userMediaDAO;
     }
 
     @Override
@@ -77,6 +85,9 @@ public class LoginServlet extends HttpServlet {
 
         try {
             Users user = authService.authenticate(identifier, password);
+            if (userMediaDAO != null) {
+                userMediaDAO.hydrate(user);
+            }
             boolean rememberMe = "on".equalsIgnoreCase(remember) || "true".equalsIgnoreCase(remember);
             SessionUtil.storeAuthenticatedUser(request, user, rememberMe);
 
