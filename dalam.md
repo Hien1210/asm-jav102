@@ -1,5 +1,11 @@
 # PetCare (asm-jav102) — Tổng hợp hiện trạng dự án
 
+## Review bản cập nhật GiaHung — 25/11/2026
+
+- Phạm vi review là các thay đổi của merge `91ade6f` so với parent thứ nhất. Maven có 101 test đạt và 3 test tích hợp bỏ qua, build WAR thành công. Kiểm tra cú pháp JavaScript trình sửa ảnh đạt.
+- Các điểm cần sửa ở `/profile/media`: bổ sung CSRF cho upload và xóa ảnh, trả thông báo chung thay cho chi tiết lỗi SQL/Cloudinary, và xử lý cập nhật đồng thời để dọn ảnh thực sự bị thay thế.
+- Review chưa chạy luồng upload trên trình duyệt, SQL Server hoặc Cloudinary thật.
+
 ## Đổi giao diện khu vực nhân viên cho khác khách hàng 2026-11-19
 
 Theo yêu cầu: giao diện nhân viên phải khác khách hàng để dễ phân biệt. Chưa commit.
