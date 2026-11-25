@@ -20,6 +20,23 @@ import java.util.UUID;
 
 public class PaymentDAOImpl implements PaymentDAO {
 
+    public void confirmCounterCash(int paymentId, int actorId, int appointmentId) throws SQLException {
+        String sql = "EXEC dbo.ConfirmCounterCash @payment_id = @p0, @actor_id = @p1, @appointment_id = @p2;";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("DECLARE @p0 INT = ?, @p1 INT = ?, @p2 INT = ?; " + sql)) {
+            stmt.setInt(1, paymentId);
+            stmt.setInt(2, actorId);
+            stmt.setInt(3, appointmentId);
+            stmt.execute();
+        } catch (SQLException e) {
+            if (!DBUtil.isConnectionFailure(e)) {
+                throw e;
+            }
+            DBUtil.executeLocalNonQuery(sql, DBUtil.localIntParam(paymentId),
+                    DBUtil.localIntParam(actorId), DBUtil.localIntParam(appointmentId));
+        }
+    }
+
     private Payments mapRow(ResultSet rs) throws SQLException {
         Payments payment = new Payments();
         payment.setPaymentId(rs.getInt("payment_id"));

@@ -27,6 +27,7 @@
 - QuanLyThuCungServlet.java (`/customer/thu-cung`) — CRUD đầy đủ thú cưng của khách hàng (tên, loài, giống, cân nặng, ngày sinh, ghi chú sức khỏe).
 - RegisterServlet.java
 - ThanhToanServlet.java (`/customer/thanh-toan`) — xem hóa đơn còn nợ, khởi tạo thanh toán `CASH`/`ONLINE` idempotent (`dbo.RecordPayment`), xác nhận giao dịch `ONLINE` (`PAID`) hoặc hủy yêu cầu `PENDING` (`FAILED`) qua `dbo.SetPaymentStatus`, lịch sử giao dịch & hoàn tiền.
+- ThuTienMatServlet.java (`/staff/thu-tien`) — tra khoản tiền mặt chờ thu theo mã lịch và xác nhận qua `dbo.ConfirmCounterCash` trong `database/petcare_counter_cash.sql`.
 - ThongBaoServlet.java (`/customer/thong-bao`) — lịch sử thông báo của khách hàng theo loại (`dbo.Notifications`).
 - TrangChuServlet.java
 
@@ -49,6 +50,7 @@
 ## filter
 
 - AuthFilter.java — xác minh trạng thái/vai trò hiện tại từ DB trước khi truy cập khu vực bảo vệ.
+- StaffHomeRedirectFilter.java — chuyển phiên STAFF từ `/home`, `/trang-chu`, `/index.jsp` về `/staff/lich-hen`.
 - package-info.java
 
 ## listener
