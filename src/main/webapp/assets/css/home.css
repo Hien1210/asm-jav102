@@ -4027,6 +4027,10 @@ textarea.modal-input {
     color: var(--emerald-green);
 }
 
+.header-user-role-tag-staff {
+    color: #1e3a8a;
+}
+
 .header-user-chevron {
     color: var(--text-gray);
     margin-left: 2px;

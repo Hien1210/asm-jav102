@@ -24,23 +24,21 @@ target/
 hs_err_pid*
 replay_pid*
 
-<<<<<<< HEAD
 # Maven and local configuration
-target/
 out/
 .env
 application-local.properties
+/application.properties
 
 # Local database truststores
 certs/*.p12
 certs/*.jks
-=======
+
 # IntelliJ IDEA
 .idea/
 *.iml
 *.iws
 *.ipr
-out/
 
 # Smart Tomcat plugin runtime configs
 .smarttomcat/
@@ -57,4 +55,3 @@ out/
 .DS_Store
 Thumbs.db
 desktop.ini
->>>>>>> origin/Thanhhien

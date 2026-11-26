@@ -1,10 +1,22 @@
 package com.petcare.models;
 
+import com.petcare.utils.DateUtil;
+
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.UUID;
 
 public class Payments {
+    public static final String METHOD_CASH = "CASH";
+    public static final String METHOD_ONLINE = "ONLINE";
+
+    public static final String STATUS_PENDING = "PENDING";
+    public static final String STATUS_PAID = "PAID";
+    public static final String STATUS_FAILED = "FAILED";
+
+    public static final String TYPE_CHARGE = "CHARGE";
+    public static final String TYPE_REFUND = "REFUND";
+
     private Integer paymentId;
     private Integer appointmentId;
     private BigDecimal amount;
@@ -94,5 +106,39 @@ public class Payments {
 
     public void setOriginalPaymentId(Integer originalPaymentId) {
         this.originalPaymentId = originalPaymentId;
+    }
+
+    public String getFormattedAmount() {
+        return DateUtil.formatVnd(amount);
+    }
+
+    public String getFormattedPaidAt() {
+        return paidAt == null ? "" : DateUtil.formatDateTime(paidAt.toLocalDateTime());
+    }
+
+    public String getMethodLabel() {
+        if (METHOD_ONLINE.equals(method)) {
+            return "Trực tuyến (Online)";
+        }
+        if (METHOD_CASH.equals(method)) {
+            return "Tiền mặt tại quầy";
+        }
+        return method != null ? method : "";
+    }
+
+    public String getStatusLabel() {
+        if (status == null) {
+            return "";
+        }
+        return switch (status) {
+            case STATUS_PENDING -> "Đang chờ";
+            case STATUS_PAID -> "Đã thanh toán";
+            case STATUS_FAILED -> "Thất bại / Đã hủy";
+            default -> status;
+        };
+    }
+
+    public String getPaymentTypeLabel() {
+        return TYPE_REFUND.equals(paymentType) ? "Hoàn tiền" : "Thanh toán";
     }
 }

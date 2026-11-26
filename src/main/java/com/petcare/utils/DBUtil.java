@@ -46,6 +46,10 @@ public final class DBUtil {
             "            $p.Value = [int]$valStr",
             "        } elseif ($kind -eq 'B') {",
             "            $p.Value = ($valStr -eq '1')",
+            "        } elseif ($kind -eq 'D') {",
+            "            $p.Value = [decimal]::Parse($valStr, [System.Globalization.CultureInfo]::InvariantCulture)",
+            "        } elseif ($kind -eq 'G') {",
+            "            $p.Value = [Guid]::Parse($valStr)",
             "        } else {",
             "            $p.Value = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($valStr))",
             "        }",
@@ -61,9 +65,11 @@ public final class DBUtil {
             "                } else {",
             "                    $v = $r.GetValue($c)",
             "                    if ($v -is [DateTime]) {",
-            "                        $s = $v.ToString('yyyy-MM-ddTHH:mm:ss.fffffff')",
+            "                        $s = $v.ToString('yyyy-MM-ddTHH:mm:ss.fffffff', [System.Globalization.CultureInfo]::InvariantCulture)",
             "                    } elseif ($v -is [bool]) {",
             "                        $s = if ($v) { '1' } else { '0' }",
+            "                    } elseif ($v -is [decimal] -or $v -is [double] -or $v -is [single]) {",
+            "                        $s = [System.Convert]::ToString($v, [System.Globalization.CultureInfo]::InvariantCulture)",
             "                    } else {",
             "                        $s = $v.ToString()",
             "                    }",
@@ -153,17 +159,12 @@ public final class DBUtil {
         if (!trustStore.isBlank()) {
             Path trustStorePath = Path.of(trustStore);
             Path fallbackPath = Path.of("certs", "petcare-truststore.p12");
-            Path workspaceFallbackPath = Path.of("C:/Users/Admin/Documents/GitHub/asm-jav102/certs/petcare-truststore.p12");
             if (Files.isRegularFile(trustStorePath)) {
                 properties.setProperty("trustStore", trustStorePath.toAbsolutePath().toString());
                 properties.setProperty("trustStorePassword",
                         ConfigUtil.get("db.trustStorePassword", "DB_TRUST_STORE_PASSWORD", ""));
             } else if (Files.isRegularFile(fallbackPath)) {
                 properties.setProperty("trustStore", fallbackPath.toAbsolutePath().toString());
-                properties.setProperty("trustStorePassword",
-                        ConfigUtil.get("db.trustStorePassword", "DB_TRUST_STORE_PASSWORD", ""));
-            } else if (Files.isRegularFile(workspaceFallbackPath)) {
-                properties.setProperty("trustStore", workspaceFallbackPath.toAbsolutePath().toString());
                 properties.setProperty("trustStorePassword",
                         ConfigUtil.get("db.trustStorePassword", "DB_TRUST_STORE_PASSWORD", ""));
             } else {
@@ -222,8 +223,38 @@ public final class DBUtil {
         return "I:" + value;
     }
 
+    public static String localNullableIntParam(Integer value) {
+        return value == null ? "N:" : "I:" + value;
+    }
+
     public static String localBoolParam(boolean value) {
         return value ? "B:1" : "B:0";
+    }
+
+    public static String localDecimalParam(java.math.BigDecimal value) {
+        return value == null ? "N:" : "D:" + value.toPlainString();
+    }
+
+    public static String localGuidParam(java.util.UUID value) {
+        return value == null ? "N:" : "G:" + value.toString();
+    }
+
+    public static String localDateParam(java.sql.Date value) {
+        return value == null ? "N:" : localStringParam(value.toLocalDate().toString());
+    }
+
+    public static String localLocalDateParam(java.time.LocalDate value) {
+        return value == null ? "N:" : localStringParam(value.toString());
+    }
+
+    public static String localTimestampParam(java.sql.Timestamp value) {
+        return value == null ? "N:" : localStringParam(value.toLocalDateTime().format(
+                java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+    }
+
+    public static String localLocalDateTimeParam(java.time.LocalDateTime value) {
+        return value == null ? "N:" : localStringParam(value.format(
+                java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
     }
 
     public static List<String[]> queryLocalSql(String sql, String... encodedParams) throws SQLException {

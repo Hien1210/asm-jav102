@@ -1,0 +1,5 @@
+<%@ page pageEncoding="UTF-8" %>
+        <footer class="workspace-footer"><span>PetCare Administration</span><span>Chăm sóc tốt hơn, mỗi ngày.</span></footer>
+    </div>
+</div>
+<script src="${pageContext.request.contextPath}/assets/js/admin.js" defer></script>

@@ -65,10 +65,13 @@ public class RegisterServlet extends HttpServlet {
         }
 
         try {
-            Users createdUser = authService.registerCustomer(fullName, phone, email, password);
+            Users createdUser = authService.registerCustomer(
+                    fullName, phone, email, password, verifyPageBaseUrl(request));
 
             HttpSession session = request.getSession(true);
-            session.setAttribute("successMessage", "Đăng ký tài khoản thành công!");
+            session.setAttribute("successMessage",
+                    "Đăng ký tài khoản thành công! Vui lòng kiểm tra email (kể cả mục Spam) "
+                    + "và bấm vào liên kết xác thực trước khi đăng nhập.");
             session.setAttribute("registeredIdentifier",
                     !email.isEmpty() ? createdUser.getEmail() : createdUser.getPhone());
 
@@ -88,5 +91,12 @@ public class RegisterServlet extends HttpServlet {
             }
             request.getRequestDispatcher("/register.jsp").forward(request, response);
         }
+    }
+
+    private static String verifyPageBaseUrl(HttpServletRequest request) {
+        int port = request.getServerPort();
+        String portPart = (port == 80 || port == 443) ? "" : ":" + port;
+        return request.getScheme() + "://" + request.getServerName() + portPart
+                + request.getContextPath() + "/xac-thuc-email";
     }
 }

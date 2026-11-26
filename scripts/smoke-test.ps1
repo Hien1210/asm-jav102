@@ -16,6 +16,12 @@ function Get-Page($path, $session) {
     Invoke-WebRequest ($BaseUrl + $path) -WebSession $session -SkipHttpErrorCheck -TimeoutSec 45
 }
 function Post-Form($path, $body, $session) {
+    if ($path -eq '/admin/tai-khoan') {
+        $tokenPage = Get-Page $path $session
+        $token = [regex]::Match($tokenPage.Content, 'name="csrfToken" value="([^"]+)"').Groups[1].Value
+        if (!$token) { throw 'Admin CSRF token missing; log in and reload the account page.' }
+        $body['csrfToken'] = $token
+    }
     Invoke-WebRequest ($BaseUrl + $path) -Method Post -Body $body -WebSession $session -SkipHttpErrorCheck -TimeoutSec 45
 }
 $guest = [Microsoft.PowerShell.Commands.WebRequestSession]::new()

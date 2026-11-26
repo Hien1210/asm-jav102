@@ -1,7 +1,10 @@
 package com.petcare.models;
 
+import com.petcare.utils.DateUtil;
+
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 public class Pets {
     private Integer petId;
@@ -11,6 +14,9 @@ public class Pets {
     private String breed;
     private BigDecimal weightKg;
     private Date birthDate;
+    private String medicalNotes;
+    private LocalDateTime createdAt;
+    private int appointmentCount;
 
     public Integer getPetId() {
         return petId;
@@ -66,5 +72,41 @@ public class Pets {
 
     public void setBirthDate(Date birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public String getMedicalNotes() {
+        return medicalNotes;
+    }
+
+    public void setMedicalNotes(String medicalNotes) {
+        this.medicalNotes = medicalNotes;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public int getAppointmentCount() {
+        return appointmentCount;
+    }
+
+    public void setAppointmentCount(int appointmentCount) {
+        this.appointmentCount = appointmentCount;
+    }
+
+    public String getFormattedBirthDate() {
+        return birthDate == null ? "" : DateUtil.formatDate(birthDate.toLocalDate());
+    }
+
+    public String getBirthDateIso() {
+        return birthDate == null ? "" : birthDate.toLocalDate().toString();
+    }
+
+    public String getFormattedCreatedAt() {
+        return DateUtil.formatDateTime(createdAt);
     }
 }

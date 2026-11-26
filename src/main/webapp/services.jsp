@@ -89,6 +89,26 @@
                                     </div>
 
                                     <div class="dropdown-menu-actions">
+                                        <c:if test="${sessionScope.loggedInRole == 'CUSTOMER'}">
+                                            <a href="${pageContext.request.contextPath}/customer/dat-lich" class="dropdown-menu-link">
+                                                <span>Đặt lịch chăm sóc &amp; lưu trú</span>
+                                            </a>
+                                            <a href="${pageContext.request.contextPath}/customer/lich-hen" class="dropdown-menu-link">
+                                                <span>Lịch hẹn của tôi</span>
+                                            </a>
+                                            <a href="${pageContext.request.contextPath}/customer/thu-cung" class="dropdown-menu-link">
+                                                <span>Thú cưng của tôi</span>
+                                            </a>
+                                            <a href="${pageContext.request.contextPath}/customer/thanh-toan" class="dropdown-menu-link">
+                                                <span>Thanh toán hóa đơn</span>
+                                            </a>
+                                            <a href="${pageContext.request.contextPath}/customer/danh-gia" class="dropdown-menu-link">
+                                                <span>Đánh giá dịch vụ</span>
+                                            </a>
+                                            <a href="${pageContext.request.contextPath}/customer/thong-bao" class="dropdown-menu-link">
+                                                <span>Thông báo</span>
+                                            </a>
+                                        </c:if>
                                         <a href="${pageContext.request.contextPath}/profile" class="dropdown-menu-link">
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>

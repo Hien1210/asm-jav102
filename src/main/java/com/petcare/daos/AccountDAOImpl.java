@@ -18,6 +18,86 @@ import java.util.List;
 
 public class AccountDAOImpl implements AccountDAO {
 
+    @FunctionalInterface
+    interface ConnectionFactory { Connection open() throws SQLException; }
+    private final ConnectionFactory managedConnections;
+
+    public AccountDAOImpl() { this(DBUtil::getConnection); }
+
+    AccountDAOImpl(ConnectionFactory managedConnections) { this.managedConnections = managedConnections; }
+
+    @FunctionalInterface
+    private interface ManagedWrite { void execute(Connection connection) throws SQLException; }
+
+    private boolean manage(int actorId, int userId, ManagedWrite write) throws SQLException {
+        // Keep authorization and write on this connection; never fall back to another database.
+        try (Connection connection = managedConnections.open()) {
+            connection.setAutoCommit(false);
+            try {
+                boolean actorAllowed = false;
+                String targetRole = null;
+                String sql = "SELECT user_id, role, is_active FROM dbo.Users WITH (UPDLOCK, HOLDLOCK) "
+                        + "WHERE user_id IN (?, ?) ORDER BY user_id";
+                try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                    ps.setInt(1, actorId);
+                    ps.setInt(2, userId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        while (rs.next()) {
+                            int id = rs.getInt("user_id");
+                            if (id == actorId) actorAllowed = Users.ROLE_ADMIN.equalsIgnoreCase(rs.getString("role")) && rs.getBoolean("is_active");
+                            if (id == userId) targetRole = rs.getString("role");
+                        }
+                    }
+                }
+                if (!actorAllowed) throw new IllegalArgumentException("Bạn không còn quyền quản trị đang hoạt động.");
+                if (Users.ROLE_ADMIN.equalsIgnoreCase(targetRole))
+                    throw new IllegalArgumentException("Tài khoản ADMIN được bảo vệ. Không thể thay đổi qua quản lý tài khoản.");
+                if (targetRole == null) { connection.rollback(); return false; }
+                write.execute(connection);
+                connection.commit();
+                return true;
+            } catch (SQLException | RuntimeException e) {
+                connection.rollback();
+                throw e;
+            }
+        }
+    }
+
+    private void managedStatement(Connection connection, String procedure, String fallback, Object... args) throws SQLException {
+        try (CallableStatement cs = connection.prepareCall(procedure)) {
+            for (int i=0; i<args.length; i++) cs.setObject(i+1,args[i]);
+            cs.execute();
+        } catch (SQLException e) {
+            if (e.getErrorCode()!=2812 && e.getErrorCode()!=229) throw e;
+            try (PreparedStatement ps = connection.prepareStatement(fallback)) {
+                // Procedures take the identifier first; UPDATE predicates take it last.
+                for (int i=1; i<args.length; i++) ps.setObject(i,args[i]);
+                ps.setObject(args.length,args[0]);
+                if (ps.executeUpdate()!=1) throw new SQLException("Account was not updated.");
+            }
+        }
+    }
+
+    @Override
+    public boolean updateManagedProfile(int actorId, Users user) throws SQLException {
+        return manage(actorId,user.getUserId(),connection -> managedStatement(connection,
+                "{call dbo.UpdateAccount(?, ?, ?, ?, ?)}",
+                "UPDATE dbo.Users SET full_name=?, email=?, phone=?, role=? WHERE user_id=?",
+                user.getUserId(),user.getFullName(),user.getEmail(),user.getPhone(),user.getRole()));
+    }
+
+    @Override
+    public boolean setManagedActive(int actorId, int userId, boolean active) throws SQLException {
+        return manage(actorId,userId,connection -> managedStatement(connection,
+                "{call dbo.SetAccountActive(?, ?)}", "UPDATE dbo.Users SET is_active=? WHERE user_id=?",userId,active));
+    }
+
+    @Override
+    public boolean resetManagedPassword(int actorId, int userId, String hash) throws SQLException {
+        return manage(actorId,userId,connection -> managedStatement(connection,
+                "{call dbo.ResetAccountPassword(?, ?)}", "UPDATE dbo.Users SET password_hash=? WHERE user_id=?",userId,hash));
+    }
+
     private static final String BASE_SELECT =
             "SELECT user_id, full_name, email, phone, password_hash, role, is_active, created_at FROM dbo.Users ";
 
