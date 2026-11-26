@@ -11,6 +11,8 @@ public final class SessionUtil {
     public static final String ATTR_USER_EMAIL = "loggedInEmail";
     public static final String ATTR_USER_PHONE = "loggedInPhone";
     public static final String ATTR_USER_ROLE = "loggedInRole";
+    public static final String ATTR_AVATAR_URL = "loggedInAvatarUrl";
+    public static final String ATTR_BANNER_URL = "loggedInBannerUrl";
 
     private SessionUtil() { }
 
@@ -33,7 +35,29 @@ public final class SessionUtil {
             return;
         }
         HttpSession session = request.getSession(true);
+        if (!user.isMediaLoaded()) {
+            Object existingObj = session.getAttribute(ATTR_CURRENT_USER);
+            if (existingObj instanceof Users existing && existing.getUserId() == user.getUserId()) {
+                user.setAvatarUrl(existing.getAvatarUrl());
+                user.setBannerUrl(existing.getBannerUrl());
+                user.setMediaLoaded(existing.isMediaLoaded());
+            }
+        }
         writeUserAttributes(session, user);
+    }
+
+    public static void updateSessionMedia(HttpServletRequest request, String avatarUrl, String bannerUrl) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return;
+        }
+        Object obj = session.getAttribute(ATTR_CURRENT_USER);
+        if (obj instanceof Users user) {
+            user.setAvatarUrl(avatarUrl);
+            user.setBannerUrl(bannerUrl);
+            user.setMediaLoaded(true);
+            writeUserAttributes(session, user);
+        }
     }
 
     private static void writeUserAttributes(HttpSession session, Users user) {
@@ -43,6 +67,8 @@ public final class SessionUtil {
         session.setAttribute(ATTR_USER_EMAIL, user.getEmail());
         session.setAttribute(ATTR_USER_PHONE, user.getPhone());
         session.setAttribute(ATTR_USER_ROLE, user.getRole());
+        session.setAttribute(ATTR_AVATAR_URL, user.getAvatarUrl());
+        session.setAttribute(ATTR_BANNER_URL, user.getBannerUrl());
     }
 
     public static Users getCurrentUser(HttpServletRequest request) {

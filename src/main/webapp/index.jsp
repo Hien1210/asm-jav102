@@ -49,8 +49,13 @@
                         <div class="header-user-wrap">
                             <div class="header-user-trigger">
                                 <a href="${pageContext.request.contextPath}/profile" class="header-user-pill">
-                                    <span class="header-user-avatar-circle">
-                                        ${fn:toUpperCase(fn:substring(fn:trim(sessionScope.loggedInUser), 0, 1))}
+                                    <span class="header-user-avatar-circle" style="${not empty sessionScope.loggedInAvatarUrl ? 'overflow:hidden;padding:0;' : ''}">
+                                        <c:choose>
+                                            <c:when test="${not empty sessionScope.loggedInAvatarUrl}">
+                                                <img src="${fn:escapeXml(sessionScope.loggedInAvatarUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;" />
+                                            </c:when>
+                                            <c:otherwise>${fn:toUpperCase(fn:substring(fn:trim(sessionScope.loggedInUser), 0, 1))}</c:otherwise>
+                                        </c:choose>
                                     </span>
                                     <span class="header-user-info">
                                         <span class="header-user-name">${fn:escapeXml(sessionScope.loggedInUser)}</span>
@@ -69,8 +74,13 @@
 
                                 <div class="header-user-dropdown">
                                     <div class="dropdown-user-head">
-                                        <span class="dropdown-user-avatar">
-                                            ${fn:toUpperCase(fn:substring(fn:trim(sessionScope.loggedInUser), 0, 1))}
+                                        <span class="dropdown-user-avatar" style="${not empty sessionScope.loggedInAvatarUrl ? 'overflow:hidden;padding:0;' : ''}">
+                                            <c:choose>
+                                                <c:when test="${not empty sessionScope.loggedInAvatarUrl}">
+                                                    <img src="${fn:escapeXml(sessionScope.loggedInAvatarUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;" />
+                                                </c:when>
+                                                <c:otherwise>${fn:toUpperCase(fn:substring(fn:trim(sessionScope.loggedInUser), 0, 1))}</c:otherwise>
+                                            </c:choose>
                                         </span>
                                         <div class="dropdown-user-meta">
                                             <strong>${fn:escapeXml(sessionScope.loggedInUser)}</strong>

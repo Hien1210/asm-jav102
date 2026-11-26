@@ -1,5 +1,7 @@
 package com.petcare.controllers;
 
+import com.petcare.daos.UserMediaDAO;
+import com.petcare.daos.UserMediaDAOImpl;
 import com.petcare.models.AppointmentBalance;
 import com.petcare.models.Appointments;
 import com.petcare.models.Pets;
@@ -34,6 +36,7 @@ public class ProfileServlet extends HttpServlet {
     private final PaymentService paymentService = new PaymentService();
     private final ReviewService reviewService = new ReviewService();
     private final NotificationService notificationService = new NotificationService();
+    private final UserMediaDAO userMediaDAO = new UserMediaDAOImpl();
 
     private void popFlashAttributes(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
@@ -74,6 +77,7 @@ public class ProfileServlet extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/login");
                 return;
             }
+            userMediaDAO.hydrate(freshUser);
             SessionUtil.refreshSessionUser(request, freshUser);
             effectiveUser = freshUser;
         } catch (SQLException e) {
