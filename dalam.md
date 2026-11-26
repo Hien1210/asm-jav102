@@ -491,6 +491,54 @@ Tiếp theo tính năng quên mật khẩu ở trên — theo yêu cầu ngườ
 - Test: 6 test mới trong `AuthServiceTest`. Maven 93 test: 90 đạt, 3 tích hợp DB bỏ qua; build WAR đạt.
 - **Đã commit và push lên `origin/Thanhhien`** (`f060a00`). Chi tiết & giới hạn đã biết (chưa có nút gửi lại email xác thực): docs/EMAIL_VERIFICATION.md.
 
+## Mẫu email HTML thương hiệu PetCare — 21/11/2026
+
+- **`EmailTemplateUtil.java` (mới, `com.petcare.utils`)**:
+  - Thiết kế chuẩn Email Responsive dạng thẻ (Card container `max-width: 580px`, bo góc `18px`, viền `#C5ECE0`, bóng đổ mềm), tương thích đa nền tảng (Gmail app/web, Outlook, Apple Mail, Webmail).
+  - **Đồng bộ màu sắc từ UI web (`login.css` & `home.css`)**:
+    - Nền bao quanh: `#F1FBF7` (Very Light Mint).
+    - Header banner: Gradient chuyển màu từ Deep Forest Green `#075C45` sang Emerald Green `#008F68`.
+    - Biểu tượng thương hiệu: Badge `🐾 PetCare` nổi bật cùng phụ đề `Pet Spa & Grooming Lounge` màu `#D9F7EC`.
+    - Thẻ phân loại hành động (Badge pill): `✨ XÁC THỰC TÀI KHOẢN` (cho đăng ký) hoặc `🔒 BẢO MẬT TÀI KHOẢN` (cho quên mật khẩu).
+    - Lời chào cá nhân hóa tên khách hàng (tự động escape HTML chống injection), hiển thị text màu Dark Navy `#102235`.
+    - Nút bấm Call-To-Action (CTA) lớn bo tròn 10px, gradient xanh ngọc, bóng đổ 3D, dễ bấm trên điện thoại.
+    - Hộp thông báo thời hạn (Expiry box): Nền xanh bạc hà `#F0FDF4` (24 giờ cho xác thực) và nền vàng ấm `#FFFBEB` (15 phút cho đặt lại mật khẩu) giúp nhấn mạnh tính cấp thiết và an toàn bảo mật.
+    - Đường dẫn dự phòng (Fallback URL): Hiển thị link đầy đủ để người dùng sao chép dán vào trình duyệt khi app mail chặn bấm nút.
+    - Lưu ý bảo mật: Nhắc nhở người dùng an tâm bỏ qua email nếu không phải mình thực hiện.
+    - Footer chuyên nghiệp: Thông tin bản quyền © 2026 PetCare, hotline `1900 8888`, email hỗ trợ `support@petcare.vn`.
+- **Cập nhật `AuthService.java`**:
+  - `sendVerificationEmailBestEffort` gọi `EmailTemplateUtil.buildEmailVerificationHtml(user.getFullName(), link, VERIFICATION_TOKEN_VALID_HOURS)`.
+  - `requestPasswordReset` gọi `EmailTemplateUtil.buildPasswordResetHtml(user.getFullName(), link, RESET_TOKEN_VALID_MINUTES)`.
+  - Toàn bộ tham số người dùng truyền vào email đều được escape HTML an toàn.
+- **Kiểm thử**:
+  - `EmailTemplateUtilTest.java` (6 test mới): Kiểm tra thương hiệu PetCare, nội dung thẻ tag, tên người nhận, link token, thời hạn 24h / 15 phút, fallback khi tên rỗng/null ("Quý khách"), và kiểm tra escape ký tự đặc biệt (`<`, `>`, `&`, `"`, `'`).
+  - Chạy toàn bộ test suite Maven: **99 test (96 PASS, 3 tích hợp QA bỏ qua)**.
+  - Đóng gói WAR `mvn package -DskipTests`: **BUILD SUCCESS** (`target/petcare.war`).
+
+## Đính chính trạng thái DB xác thực email — 22/11/2026
+
+Người dùng xác nhận xác thực email đã có trên DB. Các ghi chú ngày 20/11/2026 nói migration `petcare_email_verification.sql` chưa áp dụng phản ánh trạng thái tại thời điểm đó, không còn là thông tin hiện hành. Phiên này chưa tự kiểm tra độc lập bảng, procedure và quyền truy cập. Việc token chưa dùng hết hạn 24 giờ làm `hasPendingVerification` trả về false là hành vi của code hiện tại, không phải do thiếu bảng DB.
+
+## Kiểm tra cấu hình đăng ký và đặt lại mật khẩu — 26/11/2026
+
+- `application-local.properties` ở root được `ConfigUtil` nạp khi chạy từ thư mục project hoặc khi chỉ định `-Dpetcare.config` tới file; file đã được gitignore. `RegisterServlet` và `QuenMatKhauServlet` gọi `AuthService`; DAO tài khoản/token dùng `DBUtil`, email dùng `MailUtil` và cùng cấu hình local.
+- Host DB cũ `hung211.tail1f20d2.ts.net` không phân giải DNS trên máy kiểm tra. Tailscale hiện thấy peer `bunnny.tail1f20d2.ts.net`; cổng 1433 mở. Đã sửa riêng host trong `db.url` của file local (không đổi tài khoản/mật khẩu). Chạy `DatabaseConnectionTest` bằng JDBC: kết nối `PetCare` thành công, đọc `dbo.Users` được 17 bản ghi. Trước sửa, JDBC lỗi `08S01` và fallback SQL Server local không đăng nhập được vào `PetCare` (4060).
+- Truy vấn chỉ đọc với tài khoản DB cấu hình xác nhận các bảng `Users`, `PasswordResetTokens`, `EmailVerificationTokens` và procedure `CreateAccount`, `FindAccountByIdentifier`, `ResetAccountPassword`, `CreatePasswordResetToken`, `ConsumePasswordResetToken`, `CreateEmailVerificationToken`, `ConsumeEmailVerificationToken` tồn tại; tài khoản có quyền EXECUTE tương ứng và SELECT `EmailVerificationTokens`. Không tạo tài khoản, token hay gửi email thật trong lần kiểm tra này.
+- SMTP trong file local có các khóa cần thiết, máy kiểm tra nối được `smtp.gmail.com:587`; chưa xác minh đăng nhập SMTP/gửi thư thật. File truststore được khai báo nhưng không tồn tại theo đường dẫn tương đối khi chạy từ root và không thấy `certs/petcare-truststore.p12`; `DBUtil` vì vậy chuyển sang `trustServerCertificate=true`. Nên cấu hình truststore hợp lệ để kiểm tra chứng chỉ máy chủ.
+- Tiến trình SmartTomcat đang chạy tại thời điểm kiểm tra không có `-Dpetcare.config`. Vì `ConfigUtil` mặc định tìm file local theo thư mục làm việc của JVM, chưa xác nhận Tomcat đã nạp file vừa sửa; cần đặt VM option tới đường dẫn tuyệt đối của file local và khởi động lại Tomcat trước khi đánh giá luồng HTTP đang triển khai.
+
+## Sửa cấu hình SmartTomcat và log lỗi đăng ký — 26/11/2026
+
+- Lỗi UI `Cannot open database "PetCare" ... DESKTOP-41Q7NMN\ADMIN` là lỗi từ nhánh fallback `localhost\SQLEXPRESS` dùng Windows Authentication, không phải tài khoản SQL của DB từ xa. Đã xác minh JVM SmartTomcat có `user.dir=C:\Users\ADMIN\.SmartTomcat\asm-jav102\asm-jav102` và không có `-Dpetcare.config`; vì thế file local ở root project không được tìm thấy theo đường dẫn mặc định.
+- Đã đặt `vmOptions` trong cấu hình SmartTomcat cá nhân `.idea/workspace.xml` (git-ignored) tới đường dẫn tuyệt đối của `application-local.properties`. Khi chạy `DatabaseConnectionTest` từ chính thư mục làm việc của Tomcat với cùng VM option, JDBC kết nối `PetCare` thành công và đọc được 17 tài khoản. Tiến trình Tomcat hiện tại vẫn cần được restart từ IntelliJ để nhận VM option mới.
+- `RegisterServlet` và `QuenMatKhauServlet` trước đây bắt `SQLException` rồi chỉ đưa `e.getMessage()` ra UI, không ghi log. Đã thêm `java.util.logging` mức SEVERE với exception ở server và đổi thông báo UI thành thông báo chung, không lộ chi tiết SQL/Windows account. Hai servlet biên dịch thành công bằng `javac`; chưa chạy HTTP đăng ký thật để tránh tạo tài khoản hoặc gửi email ngoài ý muốn.
+
+## Đính chính phạm vi chẩn đoán Tailscale — 26/11/2026
+
+- Người dùng xác nhận `bunnny.tail1f20d2.ts.net:1433` là tên Tailscale của thành viên nhóm. Phép thử JDBC thành công ở các mục trên chỉ chứng minh **máy kiểm tra hiện tại** truy cập được DB trên peer đó vào thời điểm kiểm tra; không chứng minh máy thành viên khác, IntelliJ/Tomcat của họ, hoặc Tailscale của họ hoạt động bình thường.
+- Người dùng đã làm rõ DB đích mong muốn trong `application-local.properties` là `bunnny.tail1f20d2.ts.net:1433`. Đã kiểm tra lại: file local có đúng một khóa `db.url` trỏ tới host/cổng này và không còn tên `hung211.tail1f20d2.ts.net`. Không có bằng chứng hai tên host này là cùng một máy hay một tên đã được đổi.
+- Thông báo `Login failed for user 'DESKTOP-41Q7NMN\ADMIN'` cho biết ứng dụng tại nơi phát sinh lỗi đã thử nhánh SQL Server local bằng Windows Authentication sau một lỗi kết nối DB từ xa. Chỉ từ thông báo đó không thể kết luận lỗi Tailscale nằm ở máy của ai; cần xem `db.url`, VM option `petcare.config`, `user.dir`, trạng thái Tailscale và log server trên đúng máy chạy request đăng ký.
+
 ## Kiểm tra hoạt động các nhánh và chuẩn bị merge vào main — 26/11/2026
 
 Theo yêu cầu người dùng: kiểm tra nhánh nào "làm việc" nhiều để đưa lên `main`.
@@ -501,3 +549,10 @@ Theo yêu cầu người dùng: kiểm tra nhánh nào "làm việc" nhiều đ�
 - Trước khi merge: tạo nhánh `cleanup-PhungBao` từ `origin/PhungBao`, `git rm --cached` 5 file rác đang bị track nhầm (`logs/localhost_access_log.*.txt`, `work/Catalina/.../org/apache/jsp/*.java` — artifact runtime của Tomcat, không phải source code), thêm `logs/` và `work/` vào `.gitignore`. Không đụng tới `.idea/` dù vẫn đang bị track nhầm tương tự (ngoài phạm vi yêu cầu lần này).
 - Đã push `cleanup-PhungBao` lên GitHub và mở PR vào `main`: xem Pull Request #2 trên repo `Hien1210/asm-jav102`. Chưa merge — đang chờ review.
 - Các thay đổi trên `Thanhhien` đang làm trước đó (sửa `QuenMatKhauServlet`, `RegisterServlet`, các file `.md`) đã được `git stash` lại, chưa commit, để tách biệt với việc merge nhánh này.
+
+## PR #2 merge vào main và đồng bộ lại Thanhhien — 26/11/2026
+
+- Người dùng dùng quyền admin trên GitHub tick "Merge without waiting for requirements to be met (bypass rules)" rồi bấm "Bypass rules and merge" để merge PR #2 (yêu cầu 1 approving review không áp dụng được vì GitHub không cho tác giả tự duyệt PR của chính mình). `main` đã chứa `661f36b`. Xoá nhánh `cleanup-PhungBao` trên GitHub và local sau khi merge.
+- Khôi phục stash ở mục trên, commit riêng các thay đổi thật (`deda0dd`): `QuenMatKhauServlet`/`RegisterServlet` không còn lộ `SQLException.getMessage()` ra UI (ghi log SEVERE phía server thay vào đó), đính chính 2 note cũ nói migration xác thực email "chưa áp dụng DB chính", thêm `docs/BRANCH_REVIEW_2026-11-21.md`. 5 file `logs/`/`work/` còn lại (rác Tomcat giống PhungBao) không commit, chỉ thêm vào `.gitignore`.
+- Sau đó phát hiện `main` và `Thanhhien` đã rẽ nhánh (main có thêm 14 commit UI khách hàng từ `bao`/`GiaHung` mà Thanhhien chưa có). Đã `git merge origin/main` vào `Thanhhien` (`105bb0a`); conflict ở `.gitignore` (trùng lặp khối `logs/`/`work/`, đã gộp lại), `PROJECT_STRUCTURE.md` và `dalam.md` (cả hai nhánh cùng thêm nội dung mới vào cuối file — git căn chỉnh nhầm vị trí marker do hai đoạn nhìn giống nhau, phải tự đối chiếu `git show HEAD:<file>` và `git show origin/main:<file>` riêng để gộp đúng, không chỉ tin theo vị trí `<<<<<<<`/`=======`/`>>>>>>>`).
+- Build lại sau merge bằng Maven bundled trong IntelliJ (`D:\IntelliJ IDEA 2026.1.1\plugins\maven\lib\maven3\bin\mvn.cmd`, máy không có `mvn` trên PATH): `mvn test` → **104 test, 101 đạt, 3 tích hợp DB bỏ qua, 0 lỗi**, BUILD SUCCESS. Đã push `Thanhhien`. Xác nhận `main` là ancestor của `Thanhhien` (không còn rẽ nhánh); `Thanhhien` hiện có thêm đúng 2 commit so với `main` (merge commit + fix trên) chưa đưa lên `main`.

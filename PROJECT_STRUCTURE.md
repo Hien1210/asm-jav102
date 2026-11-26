@@ -128,7 +128,7 @@
 - `database/grant_auth_permissions.sql` — cấp quyền bổ sung & tài khoản mẫu ADMIN/STAFF.
 - `database/petcare_customer_features.sql` — migration tăng dần (idempotent) cho đầy đủ chức năng `CUSTOMER`: `CreatePet` (hỗ trợ `medical_notes`), `UpdatePet`, `DeletePet`, `CreateNotification`, `ListUserNotifications`, cấp quyền `SELECT`/`EXECUTE` và seed dữ liệu mẫu (dịch vụ, combo, phòng lưu trú, giờ mở cửa, kỹ năng & ca trực nhân viên).
 - `database/petcare_password_reset.sql` — bảng `dbo.PasswordResetTokens` + `CreatePasswordResetToken`/`ConsumePasswordResetToken` cho tính năng quên mật khẩu qua email. **Đã áp dụng DB chính.**
-- `database/petcare_email_verification.sql` — bảng `dbo.EmailVerificationTokens` + `CreateEmailVerificationToken`/`ConsumeEmailVerificationToken` cho xác thực email khi đăng ký. Chưa áp dụng DB chính (chờ duyệt).
+- `database/petcare_email_verification.sql` — bảng `dbo.EmailVerificationTokens` + `CreateEmailVerificationToken`/`ConsumeEmailVerificationToken` cho xác thực email khi đăng ký. Người dùng xác nhận xác thực email đã có trên DB ngày 22/11/2026; chưa kiểm tra độc lập procedure/quyền.
 - `database/petcare_user_media.sql` — bảng `dbo.UserMedia` (`user_id`, `avatar_url`, `banner_url`) + 3 stored procedure (`GetUserMedia`, `UpsertUserAvatar`, `UpsertUserBanner`). Đã áp dụng trên SQL Server cục bộ (`localhost\SQLEXPRESS`).
 
 ## Kiểm thử (cập nhật 2026-11-19)
@@ -231,7 +231,7 @@ The singular controller package was removed. Existing servlet URL mappings are u
 ## Xác thực email khi đăng ký — 20/11/2026
 - `registerCustomer` gửi email xác thực sau khi tạo tài khoản (không đổi `is_active`/procedure cũ); gửi mail trước, chỉ lưu token nếu gửi thành công — tránh khoá tài khoản vĩnh viễn khi Gmail SMTP lỗi.
 - `AuthService.authenticate` chặn đăng nhập khi còn token xác thực chưa dùng/chưa hết hạn (24 giờ); `XacThucEmailServlet` (`/xac-thuc-email`) tiêu thụ token, redirect về `/login` (tái dùng alert có sẵn, không JSP mới).
-- `EmailVerificationDAO`/`EmailVerificationDAOImpl`, `database/petcare_email_verification.sql` (bảng + 2 procedure độc lập, không đụng `Users`/procedure cũ; chưa áp dụng DB chính). `hasPendingVerification` fail-open (không throw) nếu DB/migration chưa sẵn sàng.
+- `EmailVerificationDAO`/`EmailVerificationDAOImpl`, `database/petcare_email_verification.sql` (bảng + 2 procedure độc lập, không đụng `Users`/procedure cũ; người dùng xác nhận xác thực email đã có trên DB ngày 22/11/2026). `hasPendingVerification` fail-open (không throw) nếu DB lỗi.
 - Test mới: 6 test trong `AuthServiceTest`. Maven 93 test: 90 đạt, 3 tích hợp bỏ qua; build WAR đạt.
 - Chi tiết và giới hạn đã biết: docs/EMAIL_VERIFICATION.md.
 

@@ -10,10 +10,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @WebServlet(name = "RegisterServlet", urlPatterns = {"/register", "/dang-ky"})
 public class RegisterServlet extends HttpServlet {
 
+    private static final Logger LOGGER = Logger.getLogger(RegisterServlet.class.getName());
     private final AuthService authService = new AuthService();
 
     @Override
@@ -80,6 +83,7 @@ public class RegisterServlet extends HttpServlet {
             request.setAttribute("errorMessage", e.getMessage());
             request.getRequestDispatcher("/register.jsp").forward(request, response);
         } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Đăng ký tài khoản thất bại do lỗi cơ sở dữ liệu.", e);
             if (e.getErrorCode() == 229) {
                 request.setAttribute("errorMessage",
                         "Tài khoản SQL 'petcare_backend' chưa được cấp quyền SELECT/INSERT trên bảng dbo.Users. "
@@ -87,7 +91,7 @@ public class RegisterServlet extends HttpServlet {
             } else if (e.getErrorCode() == 2627 || e.getErrorCode() == 2601) {
                 request.setAttribute("errorMessage", "Email hoặc số điện thoại này đã được đăng ký.");
             } else {
-                request.setAttribute("errorMessage", "Lỗi kết nối cơ sở dữ liệu SQL Server: " + e.getMessage());
+                request.setAttribute("errorMessage", "Không thể hoàn tất đăng ký lúc này. Vui lòng thử lại sau.");
             }
             request.getRequestDispatcher("/register.jsp").forward(request, response);
         }

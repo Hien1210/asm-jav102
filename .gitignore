@@ -27,12 +27,12 @@ replay_pid*
 # Maven and local configuration
 out/
 .env
+application-local.properties
+/application.properties
 
 # Tomcat runtime logs and compiled JSP work directory
 logs/
 work/
-application-local.properties
-/application.properties
 
 # Local database truststores
 certs/*.p12
