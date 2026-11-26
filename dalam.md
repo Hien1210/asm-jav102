@@ -490,3 +490,14 @@ Tiếp theo tính năng quên mật khẩu ở trên — theo yêu cầu ngườ
 - Dùng lại nguyên `MailUtil`/`AuthService.MailSender` và hàm sinh/băm token (đổi tên `generateResetToken` → `generateSecureToken` để dùng chung cho cả 2 tính năng) đã viết ở mục trên — không viết lại logic trùng lặp.
 - Test: 6 test mới trong `AuthServiceTest`. Maven 93 test: 90 đạt, 3 tích hợp DB bỏ qua; build WAR đạt.
 - **Đã commit và push lên `origin/Thanhhien`** (`f060a00`). Chi tiết & giới hạn đã biết (chưa có nút gửi lại email xác thực): docs/EMAIL_VERIFICATION.md.
+
+## Kiểm tra hoạt động các nhánh và chuẩn bị merge vào main — 26/11/2026
+
+Theo yêu cầu người dùng: kiểm tra nhánh nào "làm việc" nhiều để đưa lên `main`.
+
+- So sánh commit giữa 6 nhánh remote (`Chitien`, `GiaHung`, `PhungBao`, `Thanhhien`, `bao`, `hung`) bằng `git log --oneline` và `git merge-base --is-ancestor`.
+- Kết quả: `PhungBao` (74 commit, cập nhật 26/11) là superset chứa toàn bộ commit của `Thanhhien` (63 commit), `Chitien` (40 commit), `bao` (71 commit) — đã xác nhận bằng ancestor check. `GiaHung` (73 commit) gần giống `PhungBao` nhưng có thêm 2 commit rác (log Tomcat + file JSP compiled) không có trong `PhungBao`. `hung` (3 commit, dừng từ 11/11) hầu như không hoạt động.
+- **Chọn `PhungBao` làm nguồn merge vào `main`** vì mới nhất và đầy đủ nhất.
+- Trước khi merge: tạo nhánh `cleanup-PhungBao` từ `origin/PhungBao`, `git rm --cached` 5 file rác đang bị track nhầm (`logs/localhost_access_log.*.txt`, `work/Catalina/.../org/apache/jsp/*.java` — artifact runtime của Tomcat, không phải source code), thêm `logs/` và `work/` vào `.gitignore`. Không đụng tới `.idea/` dù vẫn đang bị track nhầm tương tự (ngoài phạm vi yêu cầu lần này).
+- Đã push `cleanup-PhungBao` lên GitHub và mở PR vào `main`: xem Pull Request #2 trên repo `Hien1210/asm-jav102`. Chưa merge — đang chờ review.
+- Các thay đổi trên `Thanhhien` đang làm trước đó (sửa `QuenMatKhauServlet`, `RegisterServlet`, các file `.md`) đã được `git stash` lại, chưa commit, để tách biệt với việc merge nhánh này.
