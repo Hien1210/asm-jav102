@@ -17,6 +17,7 @@
         <a href="${pageContext.request.contextPath}/staff/lich-hen" ${staffPage == 'appointments' ? 'aria-current="page"' : ''}><svg aria-hidden="true"><use href="#staff-calendar"/></svg>Lịch hẹn của tôi</a>
         <a href="${pageContext.request.contextPath}/staff/lich-lam-viec" ${staffPage == 'shifts' ? 'aria-current="page"' : ''}><svg aria-hidden="true"><use href="#staff-clock"/></svg>Lịch làm việc</a>
         <a href="${pageContext.request.contextPath}/staff/dat-lich-tai-quay" ${staffPage == 'counter' ? 'aria-current="page"' : ''}><svg aria-hidden="true"><use href="#staff-plus"/></svg>Đặt tại quầy</a>
+        <a href="${pageContext.request.contextPath}/staff/thu-tien" ${staffPage == 'cash' ? 'aria-current="page"' : ''}>Thu tiền mặt</a>
         <a href="${pageContext.request.contextPath}/profile"><svg aria-hidden="true"><use href="#staff-person"/></svg>Hồ sơ cá nhân</a>
     </nav>
     <div class="sidebar-note"><svg aria-hidden="true"><use href="#staff-paw"/></svg><strong>Mỗi lần chăm sóc,<br>một niềm vui nhỏ.</strong><p>Cảm ơn bạn đã luôn tận tâm<br>với những người bạn bốn chân.</p></div>

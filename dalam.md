@@ -1,5 +1,11 @@
 # PetCare (asm-jav102) — Tổng hợp hiện trạng dự án
 
+## Review bản cập nhật GiaHung — 25/11/2026
+
+- Phạm vi review là các thay đổi của merge `91ade6f` so với parent thứ nhất. Maven có 101 test đạt và 3 test tích hợp bỏ qua, build WAR thành công. Kiểm tra cú pháp JavaScript trình sửa ảnh đạt.
+- Các điểm cần sửa ở `/profile/media`: bổ sung CSRF cho upload và xóa ảnh, trả thông báo chung thay cho chi tiết lỗi SQL/Cloudinary, và xử lý cập nhật đồng thời để dọn ảnh thực sự bị thay thế.
+- Review chưa chạy luồng upload trên trình duyệt, SQL Server hoặc Cloudinary thật.
+
 ## Đổi giao diện khu vực nhân viên cho khác khách hàng 2026-11-19
 
 Theo yêu cầu: giao diện nhân viên phải khác khách hàng để dễ phân biệt. Chưa commit.
@@ -485,9 +491,7 @@ Tiếp theo tính năng quên mật khẩu ở trên — theo yêu cầu ngườ
 - Test: 6 test mới trong `AuthServiceTest`. Maven 93 test: 90 đạt, 3 tích hợp DB bỏ qua; build WAR đạt.
 - **Đã commit và push lên `origin/Thanhhien`** (`f060a00`). Chi tiết & giới hạn đã biết (chưa có nút gửi lại email xác thực): docs/EMAIL_VERIFICATION.md.
 
-## Thiết kế Email HTML đồng bộ nhận diện PetCare (Xác thực đăng ký & Đặt lại mật khẩu) — 20/11/2026
-
-Theo yêu cầu người dùng: email gửi từ Gmail SMTP trước đó chỉ là văn bản thô (plain text `p`/`a`), chưa có thiết kế giao diện và không đồng bộ với thương hiệu website. Đã nâng cấp toàn diện giao diện email HTML.
+## Mẫu email HTML thương hiệu PetCare — 21/11/2026
 
 - **`EmailTemplateUtil.java` (mới, `com.petcare.utils`)**:
   - Thiết kế chuẩn Email Responsive dạng thẻ (Card container `max-width: 580px`, bo góc `18px`, viền `#C5ECE0`, bóng đổ mềm), tương thích đa nền tảng (Gmail app/web, Outlook, Apple Mail, Webmail).
@@ -534,3 +538,14 @@ Người dùng xác nhận xác thực email đã có trên DB. Các ghi chú ng
 - Người dùng xác nhận `bunnny.tail1f20d2.ts.net:1433` là tên Tailscale của thành viên nhóm. Phép thử JDBC thành công ở các mục trên chỉ chứng minh **máy kiểm tra hiện tại** truy cập được DB trên peer đó vào thời điểm kiểm tra; không chứng minh máy thành viên khác, IntelliJ/Tomcat của họ, hoặc Tailscale của họ hoạt động bình thường.
 - Người dùng đã làm rõ DB đích mong muốn trong `application-local.properties` là `bunnny.tail1f20d2.ts.net:1433`. Đã kiểm tra lại: file local có đúng một khóa `db.url` trỏ tới host/cổng này và không còn tên `hung211.tail1f20d2.ts.net`. Không có bằng chứng hai tên host này là cùng một máy hay một tên đã được đổi.
 - Thông báo `Login failed for user 'DESKTOP-41Q7NMN\ADMIN'` cho biết ứng dụng tại nơi phát sinh lỗi đã thử nhánh SQL Server local bằng Windows Authentication sau một lỗi kết nối DB từ xa. Chỉ từ thông báo đó không thể kết luận lỗi Tailscale nằm ở máy của ai; cần xem `db.url`, VM option `petcare.config`, `user.dir`, trạng thái Tailscale và log server trên đúng máy chạy request đăng ký.
+
+## Kiểm tra hoạt động các nhánh và chuẩn bị merge vào main — 26/11/2026
+
+Theo yêu cầu người dùng: kiểm tra nhánh nào "làm việc" nhiều để đưa lên `main`.
+
+- So sánh commit giữa 6 nhánh remote (`Chitien`, `GiaHung`, `PhungBao`, `Thanhhien`, `bao`, `hung`) bằng `git log --oneline` và `git merge-base --is-ancestor`.
+- Kết quả: `PhungBao` (74 commit, cập nhật 26/11) là superset chứa toàn bộ commit của `Thanhhien` (63 commit), `Chitien` (40 commit), `bao` (71 commit) — đã xác nhận bằng ancestor check. `GiaHung` (73 commit) gần giống `PhungBao` nhưng có thêm 2 commit rác (log Tomcat + file JSP compiled) không có trong `PhungBao`. `hung` (3 commit, dừng từ 11/11) hầu như không hoạt động.
+- **Chọn `PhungBao` làm nguồn merge vào `main`** vì mới nhất và đầy đủ nhất.
+- Trước khi merge: tạo nhánh `cleanup-PhungBao` từ `origin/PhungBao`, `git rm --cached` 5 file rác đang bị track nhầm (`logs/localhost_access_log.*.txt`, `work/Catalina/.../org/apache/jsp/*.java` — artifact runtime của Tomcat, không phải source code), thêm `logs/` và `work/` vào `.gitignore`. Không đụng tới `.idea/` dù vẫn đang bị track nhầm tương tự (ngoài phạm vi yêu cầu lần này).
+- Đã push `cleanup-PhungBao` lên GitHub và mở PR vào `main`: xem Pull Request #2 trên repo `Hien1210/asm-jav102`. Chưa merge — đang chờ review.
+- Các thay đổi trên `Thanhhien` đang làm trước đó (sửa `QuenMatKhauServlet`, `RegisterServlet`, các file `.md`) đã được `git stash` lại, chưa commit, để tách biệt với việc merge nhánh này.

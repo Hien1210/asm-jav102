@@ -18,7 +18,8 @@
 - QuenMatKhauServlet.java (`/quen-mat-khau`) — yêu cầu đặt lại mật khẩu, gửi link qua email (Gmail SMTP), phản hồi chung chung chống dò định danh.
 - DatLaiMatKhauServlet.java (`/dat-lai-mat-khau`) — xác thực token từ email, đặt mật khẩu mới.
 - XacThucEmailServlet.java (`/xac-thuc-email`) — tiêu thụ token xác thực email gửi lúc đăng ký, redirect về `/login` kèm thông báo.
-- ProfileServlet.java (`/profile`, `/ho-so`) — hồ sơ cá nhân, đổi mật khẩu và thống kê tổng quan cho khách hàng (số thú cưng, lịch hẹn, công nợ, đánh giá, thông báo).
+- ProfileServlet.java (`/profile`, `/ho-so`) — hồ sơ cá nhân, đổi mật khẩu, nạp avatar/banner từ `UserMediaDAO` và thống kê tổng quan cho khách hàng (số thú cưng, lịch hẹn, công nợ, đánh giá, thông báo).
+- ProfileMediaServlet.java (`/profile/media`) — nhận upload ảnh đã cắt (multipart `avatar`/`banner`), xác thực magic bytes, tải lên Cloudinary (`petcare/avatars`, `petcare/banners`), lưu URL vào `dbo.UserMedia`, xóa ảnh cũ best-effort và hỗ trợ khôi phục mặc định (`action=remove`).
 - QuanLyCaLamViecServlet.java
 - QuanLyComboServlet.java
 - QuanLyDichVuServlet.java
@@ -27,6 +28,7 @@
 - QuanLyThuCungServlet.java (`/customer/thu-cung`) — CRUD đầy đủ thú cưng của khách hàng (tên, loài, giống, cân nặng, ngày sinh, ghi chú sức khỏe).
 - RegisterServlet.java
 - ThanhToanServlet.java (`/customer/thanh-toan`) — xem hóa đơn còn nợ, khởi tạo thanh toán `CASH`/`ONLINE` idempotent (`dbo.RecordPayment`), xác nhận giao dịch `ONLINE` (`PAID`) hoặc hủy yêu cầu `PENDING` (`FAILED`) qua `dbo.SetPaymentStatus`, lịch sử giao dịch & hoàn tiền.
+- ThuTienMatServlet.java (`/staff/thu-tien`) — tra khoản tiền mặt chờ thu theo mã lịch và xác nhận qua `dbo.ConfirmCounterCash` trong `database/petcare_counter_cash.sql`.
 - ThongBaoServlet.java (`/customer/thong-bao`) — lịch sử thông báo của khách hàng theo loại (`dbo.Notifications`).
 - TrangChuServlet.java
 
@@ -45,10 +47,12 @@
 - RoomDAO.java / RoomDAOImpl.java — danh sách phòng mở đặt và phòng trống theo khoảng ngày.
 - ServiceDAO.java / ServiceDAOImpl.java
 - StaffDAO.java / StaffDAOImpl.java — nhân viên có kỹ năng theo dịch vụ và ca trực sắp tới `dbo.Shifts`.
+- UserMediaDAO.java / UserMediaDAOImpl.java — đọc/cập nhật `avatar_url` & `banner_url` trong bảng `dbo.UserMedia` (hỗ trợ cả stored procedure, fallback SQL và SQL Server cục bộ; đọc fail-open nếu DB chưa chạy migration).
 
 ## filter
 
 - AuthFilter.java — xác minh trạng thái/vai trò hiện tại từ DB trước khi truy cập khu vực bảo vệ.
+- StaffHomeRedirectFilter.java — chuyển phiên STAFF từ `/home`, `/trang-chu`, `/index.jsp` về `/staff/lich-hen`.
 - package-info.java
 
 ## listener
@@ -87,6 +91,7 @@
 
 ## utils
 
+- CloudinaryUtil.java — client REST ký chữ ký SHA-1 thuần JDK (`java.net.http.HttpClient`, không thêm dependency ngoài) cho Cloudinary Upload API v1_1: đọc `cloudinary.url` / `CLOUDINARY_URL`, kiểm tra magic bytes (JPG/PNG/WebP/GIF, tối đa 8 MB), upload ảnh và xóa ảnh cũ theo URL.
 - ConfigUtil.java
 - DatabaseConnectionTest.java
 - DateUtil.java — múi giờ Việt Nam (`Asia/Ho_Chi_Minh`), định dạng ngày/giờ/VNĐ và nhãn thứ trong tuần.
@@ -104,12 +109,12 @@
 
 ## webapp (Customer UI)
 
-- `WEB-INF/includes/customerNav.jspf` — thanh điều hướng chung cho cổng Khách hàng (`/customer/*`).
-- `assets/css/customer.css` — stylesheet thống nhất cho toàn bộ trang role `CUSTOMER`.
-- `assets/css/profile.css` — stylesheet nâng cấp giao diện trang hồ sơ người dùng (`/profile`).
-- `profile.jsp` — trang hồ sơ thành viên kèm banner kính mờ, thống kê hoạt động trực tiếp, danh sách bé cưng nhanh, form hồ sơ & đổi mật khẩu (có thanh đo độ mạnh mật khẩu) và 6 thẻ tiện ích.
+- `WEB-INF/includes/customerNav.jspf` — thanh điều hướng chung cổng Khách hàng (`/customer/*`): topbar xanh rừng + avatar chữ cái đầu + subnav 7 mục có icon SVG.
+- `assets/css/customer.css` — stylesheet cổng Khách hàng (`?v=2`) đồng bộ tông Botanical Atelier (`#075c45`/`#f5f7f6`) với trang `/profile`, gồm các thành phần đặt lịch `.bk-*`.
+- `assets/css/profile.css` — stylesheet giao diện hồ sơ người dùng (`/profile`, v2): kiến trúc `.pf-*` độc lập với tông màu theo vai trò (`CUSTOMER` xanh ngọc rừng, `STAFF` xanh navy, `ADMIN` xanh lá đậm), bố cục cover-avatar + 2 cột bất đối xứng và responsive 0px tràn ngang.
+- `profile.jsp` — trang hồ sơ tài khoản đồng bộ `home.css?v=16` & `profile.css?v=2`: thẻ định danh cover-avatar, bố cục 2 cột (cột trái: tổng quan 2x2 Bento, danh sách bé cưng nhanh hoặc lối tắt STAFF/ADMIN, trạng thái & bảo mật; cột phải: thanh chuyển nhanh, form cập nhật hồ sơ có phát hiện thay đổi & hoàn tác, form đổi mật khẩu kèm thanh đo độ mạnh + 4 tiêu chí trực tiếp) và khu tiện ích phân theo vai trò.
 - `customer/quanLyThuCung.jsp` — quản lý thú cưng (thêm/sửa/xóa, cân nặng, ngày sinh, ghi chú sức khỏe).
-- `customer/datLich.jsp` — trung tâm đặt lịch 4 chế độ (Dịch vụ lẻ, Nhiều dịch vụ, Gói Combo, Phòng lưu trú) kèm giờ mở cửa & ca trực nhân viên.
+- `customer/datLich.jsp` — trung tâm đặt lịch 4 chế độ (Dịch vụ lẻ, Nhiều dịch vụ, Gói Combo, Phòng lưu trú) với hero banner + thanh tiến trình 2 bước, thẻ chọn nhanh bé cưng, gợi ý loài nhanh, thẻ xem trước 4 chế độ khi chưa có thú cưng, 4 thẻ chọn chế độ đặt lịch, giờ mở cửa & ca trực nhân viên.
 - `customer/lichHenDanhSach.jsp` — danh sách lịch hẹn của tôi, lọc trạng thái/loại, chi tiết hóa đơn và hủy lịch kèm lý do.
 - `customer/thanhToan.jsp` — thanh toán hóa đơn `ONLINE`/`CASH`, xác nhận/hủy giao dịch đang chờ và lịch sử thanh toán.
 - `customer/danhGia.jsp` — gửi đánh giá 1-5 sao cho lịch hẹn `COMPLETED` và xem lại đánh giá đã gửi.
@@ -124,6 +129,7 @@
 - `database/petcare_customer_features.sql` — migration tăng dần (idempotent) cho đầy đủ chức năng `CUSTOMER`: `CreatePet` (hỗ trợ `medical_notes`), `UpdatePet`, `DeletePet`, `CreateNotification`, `ListUserNotifications`, cấp quyền `SELECT`/`EXECUTE` và seed dữ liệu mẫu (dịch vụ, combo, phòng lưu trú, giờ mở cửa, kỹ năng & ca trực nhân viên).
 - `database/petcare_password_reset.sql` — bảng `dbo.PasswordResetTokens` + `CreatePasswordResetToken`/`ConsumePasswordResetToken` cho tính năng quên mật khẩu qua email. **Đã áp dụng DB chính.**
 - `database/petcare_email_verification.sql` — bảng `dbo.EmailVerificationTokens` + `CreateEmailVerificationToken`/`ConsumeEmailVerificationToken` cho xác thực email khi đăng ký. Người dùng xác nhận xác thực email đã có trên DB ngày 22/11/2026; chưa kiểm tra độc lập procedure/quyền.
+- `database/petcare_user_media.sql` — bảng `dbo.UserMedia` (`user_id`, `avatar_url`, `banner_url`) + 3 stored procedure (`GetUserMedia`, `UpsertUserAvatar`, `UpsertUserBanner`). Đã áp dụng trên SQL Server cục bộ (`localhost\SQLEXPRESS`).
 
 ## Kiểm thử (cập nhật 2026-11-19)
 
@@ -234,3 +240,19 @@ The singular controller package was removed. Existing servlet URL mappings are u
 - Đồng bộ nhận diện thương hiệu từ UI web (`login.css`): Header gradient Forest Green `#075C45` sang Emerald `#008F68`, huy hiệu chân chó `🐾 PetCare`, subtitle `Pet Spa & Grooming Lounge`, nút CTA gradient xanh nổi bật, hộp cảnh báo thời hạn (24h xác thực, 15 phút đặt lại mật khẩu), link dự phòng fallback và footer chăm sóc khách hàng.
 - `AuthService` chuyển sang dùng `EmailTemplateUtil.buildEmailVerificationHtml` và `EmailTemplateUtil.buildPasswordResetHtml`, tích hợp sẵn HTML entity escaping chống chèn mã độc.
 - Test mới: 6 test trong `EmailTemplateUtilTest`. Toàn bộ test suite: 99 test (96 đạt, 3 tích hợp bỏ qua); đóng gói WAR đạt.
+
+## Làm đẹp giao diện hồ sơ người dùng — 21/11/2026
+- Thiết kế lại `src/main/webapp/profile.jsp` và `src/main/webapp/assets/css/profile.css` (`?v=2`, đồng bộ `home.css?v=16`), giữ nguyên backend `ProfileServlet` và toàn bộ contract form (`action=updateProfile`, `action=changePassword`, `data-user-id`, escape `fn:escapeXml`).
+- Bố cục mới: thẻ định danh dạng cover + avatar nổi (đổi tông màu tự động theo vai trò CUSTOMER/STAFF/ADMIN), workspace 2 cột (cột trái tổng quan 2x2 Bento + bé cưng/lối tắt vai trò + trạng thái phiên; cột phải form 2 cột gọn gàng có trạng thái chưa lưu/hoàn tác và bộ kiểm tra 4 tiêu chí mật khẩu trực tiếp), khu tiện ích phân theo vai trò (sửa lỗi trùng thẻ "Thanh toán lịch hẹn" ở bản cũ, đồng bộ dropdown header cho đủ 3 vai trò).
+- Đã kiểm tra cân bằng thẻ JSTL/SVG và kiểm thử trực quan qua preview cục bộ (0px tràn ngang tại 1440px, 847px, 390px; test đủ tương tác form/mật khẩu/đóng thông báo; 0 lỗi console). Không sửa backend Java hay DB.
+
+## Nâng cấp giao diện Đặt lịch & Cổng Khách hàng — 21/11/2026
+- Nâng cấp `WEB-INF/includes/customerNav.jspf`, `assets/css/customer.css` (`?v=2`, cập nhật cache-bust trên 5 JSP khách hàng) và thiết kế lại `customer/datLich.jsp` đồng bộ với bảng màu Botanical Atelier của `/profile`.
+- `datLich.jsp`: thêm hero banner kèm stepper 2 bước, khung nhắc thân thiện + nút chọn nhanh loài (`Chó`/`Mèo`) & nút submit chính rõ ràng khi chưa có thú cưng, thẻ xem trước 4 hình thức đặt lịch lấp khoảng trống, thẻ chọn nhanh bé cưng đồng bộ dropdown giữa 4 tab, 4 thẻ chọn chế độ đặt lịch trực quan, hộp ước tính lưu trú nổi bật, cột phải giờ mở cửa dạng badge + ca trực có avatar + thẻ lưu ý.
+- Giữ nguyên backend `DatLichServlet` và toàn bộ contract form/option regex cho `scripts/smoke-test.ps1`. Đã kiểm tra cân bằng thẻ JSTL/HTML/SVG và kiểm thử trực quan ở 1440px & 390px cho cả 2 trạng thái (0 thú cưng & có thú cưng): 0px tràn ngang, 0 lỗi console.
+
+## Tích hợp Cloudinary & Trình chỉnh sửa Avatar / Banner hồ sơ — 21/11/2026
+- `CloudinaryUtil` (thuần JDK `HttpClient` + ký SHA-1, không cần thêm thư viện ngoài), `UserMediaDAO`/`UserMediaDAOImpl`, `ProfileMediaServlet` (`/profile/media`, `@MultipartConfig` 8 MB), mở rộng `Users`/`SessionUtil`/`ProfileServlet`/`LoginServlet` giữ nguyên bảo toàn media qua `AuthFilter`.
+- `database/petcare_user_media.sql` (bảng `dbo.UserMedia` + 3 SP độc lập không đụng `dbo.Users`, đã áp dụng trên `localhost\SQLEXPRESS`). Cấu hình Cloudinary đặt ở `application-local.properties` và SmartTomcat `.idea/workspace.xml` (đều git-ignored), mẫu ở `application.properties`.
+- `assets/js/profile-media-editor.js` (`?v=2`), `assets/css/profile.css` (`?v=4`), `profile.jsp`, `customerNav.jspf`, `index.jsp`: nút đổi avatar & ảnh bìa kèm trình cắt ảnh chi tiết (kéo thả, cuộn chuột thu phóng, zoom 100–300%, xoay ±90° & xoay mịn ±45°, lật ngang/dọc, dịch chuyển từng px bằng nút/phím mũi tên, chỉnh độ sáng/tương phản, xem trước trực tiếp, khôi phục mặc định) và đồng bộ avatar lên thanh điều hướng.
+- Kiểm thử: 5 test mới trong `CloudinaryUtilTest` (tổng 104 test: 101 đạt, 3 tích hợp bỏ qua; build WAR đạt), E2E upload ảnh thật lên Cloudinary `dut8qxmt` (CDN HTTP 200) + lưu/đọc `dbo.UserMedia` + dọn sạch ảnh test, và kiểm thử trực quan hộp thoại cắt Avatar/Banner trên trình duyệt.
