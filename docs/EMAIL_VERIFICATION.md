@@ -16,7 +16,7 @@
 
 ## Database
 - `database/petcare_email_verification.sql`: bảng `dbo.EmailVerificationTokens` (idempotent) + `CreateEmailVerificationToken`, `ConsumeEmailVerificationToken` + `GRANT EXECUTE` cho 2 procedure + `GRANT SELECT` trực tiếp trên bảng (vì việc kiểm tra "còn token chờ xác thực không" là 1 câu SELECT thuần, không qua procedure, nên không được hưởng ownership chaining như 2 procedure kia).
-- **Chưa áp dụng DB chính** — cần chạy bằng tài khoản db_owner/sysadmin giống `petcare_password_reset.sql`.
+- **Cập nhật 22/11/2026:** người dùng xác nhận xác thực email đã có trên DB. Chưa kiểm tra độc lập bảng, procedure và quyền truy cập; ghi chú "chưa áp dụng" trước đây đã cũ.
 - `EmailVerificationDAOImpl.hasPendingVerification`: cố ý **không bao giờ throw** — nếu bảng chưa tồn tại (chưa chạy migration) hoặc DB trục trặc, trả về `false` (không chặn đăng nhập của ai khác). Nhờ vậy việc deploy code này trước khi chạy migration không làm hỏng đăng nhập của các tài khoản đã có từ trước.
 
 ## Mail & token
@@ -30,3 +30,12 @@
 ## Test
 - `AuthServiceTest`: 6 test mới — gửi mail thành công thì lưu token, mail lỗi thì không lưu token, đăng nhập bị chặn khi còn token chờ, đăng nhập được khi hết/không còn token chờ, xác thực token sai bị từ chối, xác thực token đúng thành công.
 - Maven: 93 test, 90 đạt, 3 tích hợp DB bỏ qua; build WAR thành công.
+
+## Rà soát luồng token trước khi đưa lên `main` — 22/11/2026
+
+- **Đăng ký:** `RegisterServlet` gọi `AuthService.registerCustomer`. Service tạo tài khoản `is_active=true`, sinh token, gửi link email rồi mới gọi `EmailVerificationDAO.createToken`. Ngoại lệ gửi mail hoặc lưu token bị nuốt; tài khoản vẫn được tạo và trả về thành công. Giao diện yêu cầu email, nhưng service chấp nhận email rỗng và tự sinh `<số điện thoại>@petcare.vn` nếu POST trực tiếp.
+- **Mở link:** `XacThucEmailServlet` gọi `AuthService.verifyEmail`, băm token rồi gọi `ConsumeEmailVerificationToken`. Procedure chỉ chấp nhận token chưa dùng và chưa hết hạn, sau đó ghi `used_at`. Không có trạng thái xác thực bền vững trên `Users`.
+- **Đăng nhập:** `AuthService.authenticate` gọi `hasPendingVerification`. Truy vấn chỉ thấy token `used_at IS NULL AND expires_at > SYSDATETIME()`; khi token chưa dùng hết hạn, kết quả là false và tài khoản đăng nhập được. DAO cũng trả false nếu truy vấn DB lỗi. Đây là thiết kế fail-open hiện có, nhưng không đáp ứng yêu cầu bắt buộc xác thực trước đăng nhập.
+- **Test hiện tại:** `AuthServiceTest` dùng DAO giả với cờ `pending`; test `loginSucceedsOnceEmailVerificationIsNoLongerPending` không phân biệt token đã dùng với token hết hạn/chưa dùng. Chưa có test DAO/SQL cho trường hợp hết hạn hoặc gửi lại link.
+
+Nếu xác thực là bắt buộc, cần lưu trạng thái chưa/đã xác thực độc lập với thời hạn link, giữ tài khoản chưa xác thực bị chặn sau 24 giờ, thêm cách gửi lại link và xử lý trường hợp gửi mail thất bại. Sau đó thêm test cho các trạng thái này, chạy lại JUnit và kiểm tra trên DB QA. Phiên rà soát này chỉ đọc code, chưa sửa logic hoặc ghi DB.

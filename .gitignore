@@ -28,6 +28,10 @@ replay_pid*
 out/
 .env
 application-local.properties
+
+# Tomcat runtime logs and compiled JSP work directory
+logs/
+work/
 /application.properties
 
 # Local database truststores

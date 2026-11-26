@@ -8,10 +8,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @WebServlet(name = "QuenMatKhauServlet", urlPatterns = {"/quen-mat-khau"})
 public class QuenMatKhauServlet extends HttpServlet {
 
+    private static final Logger LOGGER = Logger.getLogger(QuenMatKhauServlet.class.getName());
     private static final String GENERIC_SUCCESS_MESSAGE =
             "Nếu số điện thoại/email này có tài khoản, PetCare đã gửi một email hướng dẫn đặt lại mật khẩu. "
             + "Vui lòng kiểm tra hộp thư (kể cả mục Spam).";
@@ -46,7 +49,8 @@ public class QuenMatKhauServlet extends HttpServlet {
             authService.requestPasswordReset(identifier, resetPageBaseUrl(request));
             request.setAttribute("successMessage", GENERIC_SUCCESS_MESSAGE);
         } catch (SQLException e) {
-            request.setAttribute("errorMessage", "Lỗi kết nối cơ sở dữ liệu SQL Server: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Yêu cầu đặt lại mật khẩu thất bại do lỗi cơ sở dữ liệu.", e);
+            request.setAttribute("errorMessage", "Không thể xử lý yêu cầu lúc này. Vui lòng thử lại sau.");
         }
         request.getRequestDispatcher("/quenMatKhau.jsp").forward(request, response);
     }

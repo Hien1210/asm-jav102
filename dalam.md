@@ -510,3 +510,27 @@ Theo yêu cầu người dùng: email gửi từ Gmail SMTP trước đó chỉ 
   - `EmailTemplateUtilTest.java` (6 test mới): Kiểm tra thương hiệu PetCare, nội dung thẻ tag, tên người nhận, link token, thời hạn 24h / 15 phút, fallback khi tên rỗng/null ("Quý khách"), và kiểm tra escape ký tự đặc biệt (`<`, `>`, `&`, `"`, `'`).
   - Chạy toàn bộ test suite Maven: **99 test (96 PASS, 3 tích hợp QA bỏ qua)**.
   - Đóng gói WAR `mvn package -DskipTests`: **BUILD SUCCESS** (`target/petcare.war`).
+
+## Đính chính trạng thái DB xác thực email — 22/11/2026
+
+Người dùng xác nhận xác thực email đã có trên DB. Các ghi chú ngày 20/11/2026 nói migration `petcare_email_verification.sql` chưa áp dụng phản ánh trạng thái tại thời điểm đó, không còn là thông tin hiện hành. Phiên này chưa tự kiểm tra độc lập bảng, procedure và quyền truy cập. Việc token chưa dùng hết hạn 24 giờ làm `hasPendingVerification` trả về false là hành vi của code hiện tại, không phải do thiếu bảng DB.
+
+## Kiểm tra cấu hình đăng ký và đặt lại mật khẩu — 26/11/2026
+
+- `application-local.properties` ở root được `ConfigUtil` nạp khi chạy từ thư mục project hoặc khi chỉ định `-Dpetcare.config` tới file; file đã được gitignore. `RegisterServlet` và `QuenMatKhauServlet` gọi `AuthService`; DAO tài khoản/token dùng `DBUtil`, email dùng `MailUtil` và cùng cấu hình local.
+- Host DB cũ `hung211.tail1f20d2.ts.net` không phân giải DNS trên máy kiểm tra. Tailscale hiện thấy peer `bunnny.tail1f20d2.ts.net`; cổng 1433 mở. Đã sửa riêng host trong `db.url` của file local (không đổi tài khoản/mật khẩu). Chạy `DatabaseConnectionTest` bằng JDBC: kết nối `PetCare` thành công, đọc `dbo.Users` được 17 bản ghi. Trước sửa, JDBC lỗi `08S01` và fallback SQL Server local không đăng nhập được vào `PetCare` (4060).
+- Truy vấn chỉ đọc với tài khoản DB cấu hình xác nhận các bảng `Users`, `PasswordResetTokens`, `EmailVerificationTokens` và procedure `CreateAccount`, `FindAccountByIdentifier`, `ResetAccountPassword`, `CreatePasswordResetToken`, `ConsumePasswordResetToken`, `CreateEmailVerificationToken`, `ConsumeEmailVerificationToken` tồn tại; tài khoản có quyền EXECUTE tương ứng và SELECT `EmailVerificationTokens`. Không tạo tài khoản, token hay gửi email thật trong lần kiểm tra này.
+- SMTP trong file local có các khóa cần thiết, máy kiểm tra nối được `smtp.gmail.com:587`; chưa xác minh đăng nhập SMTP/gửi thư thật. File truststore được khai báo nhưng không tồn tại theo đường dẫn tương đối khi chạy từ root và không thấy `certs/petcare-truststore.p12`; `DBUtil` vì vậy chuyển sang `trustServerCertificate=true`. Nên cấu hình truststore hợp lệ để kiểm tra chứng chỉ máy chủ.
+- Tiến trình SmartTomcat đang chạy tại thời điểm kiểm tra không có `-Dpetcare.config`. Vì `ConfigUtil` mặc định tìm file local theo thư mục làm việc của JVM, chưa xác nhận Tomcat đã nạp file vừa sửa; cần đặt VM option tới đường dẫn tuyệt đối của file local và khởi động lại Tomcat trước khi đánh giá luồng HTTP đang triển khai.
+
+## Sửa cấu hình SmartTomcat và log lỗi đăng ký — 26/11/2026
+
+- Lỗi UI `Cannot open database "PetCare" ... DESKTOP-41Q7NMN\ADMIN` là lỗi từ nhánh fallback `localhost\SQLEXPRESS` dùng Windows Authentication, không phải tài khoản SQL của DB từ xa. Đã xác minh JVM SmartTomcat có `user.dir=C:\Users\ADMIN\.SmartTomcat\asm-jav102\asm-jav102` và không có `-Dpetcare.config`; vì thế file local ở root project không được tìm thấy theo đường dẫn mặc định.
+- Đã đặt `vmOptions` trong cấu hình SmartTomcat cá nhân `.idea/workspace.xml` (git-ignored) tới đường dẫn tuyệt đối của `application-local.properties`. Khi chạy `DatabaseConnectionTest` từ chính thư mục làm việc của Tomcat với cùng VM option, JDBC kết nối `PetCare` thành công và đọc được 17 tài khoản. Tiến trình Tomcat hiện tại vẫn cần được restart từ IntelliJ để nhận VM option mới.
+- `RegisterServlet` và `QuenMatKhauServlet` trước đây bắt `SQLException` rồi chỉ đưa `e.getMessage()` ra UI, không ghi log. Đã thêm `java.util.logging` mức SEVERE với exception ở server và đổi thông báo UI thành thông báo chung, không lộ chi tiết SQL/Windows account. Hai servlet biên dịch thành công bằng `javac`; chưa chạy HTTP đăng ký thật để tránh tạo tài khoản hoặc gửi email ngoài ý muốn.
+
+## Đính chính phạm vi chẩn đoán Tailscale — 26/11/2026
+
+- Người dùng xác nhận `bunnny.tail1f20d2.ts.net:1433` là tên Tailscale của thành viên nhóm. Phép thử JDBC thành công ở các mục trên chỉ chứng minh **máy kiểm tra hiện tại** truy cập được DB trên peer đó vào thời điểm kiểm tra; không chứng minh máy thành viên khác, IntelliJ/Tomcat của họ, hoặc Tailscale của họ hoạt động bình thường.
+- Người dùng đã làm rõ DB đích mong muốn trong `application-local.properties` là `bunnny.tail1f20d2.ts.net:1433`. Đã kiểm tra lại: file local có đúng một khóa `db.url` trỏ tới host/cổng này và không còn tên `hung211.tail1f20d2.ts.net`. Không có bằng chứng hai tên host này là cùng một máy hay một tên đã được đổi.
+- Thông báo `Login failed for user 'DESKTOP-41Q7NMN\ADMIN'` cho biết ứng dụng tại nơi phát sinh lỗi đã thử nhánh SQL Server local bằng Windows Authentication sau một lỗi kết nối DB từ xa. Chỉ từ thông báo đó không thể kết luận lỗi Tailscale nằm ở máy của ai; cần xem `db.url`, VM option `petcare.config`, `user.dir`, trạng thái Tailscale và log server trên đúng máy chạy request đăng ký.
