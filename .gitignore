@@ -27,6 +27,10 @@ replay_pid*
 # Maven and local configuration
 out/
 .env
+
+# Tomcat runtime logs and compiled JSP work directory
+logs/
+work/
 application-local.properties
 /application.properties
 
