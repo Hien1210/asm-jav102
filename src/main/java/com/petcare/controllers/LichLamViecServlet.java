@@ -2,6 +2,9 @@ package com.petcare.controllers;
 
 import com.petcare.models.Users;
 import com.petcare.services.StaffScheduleService;
+import com.petcare.services.StaffViewPolicy;
+import com.petcare.daos.StaffWorkspaceDAO;
+import com.petcare.daos.BusinessHoursDAOImpl;
 import com.petcare.utils.DateUtil;
 import com.petcare.utils.SessionUtil;
 import jakarta.servlet.ServletException;
@@ -14,7 +17,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
-/** Nhân viên xem lịch làm việc (ca) của chính mình trong 14 ngày tới. */
+/** Nhân viên xem ca của chính mình theo tuần hoặc khoảng ngày tối đa 31 ngày. */
 @WebServlet(name = "LichLamViecServlet", urlPatterns = {"/staff/lich-lam-viec"})
 public class LichLamViecServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -34,10 +37,23 @@ public class LichLamViecServlet extends HttpServlet {
         int staffId = SessionUtil.getCurrentUser(request).getUserId();
         try {
             LocalDate today = DateUtil.todayVn();
-            request.setAttribute("shifts", staffScheduleService.getMyShifts(staffId, today, today.plusDays(13)));
+            request.setAttribute("staffToday",today);
+            var range=StaffViewPolicy.week(today,request.getParameter("week"),request.getParameter("from"),request.getParameter("to"));
+            request.setAttribute("shiftRange",range);
+            var shifts=staffScheduleService.getMyShifts(staffId,range.from(),range.to());
+            request.setAttribute("shifts",shifts);
+            request.setAttribute("shiftMinutes",StaffViewPolicy.minutes(shifts));
+            request.setAttribute("todayLines",staffScheduleService.getMyAppointments(staffId,today,today));
+        } catch (IllegalArgumentException e) {
+            response.setStatus(400);
+            request.setAttribute("errorMessage",e.getMessage());
         } catch (SQLException e) {
             request.setAttribute("errorMessage", "Không tải được lịch làm việc. Vui lòng thử lại.");
         }
+        try { request.setAttribute("staffSkills",new StaffWorkspaceDAO().skills(staffId)); }
+        catch(SQLException e) { request.setAttribute("skillsError","Chưa tải được kỹ năng chuyên môn."); }
+        try { request.setAttribute("businessHours",new BusinessHoursDAOImpl().findAll()); }
+        catch(SQLException e) { request.setAttribute("hoursError","Chưa tải được giờ mở cửa."); }
 
         request.getRequestDispatcher("/WEB-INF/views/staff/lichLamViec.jsp").forward(request, response);
     }

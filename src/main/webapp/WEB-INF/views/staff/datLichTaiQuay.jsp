@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Đặt lịch tại quầy | PetCare</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/staff.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/staff.css?v=figma-20261128">
 </head>
 <body>
     <c:set var="staffPage" value="counter"/>
@@ -53,7 +53,7 @@
 
             <div class="card">
                 <div class="step-heading"><span class="step-number">02</span><div><h2>Thú cưng của khách</h2><p>Chọn hồ sơ có sẵn ở bước đặt lịch hoặc thêm bé mới.</p></div></div>
-                <div class="pet-chips"><c:forEach var="pet" items="${pets}"><span class="pet-chip"><svg aria-hidden="true"><use href="#staff-paw"/></svg>${fn:escapeXml(pet.name)} <small>${fn:escapeXml(pet.species)}</small></span></c:forEach></div>
+                <div class="pet-chips"><c:forEach var="pet" items="${pets}"><button type="button" class="pet-chip" data-select-pet="${pet.petId}" aria-pressed="false"><span class="pet-initial" aria-hidden="true">${fn:escapeXml(fn:substring(pet.name,0,1))}</span><span>${fn:escapeXml(pet.name)} <small>${fn:escapeXml(pet.species)}</small></span></button></c:forEach></div>
                 <c:if test="${empty pets}">
                     <p class="empty-note">Khách chưa có thú cưng nào. Vui lòng thêm trước khi đặt lịch.</p>
                 </c:if>
@@ -95,7 +95,7 @@
                                     <c:forEach var="entry" items="${staffByService}">
                                         <fmt:formatNumber var="counterServicePrice" value="${entry.key.price}" maxFractionDigits="2"/><optgroup label="${fn:escapeXml(entry.key.name)} (${entry.key.durationMinutes} phút - ${counterServicePrice} đ)">
                                             <c:forEach var="staff" items="${entry.value}">
-                                                <c:set var="staffChoiceValue" value="${entry.key.serviceId}_${staff.staffId}"/><option value="${staffChoiceValue}" ${param.staffChoice == staffChoiceValue ? 'selected' : ''}>${fn:escapeXml(entry.key.name)} — ${fn:escapeXml(staff.fullName)}</option>
+                                                <c:set var="staffChoiceValue" value="${entry.key.serviceId}_${staff.staffId}"/><option value="${staffChoiceValue}" data-price="${entry.key.price}" data-service="${fn:escapeXml(entry.key.name)}" data-staff="${fn:escapeXml(staff.fullName)}" ${param.staffChoice == staffChoiceValue ? 'selected' : ''}>${fn:escapeXml(entry.key.name)} — ${fn:escapeXml(staff.fullName)}</option>
                                             </c:forEach>
                                             <c:if test="${empty entry.value}">
                                                 <option disabled>Chưa có nhân viên nhận dịch vụ này</option>
@@ -127,14 +127,14 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary" ${availableAssignments == 0 ? 'disabled' : ''}>Xác nhận đặt lịch &amp; thu tiền</button>
+                        <button type="submit" class="btn btn-primary" id="counter-confirm" ${availableAssignments == 0 ? 'disabled' : ''}>Xác nhận đặt lịch &amp; thu tiền</button>
                     </form>
                 </div>
             </c:if>
         </c:if>
-        </section><aside class="workspace-rail" aria-label="Hướng dẫn đặt tại quầy"><div class="rail-card"><h2>Đón khách trong 3 bước</h2><ol class="workflow"><li><strong>Tìm đúng khách</strong>Kiểm tra số điện thoại và tên khách.</li><li><strong>Chọn đúng bé</strong>Mỗi hồ sơ thú cưng gắn với chủ sở hữu.</li><li><strong>Xác nhận &amp; thu tiền</strong>Chọn dịch vụ, nhân viên và giờ hẹn phù hợp.</li></ol></div><div class="rail-card accent"><svg aria-hidden="true"><use href="#staff-check"/></svg><h2>Trước khi hoàn tất</h2><p>Chỉ xác nhận thu tiền khi đã nhận tiền mặt hoặc kiểm tra giao dịch chuyển khoản. Với Online, hãy nhập mã giao dịch để đối soát.</p></div></aside></div>
+        </section><aside class="workspace-rail counter-summary" aria-label="Tóm tắt đơn tại quầy"><div class="rail-card"><h2>Tóm tắt đơn tại quầy</h2><dl class="order-summary"><dt>Khách hàng</dt><dd><c:out value="${empty customer ? 'Chưa chọn khách' : customer.fullName}"/></dd><dt>Thú cưng</dt><dd data-summary-pet>Chưa chọn</dd><dt>Ngày hẹn</dt><dd data-summary-date>Chưa chọn</dd><dt>Giờ hẹn</dt><dd data-summary-time>Chưa chọn</dd><dt>Phụ trách</dt><dd data-summary-staff>Chưa chọn</dd><dt>Dịch vụ</dt><dd data-summary-service>Chưa chọn</dd></dl><div class="order-total"><span>Tổng tiền dự kiến</span><strong data-summary-price>—</strong></div><p class="support-note">Giá hiển thị theo dịch vụ đã chọn. Hệ thống kiểm tra lại khi xác nhận.</p><c:if test="${not empty pets}"><a class="btn btn-primary" href="#counter-confirm">Kiểm tra &amp; hoàn tất đơn</a></c:if></div><div class="rail-card accent"><h2>Trước khi hoàn tất</h2><p>Chỉ xác nhận thu tiền khi đã nhận tiền mặt hoặc kiểm tra giao dịch chuyển khoản. Với Online, hãy nhập mã giao dịch để đối soát.</p><p>Tại quầy hiện hỗ trợ một dịch vụ cho mỗi lần đặt.</p></div></aside></div>
         <footer class="page-footer"><span>PetCare · Không gian nhân viên</span><span>Đúng thông tin, trọn trải nghiệm.</span></footer>
     </main>
-    <script src="${pageContext.request.contextPath}/assets/js/staff.js" defer></script>
+    <script src="${pageContext.request.contextPath}/assets/js/staff.js?v=figma-20261128" defer></script>
 </body>
 </html>

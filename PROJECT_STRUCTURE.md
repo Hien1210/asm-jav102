@@ -256,3 +256,10 @@ The singular controller package was removed. Existing servlet URL mappings are u
 - `database/petcare_user_media.sql` (bảng `dbo.UserMedia` + 3 SP độc lập không đụng `dbo.Users`, đã áp dụng trên `localhost\SQLEXPRESS`). Cấu hình Cloudinary đặt ở `application-local.properties` và SmartTomcat `.idea/workspace.xml` (đều git-ignored), mẫu ở `application.properties`.
 - `assets/js/profile-media-editor.js` (`?v=2`), `assets/css/profile.css` (`?v=4`), `profile.jsp`, `customerNav.jspf`, `index.jsp`: nút đổi avatar & ảnh bìa kèm trình cắt ảnh chi tiết (kéo thả, cuộn chuột thu phóng, zoom 100–300%, xoay ±90° & xoay mịn ±45°, lật ngang/dọc, dịch chuyển từng px bằng nút/phím mũi tên, chỉnh độ sáng/tương phản, xem trước trực tiếp, khôi phục mặc định) và đồng bộ avatar lên thanh điều hướng.
 - Kiểm thử: 5 test mới trong `CloudinaryUtilTest` (tổng 104 test: 101 đạt, 3 tích hợp bỏ qua; build WAR đạt), E2E upload ảnh thật lên Cloudinary `dut8qxmt` (CDN HTTP 200) + lưu/đọc `dbo.UserMedia` + dọn sạch ảnh test, và kiểm thử trực quan hộp thoại cắt Avatar/Banner trên trình duyệt.
+
+## Bốn trang nhân viên theo Figma — 2026-11-28
+- Đối chiếu 4 frame staff: 95:1320, 95:2320, 95:2752, 96:3291 trong file C1YfkM54eOBDw7S4SVdBa4; dùng skill figma-design-to-code.
+- Sidebar xanh sáng/mint, đủ 4 menu; lọc lịch theo ngày/tìm kiếm/trạng thái, ghi chú sức khỏe; ca trực theo tuần/khoảng ngày kèm kỹ năng và giờ mở cửa; tóm tắt đơn quầy; tổng quan/list/history tiền mặt.
+- StaffViewPolicy + 8 test mới; StaffWorkspaceDAO chỉ SELECT. Không đổi quyền hoặc nghiệp vụ ghi thanh toán. Số thu hôm nay là toàn hệ thống vì schema chưa ghi cashier/shift.
+- Maven 112 test: 109 đạt, 3 tích hợp bỏ qua. 12 preview render và 16 tổ hợp responsive đạt; 4 truy vấn chỉ đọc chạy thành công. WAR build đạt; chưa deploy Tomcat chính.
+- Chi tiết các phần triển khai, chỗ điều chỉnh theo backend và bằng chứng: docs/STAFF_FIGMA_IMPLEMENTATION.md.

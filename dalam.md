@@ -523,3 +523,10 @@ Tiếp theo tính năng quên mật khẩu ở trên — theo yêu cầu ngườ
 - Đã thử JDBC trực tiếp bằng hostname mới: PetCare, server DESKTOP-VO3JCGJ\SQLEXPRESS, 17 tài khoản; không dùng fallback.
 - Đã thay hostname cũ bằng mới trong application-local.properties trên máy này (file gitignore); không đổi tài khoản, mật khẩu, TLS hoặc dữ liệu. Thành viên phải tự cập nhật file local/DB_URL vì file local không đi theo Git.
 - Khởi động lại Tomcat sau khi thay cấu hình để ConfigUtil nạp lại và xóa trạng thái circuit breaker cũ.
+
+## Bốn trang nhân viên theo Figma — 2026-11-28
+- Đối chiếu 4 frame staff: 95:1320, 95:2320, 95:2752, 96:3291 trong file C1YfkM54eOBDw7S4SVdBa4; dùng skill figma-design-to-code.
+- Sidebar xanh sáng/mint, đủ 4 menu; lọc lịch theo ngày/tìm kiếm/trạng thái, ghi chú sức khỏe; ca trực theo tuần/khoảng ngày kèm kỹ năng và giờ mở cửa; tóm tắt đơn quầy; tổng quan/list/history tiền mặt.
+- StaffViewPolicy + 8 test mới; StaffWorkspaceDAO chỉ SELECT. Không đổi quyền hoặc nghiệp vụ ghi thanh toán. Số thu hôm nay là toàn hệ thống vì schema chưa ghi cashier/shift.
+- Maven 112 test: 109 đạt, 3 tích hợp bỏ qua. 12 preview render và 16 tổ hợp responsive đạt; 4 truy vấn chỉ đọc chạy thành công. WAR build đạt; chưa deploy Tomcat chính.
+- Chi tiết các phần triển khai, chỗ điều chỉnh theo backend và bằng chứng: docs/STAFF_FIGMA_IMPLEMENTATION.md.

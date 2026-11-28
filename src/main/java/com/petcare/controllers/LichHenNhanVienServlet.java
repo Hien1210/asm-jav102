@@ -3,6 +3,7 @@ package com.petcare.controllers;
 import com.petcare.models.Appointments;
 import com.petcare.models.Users;
 import com.petcare.services.StaffScheduleService;
+import com.petcare.services.StaffViewPolicy;
 import com.petcare.utils.DateUtil;
 import com.petcare.utils.SessionUtil;
 import com.petcare.utils.ValidationUtil;
@@ -72,9 +73,12 @@ public class LichHenNhanVienServlet extends HttpServlet {
     private void loadAppointments(HttpServletRequest request) {
         int staffId = SessionUtil.getCurrentUser(request).getUserId();
         try {
-            LocalDate today = DateUtil.todayVn();
+            LocalDate today = StaffViewPolicy.date(request.getParameter("date"),DateUtil.todayVn());
+            request.setAttribute("appointmentDate",today);
             request.setAttribute("appointments",
-                    staffScheduleService.getMyAppointments(staffId, today, today.plusDays(30)));
+                    staffScheduleService.getMyAppointments(staffId, today, today));
+        } catch(IllegalArgumentException e) {
+            request.setAttribute("errorMessage",e.getMessage());
         } catch (SQLException e) {
             request.setAttribute("errorMessage", "Không tải được lịch hẹn được giao. Vui lòng thử lại.");
         }

@@ -1,47 +1,15 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-<!doctype html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Thu tiền mặt | PetCare</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/staff.css">
-</head>
-<body>
-    <c:set var="staffPage" value="cash"/>
-    <%@ include file="/WEB-INF/includes/staffHeader.jspf" %>
-    <main id="staff-main">
-        <div class="page-heading"><h1>Thu tiền mặt</h1></div>
-        <form method="get" action="${pageContext.request.contextPath}/staff/thu-tien">
-            <label for="appointmentId">Mã lịch hẹn</label>
-            <input type="number" min="1" max="2147483647" required id="appointmentId"
-                   name="appointmentId" value="${appointmentId}">
-            <button class="btn btn-primary" type="submit">Tra cứu</button>
-        </form>
-        <c:if test="${not empty error}">
-            <p class="alert alert-error" role="alert"><c:out value="${error}"/></p>
-        </c:if>
-        <c:if test="${not empty cashReceipt}">
-            <p role="status">Đã ghi nhận thu tiền cho giao dịch #${cashReceipt}.</p>
-        </c:if>
-        <c:if test="${not empty appointmentId and empty error}">
-            <h2>Khoản chờ thu của lịch #${appointmentId}</h2>
-            <c:if test="${empty pendingCash}">
-                <p class="empty-note">Lịch này không có khoản tiền mặt đang chờ thu.</p>
-            </c:if>
-            <c:forEach items="${pendingCash}" var="payment">
-                <form method="post" action="${pageContext.request.contextPath}/staff/thu-tien">
-                    <input type="hidden" name="csrfToken" value="${sessionScope.staffCsrfToken}">
-                    <input type="hidden" name="appointmentId" value="${appointmentId}">
-                    <input type="hidden" name="paymentId" value="${payment.paymentId}">
-                    <p>Giao dịch #${payment.paymentId} · <fmt:formatNumber value="${payment.amount}"/> đ</p>
-                    <button class="btn btn-primary" type="submit">Xác nhận đã nhận tiền</button>
-                </form>
-            </c:forEach>
-        </c:if>
-    </main>
-    <script src="${pageContext.request.contextPath}/assets/js/staff.js" defer></script>
-</body>
-</html>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %><fmt:setLocale value="vi_VN"/>
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Thu tiền mặt | PetCare</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/staff.css?v=figma-20261128"></head>
+<body><c:set var="staffPage" value="cash"/><%@ include file="/WEB-INF/includes/staffHeader.jspf" %><main id="staff-main">
+<div class="page-heading"><div><p class="eyebrow">04 / THANH TOÁN TẠI QUẦY</p><h1>Thu tiền mặt</h1><p class="sub">Đối soát khoản chờ thu và xác nhận tiền đã nhận.</p></div></div>
+<c:if test="${not empty error}"><div class="alert alert-error" role="alert"><c:out value="${error}"/></div></c:if><c:if test="${not empty cashWorkspaceError}"><div class="alert alert-error" role="alert"><c:out value="${cashWorkspaceError}"/></div></c:if><c:if test="${not empty cashReceipt}"><div class="alert alert-success" role="status">Đã ghi nhận thu tiền cho giao dịch #<c:out value="${cashReceipt}"/>.</div></c:if>
+<c:if test="${cashLoaded}"><div class="overview figma-kpis"><div class="overview-item"><div><small>TIỀN MẶT ĐÃ THU HÔM NAY</small><strong class="money-value"><fmt:formatNumber value="${cashPaidTotal}" maxFractionDigits="0"/> đ</strong><span class="metric-caption">Toàn hệ thống · CHARGE đã PAID</span></div></div><div class="overview-item"><div><small>CHỜ THU (PENDING)</small><strong>${fn:length(pendingCashRows)} <em>giao dịch</em></strong><span class="metric-caption">${empty appointmentId ? 'Tất cả lịch đang chờ' : 'Trong lịch đang tra cứu'}</span></div></div><div class="overview-item"><div><small>TỔNG KHOẢN ĐANG CHỜ</small><strong class="money-value"><fmt:formatNumber value="${cashPendingTotal}" maxFractionDigits="0"/> đ</strong><span class="metric-caption">Các giao dịch tiền mặt trong danh sách</span></div></div></div></c:if>
+<div class="cash-layout"><section class="card"><div class="section-heading"><div><h2>Danh sách chờ thu tại quầy</h2><p class="sub">Khoản tiền mặt CASH đang ở trạng thái PENDING.</p></div><c:if test="${not empty appointmentId}"><a href="${pageContext.request.contextPath}/staff/thu-tien">Xem tất cả</a></c:if></div>
+<c:if test="${cashLoaded && empty pendingCashRows}"><p class="empty-note">Không có khoản tiền mặt đang chờ thu${not empty appointmentId ? ' cho lịch này' : ''}.</p></c:if>
+<c:if test="${not empty pendingCashRows}"><div class="table-scroll" role="region" aria-label="Danh sách tiền mặt đang chờ" tabindex="0"><table><thead><tr><th scope="col">Lịch / Giao dịch</th><th scope="col">Khách hàng &amp; Thú cưng</th><th scope="col">Cần thu</th><th scope="col">Thao tác</th></tr></thead><tbody><c:forEach var="payment" items="${pendingCashRows}"><tr><td><strong>#${payment.appointment_id}</strong><small class="cell-note">GD #${payment.payment_id}</small></td><td><strong><c:out value="${payment.customer_name}"/></strong><small class="cell-note"><c:out value="${payment.pet_name}"/></small></td><td class="amount"><fmt:formatNumber value="${payment.amount}" maxFractionDigits="0"/> đ</td><td><form method="post" action="${pageContext.request.contextPath}/staff/thu-tien"><input type="hidden" name="csrfToken" value="${fn:escapeXml(sessionScope.staffCsrfToken)}"><input type="hidden" name="appointmentId" value="${payment.appointment_id}"><input type="hidden" name="paymentId" value="${payment.payment_id}"><button type="submit" class="btn btn-primary">Đã nhận tiền</button></form></td></tr></c:forEach></tbody></table></div></c:if></section>
+<aside><div class="card"><div class="step-heading"><span class="step-number">⌕</span><div><h2>Tra cứu lịch hẹn</h2><p>Lọc khoản chờ thu theo mã lịch.</p></div></div><form method="get" action="${pageContext.request.contextPath}/staff/thu-tien"><label for="appointmentId">Mã lịch hẹn</label><input type="number" min="1" max="2147483647" required id="appointmentId" name="appointmentId" value="${appointmentId}" placeholder="Ví dụ: 1024"><button class="btn btn-primary" type="submit">Tra cứu khoản thu</button></form></div><div class="rail-card accent"><h2>Kiểm tra trước khi xác nhận</h2><p>Chỉ bấm “Đã nhận tiền” khi thực tế đã nhận đủ khoản tiền của giao dịch. Thao tác này chốt trạng thái PAID.</p><p>Số liệu hôm nay là toàn hệ thống, không phải riêng ca trực.</p></div></aside></div>
+<section class="card"><div class="section-heading"><div><h2>Lịch sử thu tiền hôm nay</h2><p class="sub">Giao dịch CASH / CHARGE đã chốt PAID trong ngày · toàn hệ thống.</p></div></div><c:if test="${cashLoaded && empty cashHistory}"><p class="empty-note">Chưa có giao dịch tiền mặt đã thu trong ngày.</p></c:if><c:if test="${not empty cashHistory}"><div class="table-scroll" tabindex="0" role="region" aria-label="Lịch sử tiền mặt"><table><thead><tr><th scope="col">Giao dịch</th><th scope="col">Thời gian</th><th scope="col">Mã lịch</th><th scope="col">Khách &amp; Thú cưng</th><th scope="col">Đã thu</th></tr></thead><tbody><c:forEach var="payment" items="${cashHistory}"><tr><td>#${payment.payment_id}</td><td><fmt:formatDate value="${payment.paid_at}" pattern="HH:mm"/></td><td>#${payment.appointment_id}</td><td><c:out value="${payment.customer_name}"/> · <c:out value="${payment.pet_name}"/></td><td class="amount"><fmt:formatNumber value="${payment.amount}" maxFractionDigits="0"/> đ <span class="badge badge-done">PAID</span></td></tr></c:forEach></tbody></table></div></c:if></section>
+</main></body></html>

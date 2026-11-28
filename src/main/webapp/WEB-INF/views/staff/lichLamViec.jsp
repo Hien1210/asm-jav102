@@ -1,51 +1,23 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <!doctype html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Lịch làm việc | PetCare</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/staff.css">
-</head>
-<body>
-    <c:set var="staffPage" value="shifts"/>
-    <%@ include file="/WEB-INF/includes/staffHeader.jspf" %>
-    <main id="staff-main">
-        <div class="page-heading"><div><p class="eyebrow">SẴN SÀNG CHO MỘT NGÀY TỐT LÀNH</p><h1>Lịch làm việc</h1>
-        <p class="sub">Các ca được phân công cho bạn trong 14 ngày tới.</p></div><a class="btn btn-ghost" href="${pageContext.request.contextPath}/staff/lich-hen">Xem lịch hẹn <svg aria-hidden="true"><use href="#staff-arrow"/></svg></a></div>
-
-        <c:if test="${not empty errorMessage}">
-            <div class="alert alert-error" role="alert">${fn:escapeXml(errorMessage)}</div>
-        </c:if>
-
-        <div class="workspace-grid"><section aria-labelledby="shifts-title"><div class="section-heading"><h2 id="shifts-title">Ca làm việc của bạn</h2><c:if test="${empty errorMessage}"><span class="section-count">${fn:length(shifts)} ca / 14 ngày</span></c:if></div>
-        <c:choose>
-            <c:when test="${not empty errorMessage}"></c:when><c:when test="${empty shifts}">
-                <div class="empty-note"><strong>Chưa có ca được phân công</strong>Bạn chưa được xếp ca làm việc nào trong 14 ngày tới.</div>
-            </c:when>
-            <c:otherwise>
-                <div class="table-scroll" tabindex="0" role="region" aria-label="Các ca làm việc"><table>
-                    <thead>
-                        <tr>
-                            <th scope="col">Ngày</th>
-                            <th scope="col">Giờ làm việc</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <c:forEach var="shift" items="${shifts}">
-                            <tr>
-                                <td class="shift-date">${shift.formattedWorkDate}</td>
-                                <td><span class="shift-range"><svg aria-hidden="true"><use href="#staff-clock"/></svg>${shift.formattedRange}</span></td>
-                            </tr>
-                        </c:forEach>
-                    </tbody>
-                </table></div>
-            </c:otherwise>
-        </c:choose>
-        </section><aside class="workspace-rail" aria-label="Thông tin ca làm việc"><div class="rail-card accent"><svg aria-hidden="true"><use href="#staff-calendar"/></svg><h2>Lịch trình rõ ràng</h2><p>Ca làm việc hiển thị theo ngày. Đối chiếu với lịch hẹn để chuẩn bị dụng cụ và khu vực chăm sóc trước khi đón bé.</p></div><div class="rail-card"><h2>Cần điều chỉnh ca?</h2><p>Liên hệ quản trị viên để được hỗ trợ thay đổi phân công. Bạn có thể xem thông tin cá nhân tại đây.</p><a class="btn btn-ghost" href="${pageContext.request.contextPath}/profile">Hồ sơ của tôi <svg aria-hidden="true"><use href="#staff-arrow"/></svg></a></div></aside></div>
-        <footer class="page-footer"><span>PetCare · Không gian nhân viên</span><span>Chuẩn bị chu đáo, chăm sóc tận tâm.</span></footer>
-    </main>
-</body>
-</html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Lịch làm việc cá nhân | PetCare</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/staff.css?v=figma-20261128"></head>
+<body><c:set var="staffPage" value="shifts"/><%@ include file="/WEB-INF/includes/staffHeader.jspf" %>
+<main id="staff-main">
+ <div class="page-heading"><div><p class="eyebrow">HỒ SƠ CA TRỰC CÁ NHÂN</p><h1>Lịch làm việc cá nhân</h1></div><div class="week-tabs"><a href="?week=current" ${empty param.week || param.week == 'current' ? 'aria-current="page"' : ''}>Tuần này</a><a href="?week=next" ${param.week == 'next' ? 'aria-current="page"' : ''}>Tuần sau</a></div></div>
+ <form class="date-range" method="get"><input type="hidden" name="week" value="custom"><div><label for="shift-from">Từ ngày</label><input id="shift-from" type="date" name="from" value="${shiftRange.from}" required></div><div><label for="shift-to">Đến ngày</label><input id="shift-to" type="date" name="to" value="${shiftRange.to}" required></div><button class="btn btn-ghost" type="submit">Xem khoảng ngày</button></form>
+ <c:if test="${not empty errorMessage}"><div class="alert alert-error" role="alert"><c:out value="${errorMessage}"/></div></c:if>
+ <c:if test="${empty errorMessage}"><div class="overview figma-kpis">
+ <div class="overview-item"><div><small>SỐ CA TRONG KHOẢNG ĐÃ CHỌN</small><strong>${fn:length(shifts)} <em>ca làm việc</em></strong><span class="metric-caption">Theo phân công hiện tại</span></div><span class="overview-icon"><img src="${pageContext.request.contextPath}/assets/images/staff-figma/shifts-imgContainer1.svg" alt=""></span></div>
+ <div class="overview-item"><div><small>TỔNG GIỜ LÀM VIỆC</small><strong><fmt:formatNumber value="${shiftMinutes / 60}" maxFractionDigits="1"/> <em>giờ</em></strong><span class="metric-caption">Tính từ thời gian các ca</span></div><span class="overview-icon"><img src="${pageContext.request.contextPath}/assets/images/staff-figma/shifts-imgContainer2.svg" alt=""></span></div>
+ <div class="overview-item"><div><small>LƯỢT DỊCH VỤ HÔM NAY</small><strong>${fn:length(todayLines)} <em>lượt</em></strong><a class="metric-caption" href="${pageContext.request.contextPath}/staff/lich-hen">Xem các lịch được giao →</a></div><span class="overview-icon"><img src="${pageContext.request.contextPath}/assets/images/staff-figma/shifts-imgContainer3.svg" alt=""></span></div>
+ </div></c:if>
+ <section class="card" aria-labelledby="shift-title"><div class="section-heading"><div><h2 id="shift-title">Danh sách ca trực</h2><p class="sub"><c:out value="${shiftRange.from}"/> — <c:out value="${shiftRange.to}"/></p></div><span class="legend"><i></i>Ca hôm nay</span></div>
+ <c:if test="${empty shifts && empty errorMessage}"><p class="empty-note">Bạn chưa được phân công ca trong khoảng ngày này.</p></c:if>
+ <c:forEach var="shift" items="${shifts}"><article class="shift-row ${shift.workDate == staffToday ? 'is-today' : ''}"><div class="shift-date-box"><small>CA TRỰC</small><strong>${shift.formattedWorkDate}</strong></div><div class="shift-body"><h3>${shift.formattedRange} <span class="badge ${shift.workDate == staffToday ? 'badge-done' : 'badge-confirmed'}">${shift.workDate == staffToday ? 'Ca hôm nay' : 'Đã phân công'}</span></h3><p>Ca làm việc của <c:out value="${sessionScope.currentUser.fullName}"/></p></div><span class="shift-pill">${shift.startTime} – ${shift.endTime}</span></article></c:forEach>
+ </section>
+ <div class="support-grid"><section class="card" aria-labelledby="skills-title"><div class="section-heading"><div><h2 id="skills-title">Kỹ năng chuyên môn</h2><p class="sub">Dịch vụ bạn được phân công thực hiện</p></div><span class="section-count">${fn:length(staffSkills)} kỹ năng</span></div><c:if test="${not empty skillsError}"><p role="alert"><c:out value="${skillsError}"/></p></c:if><c:if test="${empty staffSkills && empty skillsError}"><p class="empty-note">Chưa có kỹ năng được phân công.</p></c:if><div class="skills-grid"><c:forEach var="skill" items="${staffSkills}"><div class="skill-tile"><span><c:out value="${skill.name}"/></span><small>Đã cấp phép</small></div></c:forEach></div><p class="support-note">Liên hệ quản trị viên nếu cần cập nhật kỹ năng hoặc ca trực.</p></section>
+ <section class="card" aria-labelledby="hours-title"><div class="section-heading"><div><h2 id="hours-title">Giờ mở cửa cửa hàng</h2><p class="sub">Khung giờ hoạt động theo cấu hình</p></div></div><c:if test="${not empty hoursError}"><p role="alert"><c:out value="${hoursError}"/></p></c:if><c:if test="${empty businessHours && empty hoursError}"><p class="empty-note">Chưa có giờ mở cửa.</p></c:if><c:forEach var="hours" items="${businessHours}"><div class="hours-row"><strong>${hours.dayLabel}</strong><span>${hours.formattedRange}</span></div></c:forEach></section></div>
+</main></body></html>

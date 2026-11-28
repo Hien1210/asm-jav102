@@ -23,6 +23,15 @@ public class AppointmentServices {
     private String customerName;
     private String customerPhone;
     private String petName;
+    private String petSpecies;
+    private String petBreed;
+    private String medicalNotes;
+    public String getPetSpecies() { return petSpecies; }
+    public void setPetSpecies(String value) { petSpecies=value; }
+    public String getPetBreed() { return petBreed; }
+    public void setPetBreed(String value) { petBreed=value; }
+    public String getMedicalNotes() { return medicalNotes; }
+    public void setMedicalNotes(String value) { medicalNotes=value; }
 
     public Integer getAppointmentId() {
         return appointmentId;
