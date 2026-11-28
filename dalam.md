@@ -1,5 +1,10 @@
 # PetCare (asm-jav102) — Tổng hợp hiện trạng dự án
 
+## Xử lý lỗi cache Maven `angus-mail:2.0.3` — 28/11/2026
+
+- Kiểm tra lỗi `Cannot resolve org.eclipse.angus:angus-mail:2.0.3` khi Sync Maven trong IntelliJ: `pom.xml` hợp lệ, nguyên nhân do tải `angus-mail-2.0.3.jar` bị `Read timed out` tới `repo.maven.apache.org:443`, để lại file cache lỗi `C:\Users\ADMIN\.m2\repository\org\eclipse\angus\angus-mail\2.0.3\angus-mail-2.0.3.jar.lastUpdated`.
+- Đã xóa file `angus-mail-2.0.3.jar.lastUpdated` để IntelliJ/Maven có thể tải lại `angus-mail-2.0.3.jar` khi bấm Reload All Maven Projects.
+
 ## Thống kê CRUD toàn hệ thống — 26/11/2026
 
 - Có 5 bảng nghiệp vụ với đủ thao tác thêm, đọc, sửa và xóa bản ghi qua chức năng web: `Services`, `Combos`, `Rooms`, `Shifts`, `Pets`.
