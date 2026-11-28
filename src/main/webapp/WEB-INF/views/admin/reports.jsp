@@ -3,7 +3,7 @@
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <fmt:setLocale value="vi_VN"/><c:set var="adminPage" value="bao-cao"/><c:set var="adminTitle" value="Báo cáo hệ thống"/>
-<!doctype html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Báo cáo hệ thống | PetCare</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css"><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128">
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Báo cáo hệ thống | PetCare</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css"><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128-popup1">
 </head><body>
 <%@ include file="shell-start.jspf" %>
 <main id="main-content">

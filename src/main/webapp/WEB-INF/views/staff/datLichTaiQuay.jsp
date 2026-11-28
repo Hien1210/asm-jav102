@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Đặt lịch tại quầy | PetCare</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/staff.css?v=figma-20261128">
-<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128-popup1">
 </head>
 <body>
     <c:set var="staffPage" value="counter"/>
@@ -58,15 +58,15 @@
                 <c:if test="${empty pets}">
                     <p class="empty-note">Khách chưa có thú cưng nào. Vui lòng thêm trước khi đặt lịch.</p>
                 </c:if>
-                <details ${empty pets ? 'open' : ''}>
+                <details data-popup-editor data-popup-title="Thêm thú cưng cho ${fn:escapeXml(customer.fullName)}" data-popup-auto="${param.action == 'themThuCung' && not empty errorMessage}" ${empty pets ? 'open' : ''}>
                     <summary>+ Thêm thú cưng mới</summary>
                     <form method="post" action="${pageContext.request.contextPath}/staff/dat-lich-tai-quay">
                         <input type="hidden" name="csrfToken" value="${fn:escapeXml(sessionScope.staffCsrfToken)}">
                         <input type="hidden" name="action" value="themThuCung" />
                         <input type="hidden" name="customerId" value="${customer.userId}" />
-                        <label for="counter-petName">Tên thú cưng</label><input id="counter-petName" type="text" name="petName" required maxlength="100" />
-                        <label for="counter-petSpecies">Loài (chó, mèo, ...)</label><input id="counter-petSpecies" type="text" name="petSpecies" required maxlength="50" />
-                        <label for="counter-petBreed">Giống (không bắt buộc)</label><input id="counter-petBreed" type="text" name="petBreed" maxlength="100" />
+                        <label for="counter-petName">Tên thú cưng</label><input id="counter-petName" type="text" name="petName" value="${fn:escapeXml(param.petName)}" required maxlength="100" />
+                        <label for="counter-petSpecies">Loài (chó, mèo, ...)</label><input id="counter-petSpecies" type="text" name="petSpecies" value="${fn:escapeXml(param.petSpecies)}" required maxlength="50" />
+                        <label for="counter-petBreed">Giống (không bắt buộc)</label><input id="counter-petBreed" type="text" name="petBreed" value="${fn:escapeXml(param.petBreed)}" maxlength="100" />
                         <button type="submit" class="btn btn-ghost">Thêm thú cưng</button>
                     </form>
                 </details>
@@ -137,5 +137,6 @@
         <footer class="page-footer"><span>PetCare · Không gian nhân viên</span><span>Đúng thông tin, trọn trải nghiệm.</span></footer>
     </main>
     <script src="${pageContext.request.contextPath}/assets/js/staff.js?v=figma-20261128" defer></script>
+<script src="${pageContext.request.contextPath}/assets/js/workspace-dialog.js?v=1" defer></script>
 </body>
 </html>

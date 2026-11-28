@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/profile.css?v=workspace-20261128" />
     <c:if test="${sessionScope.currentUser.role == 'STAFF'}"><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/staff.css?v=workspace-20261128"></c:if>
     <c:if test="${sessionScope.currentUser.role == 'ADMIN'}"><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=workspace-20261128"></c:if>
-    <c:if test="${sessionScope.currentUser.role == 'STAFF' or sessionScope.currentUser.role == 'ADMIN'}"><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128"></c:if>
+    <c:if test="${sessionScope.currentUser.role == 'STAFF' or sessionScope.currentUser.role == 'ADMIN'}"><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128-popup1"></c:if>
 </head>
 
 <body class="${sessionScope.currentUser.role == 'STAFF' || sessionScope.currentUser.role == 'ADMIN' ? 'workspace-profile' : ''}" data-ctx="${pageContext.request.contextPath}" data-user-id="${sessionScope.loggedInUserId}">

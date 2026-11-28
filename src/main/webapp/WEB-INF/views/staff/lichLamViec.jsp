@@ -3,7 +3,7 @@
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <!doctype html>
-<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Lịch làm việc cá nhân | PetCare</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/staff.css?v=figma-20261128"><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128">
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Lịch làm việc cá nhân | PetCare</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/staff.css?v=figma-20261128"><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128-popup1">
 </head>
 <body><c:set var="staffPage" value="shifts"/><%@ include file="/WEB-INF/includes/staffHeader.jspf" %>
 <main id="staff-main">

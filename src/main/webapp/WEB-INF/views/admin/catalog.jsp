@@ -13,7 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><c:out value="${module.title}"/> | Quản trị PetCare</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css">
-<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128-popup1">
 </head>
 <body>
 <%@ include file="shell-start.jspf" %>
@@ -29,7 +29,7 @@
         <div class="overview-card secondary-card"><div><small>Quản lý tập trung</small><strong>Thông tin & trạng thái</strong></div><span class="overview-icon"><svg aria-hidden="true"><use href="#i-spark"/></svg></span></div>
     </div>
     <div class="catalog-layout">
-        <section class="card form-card" id="editor" aria-labelledby="form-title">
+        <section class="card form-card" id="editor" aria-labelledby="form-title" data-popup-editor data-popup-title="${empty edit[module.id] ? 'Thêm mới' : 'Chỉnh sửa'} · ${fn:escapeXml(module.title)}" data-popup-auto="${not empty edit[module.id] || (not empty errorMessage && param.action == 'save')}">
             <div class="card-heading"><h2 id="form-title">${empty edit[module.id] ? 'Thêm mới' : 'Chỉnh sửa bản ghi'} <c:if test="${not empty edit[module.id]}"><span class="count-pill">#<c:out value="${edit[module.id]}"/></span></c:if></h2></div>
             <div class="card-body">
             <form method="post" action="${pageContext.request.contextPath}/admin/${module.path}">

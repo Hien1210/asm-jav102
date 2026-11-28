@@ -45,13 +45,4 @@
         updateReasonRequirement();
     }
 
-    const openEditor = () => {
-        const editor = document.querySelector('#editor');
-        if (!editor) return;
-        if (editor.tagName === 'DETAILS') editor.open = true;
-        const input = editor.querySelector('input:not([type=hidden]), select');
-        if (input) input.focus({ preventScroll: true });
-    };
-    document.querySelectorAll('a[href="#editor"]').forEach(link => link.addEventListener('click', event => { event.preventDefault(); openEditor(); document.querySelector('#editor').scrollIntoView({ block: 'start' }); }));
-    if (location.hash === '#editor') openEditor();
 })();

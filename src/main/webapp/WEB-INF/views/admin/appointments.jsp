@@ -4,7 +4,7 @@
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <fmt:setLocale value="vi_VN"/>
 <c:set var="adminPage" value="lich-hen"/><c:set var="adminTitle" value="Lịch hẹn"/>
-<!doctype html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Quản lý lịch hẹn | PetCare</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css"><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128">
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Quản lý lịch hẹn | PetCare</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css"><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128-popup1">
 </head><body>
 <%@ include file="shell-start.jspf" %>
 <main id="main-content">

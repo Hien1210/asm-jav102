@@ -545,3 +545,8 @@ Tiếp theo tính năng quên mật khẩu ở trên — theo yêu cầu ngườ
 - workspace.css + workspaceBrand.jspf dùng chung màu xanh/mint, sidebar, font, logo, nút, input và menu responsive; nối vào 8 trang admin và 4 trang staff.
 - profile.jsp dùng shell theo role ADMIN/STAFF, giữ CUSTOMER ở bố cục website. Hồ sơ nhân viên bỏ palette navy, menu Hồ sơ active; form/media contracts giữ nguyên.
 - 15 render HTTP đạt; 42 kiểm tra responsive Admin/Staff tại 320/768/1440px không tràn. Đã thử mở/đóng modal ảnh, không gửi form hoặc ghi DB. Chi tiết/ảnh và giới hạn: docs/WORKSPACE_UI_UNIFICATION.md.
+
+## Popup cho thêm/sửa — 2026-11-28
+- workspace-dialog.js + workspace.css chuyển 5 form danh mục Admin, thêm/sửa/reset tài khoản và thêm thú cưng quầy thành native dialog; có X/Escape/backdrop, focus và giữ nội dung nhập.
+- Form/token/action/name không clone hoặc đổi; tự mở đúng editor khi sửa hoặc báo lỗi. Không lưu mật khẩu vào context khôi phục lỗi.
+- Kiểm tra browser 10 trường hợp 5 danh mục tại 320/1440px đạt; đã thử popup tài khoản, pet390px, tự mở khi lỗi và escape dữ liệu. Node syntax/build WAR/git diff check đạt. Chi tiết: docs/WORKSPACE_FORM_POPUPS.md.
