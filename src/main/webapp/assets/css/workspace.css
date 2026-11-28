@@ -1,0 +1,87 @@
+/* Shared workspace theme for Admin, Staff and their profile pages. */
+:root {
+ --workspace-brand:#006c49; --workspace-brand-hover:#005638; --workspace-mint:#bbffe3;
+ --workspace-sidebar:#eff4ff; --workspace-canvas:#f8f9ff; --workspace-ink:#0d1c2f;
+ --workspace-muted:#526158; --workspace-line:#e5eaf2; --workspace-width:256px;
+ --green:var(--workspace-brand); --green-dark:var(--workspace-brand-hover);
+ --mint:var(--workspace-mint); --canvas:var(--workspace-canvas); --ink:var(--workspace-ink);
+ --muted:var(--workspace-muted); --line:var(--workspace-line); --radius:12px;
+ --staff-brand:var(--workspace-brand); --staff-ink:var(--workspace-ink);
+ --staff-muted:var(--workspace-muted); --staff-bg:var(--workspace-canvas);
+}
+body { background:var(--workspace-canvas); color:var(--workspace-ink); font-family:'Plus Jakarta Sans','Segoe UI',Arial,sans-serif; }
+.admin-shell .sidebar,.staff-sidebar { width:var(--workspace-width); padding:24px 16px; border:0; background:var(--workspace-sidebar); box-shadow:1px 0 4px #223a4c06; }
+.admin-shell .brand { padding:4px 8px; font-size:23px; color:var(--workspace-ink); margin:0 0 26px; gap:8px; }
+.admin-shell .brand-mark { width:40px; height:40px; border-radius:12px; background:var(--workspace-brand); color:white; box-shadow:0 4px 6px #10b98130; }
+.admin-shell .brand small { letter-spacing:.6px; color:#713b17; font-size:8px; }
+.admin-shell .brand-dot { color:var(--workspace-brand); }
+.admin-shell .nav-caption { margin:0 16px 10px; color:var(--workspace-muted); font-size:10px; letter-spacing:.6px; }
+.admin-shell .side-nav,.staff-nav { gap:6px; }
+.admin-shell .side-nav a,.staff-nav a { min-height:46px; border-radius:12px; font-size:13px; font-weight:550; color:#3c4a42; gap:8px; padding:12px 16px; text-decoration:none; }
+.admin-shell .side-nav a:hover,.staff-nav a:hover { background:#dfece9; color:var(--workspace-brand-hover); }
+.admin-shell .side-nav a[aria-current=page],.staff-nav a[aria-current=page] { background:var(--workspace-mint); color:var(--workspace-brand-hover); box-shadow:none; font-weight:650; }
+.admin-shell .side-nav a[aria-current=page]::after { display:none; }
+.admin-shell .sidebar-note { display:none; }
+.admin-shell .back-home { margin-top:auto; padding:18px 16px; color:var(--workspace-muted); }
+.admin-shell .sidebar-footer { padding:12px 16px 0; border-top:1px solid var(--workspace-line); }
+.admin-shell .sidebar-footer a { color:#ba1a1a; font-size:12px; text-decoration:none; }
+.admin-shell .admin-workspace { margin-left:var(--workspace-width); width:calc(100% - var(--workspace-width)); min-width:0; }
+.admin-shell .workspace-header { height:auto; min-height:64px; padding:12px 32px; border:0; background:var(--workspace-canvas); box-shadow:0 1px 8px #0000000a; gap:16px; }
+.admin-shell .admin-identity { text-decoration:none; color:var(--workspace-ink); min-width:0; max-width:48%; }
+.admin-shell .admin-identity strong { overflow-wrap:anywhere; }
+.admin-shell .avatar { color:var(--workspace-brand-hover); background:#6ffbbe; }
+.admin-shell main { padding:24px 32px 40px; max-width:1440px; }
+.admin-shell .page-header h1 { font-size:30px; letter-spacing:-.64px; }
+.admin-shell .eyebrow { color:var(--workspace-brand); }
+.admin-shell .card,.admin-shell .metric-card { border-radius:12px; border-color:var(--workspace-line); box-shadow:0 1px 2px #00000008; }
+.admin-shell button,.admin-shell .button,.admin-shell .btn { border-radius:99px; }
+.admin-shell input,.admin-shell select,.admin-shell textarea { border-radius:12px; background:#eff4ff; border-color:transparent; }
+.admin-shell input:focus,.admin-shell select:focus,.admin-shell textarea:focus { background:white; border-color:var(--workspace-brand); }
+.admin-shell th { background:#eff4ff; color:var(--workspace-muted); }
+.admin-shell .workspace-footer { color:var(--workspace-muted); }
+.workspace-profile .pf-stage,.workspace-profile .pf-modal {
+ --pf-accent:var(--workspace-brand); --pf-accent-strong:var(--workspace-brand-hover);
+ --pf-accent-mid:#00865e; --pf-accent-soft:#effbf5; --pf-accent-border:#c6e8d9;
+ --pf-accent-ring:#006c4922; --pf-cover-bg:#006c49; --pf-avatar-bg:#006c49;
+ --pf-ink:var(--workspace-ink); --pf-ink-2:#3c4a42; --pf-muted:var(--workspace-muted);
+ --pf-surface-alt:#f5f7fd; --pf-surface-hover:#eff4ff; --pf-line:var(--workspace-line);
+ --pf-radius-xl:12px; --pf-radius-lg:12px; --pf-radius-md:12px; --pf-radius-sm:8px;
+}
+.workspace-profile main.pf-stage { background:var(--workspace-canvas); padding:28px 32px 48px; max-width:none; }
+.workspace-profile .admin-workspace main.pf-stage { margin:0; }
+.workspace-profile .pf-container { max-width:1280px; }
+.workspace-profile .pf-cover { background:var(--pf-cover-bg); }
+.workspace-profile .pf-btn-primary { background:var(--workspace-brand); box-shadow:0 3px 6px #006c4926; }
+.workspace-profile .pf-stage .pf-btn-primary:hover { background:var(--workspace-brand-hover); }
+.workspace-profile .pf-quick-nav a.is-active { background:var(--workspace-brand); color:white; box-shadow:0 3px 6px #006c4926; }
+.workspace-profile .pf-main-col input { background:#eff4ff; border-color:var(--workspace-line); }
+.workspace-profile .pf-main-col input:focus { background:white; border-color:var(--workspace-brand); }
+.workspace-profile .pf-stage .pf-btn { border-radius:99px; }
+.workspace-profile .pf-stage .pf-identity-card,.workspace-profile .pf-stage .pf-panel { box-shadow:0 1px 2px #0000000d; }
+.workspace-profile .pf-modal { z-index:1000; }
+@media(max-width:1200px) { :root { --workspace-width:220px; } .admin-shell .side-nav a,.staff-nav a { padding:12px 10px; font-size:12px; } .admin-shell main { padding:24px; } }
+@media(max-width:700px) {
+ .admin-shell { display:block; } .admin-shell .sidebar,.staff-sidebar { position:static; width:auto; padding:16px; overflow:visible; }
+ .admin-shell .brand { margin-bottom:0; font-size:22px; } .admin-shell .nav-caption,.admin-shell .back-home,.admin-shell .sidebar-footer { display:none; }
+ .admin-shell .side-nav,.staff-nav { display:flex; flex-direction:row; overflow-x:auto; gap:6px; margin-top:16px; padding:0 0 4px; scrollbar-width:thin; }
+ .admin-shell .side-nav a,.staff-nav a { flex-direction:row; min-width:max-content; flex-shrink:0; min-height:46px; padding:10px 12px; font-size:12px; }
+ .admin-shell .admin-workspace { width:100%; margin-left:0; }
+ .admin-shell .workspace-header { min-height:64px; padding:12px 16px; }
+ .admin-shell main,.workspace-profile main.pf-stage { padding:24px 16px 36px; }
+ .workspace-profile main.pf-stage { margin-left:0; }
+ .admin-shell .breadcrumb { font-size:10px; gap:6px; }
+ .admin-shell .admin-identity { font-size:10px; }
+ .workspace-profile .pf-container { width:100%; }
+}
+/* Keep the shared sidebar width and content offset identical at each breakpoint. */
+body:not(.workspace-profile) > .staff-topbar,body:not(.workspace-profile) > #staff-main,
+.workspace-profile > .staff-topbar,.workspace-profile > main.pf-stage { margin-left:var(--workspace-width); }
+.admin-shell .overview-card { border-radius:12px; background:white; border-color:var(--workspace-line); }
+.admin-shell .overview-card.secondary-card { background:#eff4ff; }
+.admin-shell .overview-card .overview-icon { background:#bbffe3; color:#006c49; }
+.admin-shell .side-nav a svg { width:18px; height:18px; }
+@media(max-width:700px) { body:not(.workspace-profile) > .staff-topbar,body:not(.workspace-profile) > #staff-main,.workspace-profile > .staff-topbar,.workspace-profile > main.pf-stage { margin-left:0; } }
+.workspace-brand { display:flex; align-items:center; gap:8px; padding:4px 8px; margin-bottom:28px; color:var(--workspace-ink); text-decoration:none; font-size:18px; font-weight:650; line-height:1.5; }
+.workspace-brand-mark { display:grid; place-items:center; width:40px; height:40px; flex-shrink:0; background:var(--workspace-brand); border-radius:12px; box-shadow:0 4px 6px #10b98130; }
+.workspace-brand small { display:block; width:fit-content; background:#ffdcc5; border-radius:99px; padding:2px 8px; font-size:9px; letter-spacing:.5px; font-weight:500; color:#301400; }
+@media(max-width:700px) { .workspace-brand { margin-bottom:0; padding:0; } }

@@ -3,7 +3,8 @@
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <!doctype html>
-<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Lịch làm việc cá nhân | PetCare</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/staff.css?v=figma-20261128"></head>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Lịch làm việc cá nhân | PetCare</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/staff.css?v=figma-20261128"><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128">
+</head>
 <body><c:set var="staffPage" value="shifts"/><%@ include file="/WEB-INF/includes/staffHeader.jspf" %>
 <main id="staff-main">
  <div class="page-heading"><div><p class="eyebrow">HỒ SƠ CA TRỰC CÁ NHÂN</p><h1>Lịch làm việc cá nhân</h1></div><div class="week-tabs"><a href="?week=current" ${empty param.week || param.week == 'current' ? 'aria-current="page"' : ''}>Tuần này</a><a href="?week=next" ${param.week == 'next' ? 'aria-current="page"' : ''}>Tuần sau</a></div></div>

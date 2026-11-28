@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Quản lý tài khoản | PetCare</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128">
 </head>
 <body data-ctx="${pageContext.request.contextPath}" data-user-id="${sessionScope.loggedInUserId}">
 <c:set var="adminPage" value="tai-khoan"/>

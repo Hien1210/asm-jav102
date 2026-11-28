@@ -263,3 +263,8 @@ The singular controller package was removed. Existing servlet URL mappings are u
 - StaffViewPolicy + 8 test mới; StaffWorkspaceDAO chỉ SELECT. Không đổi quyền hoặc nghiệp vụ ghi thanh toán. Số thu hôm nay là toàn hệ thống vì schema chưa ghi cashier/shift.
 - Maven 112 test: 109 đạt, 3 tích hợp bỏ qua. 12 preview render và 16 tổ hợp responsive đạt; 4 truy vấn chỉ đọc chạy thành công. WAR build đạt; chưa deploy Tomcat chính.
 - Chi tiết các phần triển khai, chỗ điều chỉnh theo backend và bằng chứng: docs/STAFF_FIGMA_IMPLEMENTATION.md.
+
+## Đồng bộ giao diện Admin/Staff và hồ sơ — 2026-11-28
+- workspace.css + workspaceBrand.jspf dùng chung màu xanh/mint, sidebar, font, logo, nút, input và menu responsive; nối vào 8 trang admin và 4 trang staff.
+- profile.jsp dùng shell theo role ADMIN/STAFF, giữ CUSTOMER ở bố cục website. Hồ sơ nhân viên bỏ palette navy, menu Hồ sơ active; form/media contracts giữ nguyên.
+- 15 render HTTP đạt; 42 kiểm tra responsive Admin/Staff tại 320/768/1440px không tràn. Đã thử mở/đóng modal ảnh, không gửi form hoặc ghi DB. Chi tiết/ảnh và giới hạn: docs/WORKSPACE_UI_UNIFICATION.md.

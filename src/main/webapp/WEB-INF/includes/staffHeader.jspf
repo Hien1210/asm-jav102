@@ -11,12 +11,13 @@
 </svg>
 <a class="skip-link" href="#staff-main">Đi đến nội dung chính</a>
 <aside class="staff-sidebar">
- <a class="figma-brand" href="${pageContext.request.contextPath}/staff/lich-hen"><span class="figma-logo"><img src="${pageContext.request.contextPath}/assets/images/staff-figma/shifts-imgContainer23.svg" alt=""></span><span>Pet Care<small>STAFF PORTAL</small></span></a>
+ <%@ include file="/WEB-INF/includes/workspaceBrand.jspf" %>
  <nav class="staff-nav" aria-label="Khu vực nhân viên">
  <a href="${pageContext.request.contextPath}/staff/lich-hen" ${staffPage == 'appointments' ? 'aria-current="page"' : ''}><img src="${pageContext.request.contextPath}/assets/images/staff-figma/shifts-imgContainer24.svg" alt="">Quản lý lịch hẹn</a>
  <a href="${pageContext.request.contextPath}/staff/lich-lam-viec" ${staffPage == 'shifts' ? 'aria-current="page"' : ''}><img src="${pageContext.request.contextPath}/assets/images/staff-figma/shifts-imgContainer25.svg" alt="">Lịch làm việc cá nhân</a>
  <a href="${pageContext.request.contextPath}/staff/dat-lich-tai-quay" ${staffPage == 'counter' ? 'aria-current="page"' : ''}><img src="${pageContext.request.contextPath}/assets/images/staff-figma/shifts-imgContainer26.svg" alt="">Đặt lịch tại quầy</a>
  <a href="${pageContext.request.contextPath}/staff/thu-tien" ${staffPage == 'cash' ? 'aria-current="page"' : ''}><img src="${pageContext.request.contextPath}/assets/images/staff-figma/shifts-imgContainer27.svg" alt="">Thu tiền mặt</a>
+ <a href="${pageContext.request.contextPath}/profile" ${staffPage == 'profile' ? 'aria-current="page"' : ''}><svg aria-hidden="true"><use href="#staff-person"/></svg>Hồ sơ cá nhân</a>
  </nav>
  <div class="sidebar-account"><a href="${pageContext.request.contextPath}/profile"><span class="user-avatar"><c:out value="${fn:substring(sessionScope.currentUser.fullName,0,1)}"/></span><span><strong><c:out value="${sessionScope.currentUser.fullName}"/></strong><small>Nhân viên PetCare</small></span></a><span class="account-label">Tài khoản nhân viên</span></div>
  <a class="staff-logout" href="${pageContext.request.contextPath}/logout"><img src="${pageContext.request.contextPath}/assets/images/staff-figma/shifts-imgContainer28.svg" alt="">Đăng xuất</a>

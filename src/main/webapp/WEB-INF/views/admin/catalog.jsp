@@ -13,6 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><c:out value="${module.title}"/> | Quản trị PetCare</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128">
 </head>
 <body>
 <%@ include file="shell-start.jspf" %>

@@ -530,3 +530,18 @@ Tiếp theo tính năng quên mật khẩu ở trên — theo yêu cầu ngườ
 - StaffViewPolicy + 8 test mới; StaffWorkspaceDAO chỉ SELECT. Không đổi quyền hoặc nghiệp vụ ghi thanh toán. Số thu hôm nay là toàn hệ thống vì schema chưa ghi cashier/shift.
 - Maven 112 test: 109 đạt, 3 tích hợp bỏ qua. 12 preview render và 16 tổ hợp responsive đạt; 4 truy vấn chỉ đọc chạy thành công. WAR build đạt; chưa deploy Tomcat chính.
 - Chi tiết các phần triển khai, chỗ điều chỉnh theo backend và bằng chứng: docs/STAFF_FIGMA_IMPLEMENTATION.md.
+
+## Chẩn đoán đăng nhập máy thành viên — 2026-11-28
+- Ảnh báo sai định danh/mật khẩu tương ứng AuthService không tìm thấy user hoặc BCrypt không khớp; chưa đủ chứng cứ xác định DB máy thành viên.
+- Kiểm tra JDBC từ máy này tới Bunnny\SQLEXPRESS / PetCare: staff@petcare.vn tồn tại, STAFF, active. Hash hiện tại không giống seed trong grant_auth_permissions.sql và không khớp Staff@123 hay Admin@123. Seed trong file SQL vẫn xác minh đúng Staff@123; không sửa seed hoặc reset tài khoản.
+- application-local.properties bị gitignore, template đóng WAR trỏ localhost; DAO có fallback SQL local khi lỗi kết nối. Thành viên cần xác nhận đúng host bunnny.tail1f20d2.ts.net và cấu hình Tomcat, không suy ra remote chạy được từ kết quả fallback.
+- DatabaseConnectionTest được bổ sung tên server và nhãn LOCAL FALLBACK để phân biệt kết nối; đã compile/chạy SELECT xác nhận output. Không thay cấu hình/quyền/dữ liệu. Cần chạy main này trong cùng cấu hình và working directory Tomcat trên máy thành viên để lấy bằng chứng tiếp theo.
+
+## Đối chiếu danh sách tài khoản test người dùng cung cấp — 2026-11-28
+- Người dùng bổ sung ảnh danh sách mật khẩu hiện tại, khác seed Staff@123. Chỉ kiểm tra BCrypt trên DB chung bằng JDBC, không reset tài khoản hoặc in hash/mật khẩu.
+- Cần đối chiếu kết quả server/database trên máy thành viên bằng DatabaseConnectionTest; ảnh console hiện tại chỉ xác nhận Tomcat khởi động, chưa phải kết quả kiểm tra DB.
+
+## Đồng bộ giao diện Admin/Staff và hồ sơ — 2026-11-28
+- workspace.css + workspaceBrand.jspf dùng chung màu xanh/mint, sidebar, font, logo, nút, input và menu responsive; nối vào 8 trang admin và 4 trang staff.
+- profile.jsp dùng shell theo role ADMIN/STAFF, giữ CUSTOMER ở bố cục website. Hồ sơ nhân viên bỏ palette navy, menu Hồ sơ active; form/media contracts giữ nguyên.
+- 15 render HTTP đạt; 42 kiểm tra responsive Admin/Staff tại 320/768/1440px không tràn. Đã thử mở/đóng modal ảnh, không gửi form hoặc ghi DB. Chi tiết/ảnh và giới hạn: docs/WORKSPACE_UI_UNIFICATION.md.

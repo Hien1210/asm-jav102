@@ -2,7 +2,8 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %><fmt:setLocale value="vi_VN"/>
-<!doctype html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Thu tiền mặt | PetCare</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/staff.css?v=figma-20261128"></head>
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Thu tiền mặt | PetCare</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/staff.css?v=figma-20261128"><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128">
+</head>
 <body><c:set var="staffPage" value="cash"/><%@ include file="/WEB-INF/includes/staffHeader.jspf" %><main id="staff-main">
 <div class="page-heading"><div><p class="eyebrow">04 / THANH TOÁN TẠI QUẦY</p><h1>Thu tiền mặt</h1><p class="sub">Đối soát khoản chờ thu và xác nhận tiền đã nhận.</p></div></div>
 <c:if test="${not empty error}"><div class="alert alert-error" role="alert"><c:out value="${error}"/></div></c:if><c:if test="${not empty cashWorkspaceError}"><div class="alert alert-error" role="alert"><c:out value="${cashWorkspaceError}"/></div></c:if><c:if test="${not empty cashReceipt}"><div class="alert alert-success" role="status">Đã ghi nhận thu tiền cho giao dịch #<c:out value="${cashReceipt}"/>.</div></c:if>

@@ -9,6 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Đặt lịch tại quầy | PetCare</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/staff.css?v=figma-20261128">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128">
 </head>
 <body>
     <c:set var="staffPage" value="counter"/>
