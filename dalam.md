@@ -1,5 +1,11 @@
 # PetCare (asm-jav102) — Tổng hợp hiện trạng dự án
 
+## Thống kê CRUD toàn hệ thống — 26/11/2026
+
+- Có 5 bảng nghiệp vụ với đủ thao tác thêm, đọc, sửa và xóa bản ghi qua chức năng web: `Services`, `Combos`, `Rooms`, `Shifts`, `Pets`.
+- Tính cả bảng liên kết được quản lý khi sửa combo thì có 6 bảng nghiệp vụ. `ComboServices` lưu thay đổi danh sách dịch vụ bằng cách xóa liên kết cũ và thêm liên kết mới.
+- Hai bảng token đặt lại mật khẩu và xác thực email có vòng đời tạo, đọc, cập nhật và dọn token tự động. Các bảng này thuộc luồng kỹ thuật xác thực.
+
 ## Review bản cập nhật GiaHung — 25/11/2026
 
 - Phạm vi review là các thay đổi của merge `91ade6f` so với parent thứ nhất. Maven có 101 test đạt và 3 test tích hợp bỏ qua, build WAR thành công. Kiểm tra cú pháp JavaScript trình sửa ảnh đạt.
@@ -490,3 +496,30 @@ Tiếp theo tính năng quên mật khẩu ở trên — theo yêu cầu ngườ
 - Dùng lại nguyên `MailUtil`/`AuthService.MailSender` và hàm sinh/băm token (đổi tên `generateResetToken` → `generateSecureToken` để dùng chung cho cả 2 tính năng) đã viết ở mục trên — không viết lại logic trùng lặp.
 - Test: 6 test mới trong `AuthServiceTest`. Maven 93 test: 90 đạt, 3 tích hợp DB bỏ qua; build WAR đạt.
 - **Đã commit và push lên `origin/Thanhhien`** (`f060a00`). Chi tiết & giới hạn đã biết (chưa có nút gửi lại email xác thực): docs/EMAIL_VERIFICATION.md.
+
+## Tổng hợp báo cáo PetCare giai đoạn 1 — 2026-11-26
+
+- Đã bổ sung giới thiệu, phạm vi, chức năng, Use Case, ERD ba mức và bốn ví dụ CRUD vào [báo cáo tổng hợp](https://docs.google.com/document/d/1Top9L6ZTsECizQXpI7fEzXNIo6A-lIyb0EBB8Rf49oU/edit). Có sáu hình và liên kết đến bốn báo cáo Lab, gồm từ điển dữ liệu và DDL ở Lab 3.
+- Đã đọc lại Google Docs để xác nhận đủ bảy mục, sáu hình, bốn ví dụ và bốn liên kết.
+
+## Bổ sung các chức năng làm thêm vào báo cáo — 2026-11-26
+
+- Đã thêm mục riêng gồm bảy nhóm chức năng mở rộng của PetCare vào Google Docs. Đã đối chiếu nội dung với tài liệu dự án và đọc lại đủ bảy nhóm sau khi lưu.
+- Đã ghi rõ tiêu đề Phần làm thêm 1 đến Phần làm thêm 7 trong báo cáo và kiểm tra đủ bảy tiêu đề.
+- Đã viết chi tiết cách thao tác, điều kiện và kết quả cho bảy phần làm thêm trong Google Docs. Đã đọc lại đủ bảy phần và xác nhận mục thiết kế Figma vẫn có trong báo cáo.
+- Đã thêm mục lục ở đầu báo cáo, gồm 16 liên kết nội bộ đến các mục chính, nhóm chức năng làm thêm, bảy phần làm thêm và thiết kế Figma. Đã kiểm tra từng liên kết trỏ tới đúng tiêu đề.
+- Đã chỉnh trình bày mục lục với tiêu đề xanh đậm, đường kẻ, nền nhạt theo nhóm và khoảng cách dòng dễ đọc. Đã kiểm tra đủ 16 liên kết nội bộ sau khi định dạng.
+- Đã thiết kế lại mục lục thành hai cột, dùng nền xanh nhạt và viền mảnh. Đã kiểm tra đủ 16 liên kết và bỏ danh sách mục lục cũ sau khi xác nhận nội dung khớp.
+
+## Kiểm tra kết nối DB ngày 2026-11-26
+- Compile các lớp ConfigUtil, DBUtil, DatabaseConnectionTest hiện tại vào target/db-check rồi chạy truy vấn chỉ đọc ngoài sandbox.
+- JDBC trực tiếp tới hung211.tail1f20d2.ts.net:1433 thất bại, SQLState 08S01: No such host is known (không phân giải được tên máy chủ). Chưa tới bước xác thực SQL.
+- DatabaseConnectionTest kết nối thành công bằng fallback SQL Server local, DB PetCare, COUNT dbo.Users = 17. Kết quả này chỉ xác nhận DB local, không xác nhận server Tailscale dùng chung hoạt động.
+- Không sửa cấu hình, quyền, schema hoặc dữ liệu trong lần kiểm tra này.
+
+## Đã tìm và xử lý nguyên nhân DNS SQL — 2026-11-26
+- Tailscale hiện Running; hostname Bunnny, DNS bunnny.tail1f20d2.ts.net, IP 100.90.157.31. Tên hung211.tail1f20d2.ts.net cũ không còn phân giải được.
+- SQL Server TCP Enabled, ListenOnAllIPs, 0.0.0.0:1433 LISTENING. DNS mới phân giải đúng về 100.90.157.31.
+- Đã thử JDBC trực tiếp bằng hostname mới: PetCare, server DESKTOP-VO3JCGJ\SQLEXPRESS, 17 tài khoản; không dùng fallback.
+- Đã thay hostname cũ bằng mới trong application-local.properties trên máy này (file gitignore); không đổi tài khoản, mật khẩu, TLS hoặc dữ liệu. Thành viên phải tự cập nhật file local/DB_URL vì file local không đi theo Git.
+- Khởi động lại Tomcat sau khi thay cấu hình để ConfigUtil nạp lại và xóa trạng thái circuit breaker cũ.

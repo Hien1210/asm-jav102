@@ -89,3 +89,6 @@ All deployed JSP and assets now reside under src/main/webapp.
 The old web scaffold is preserved outside the build in docs/legacy-web.
 The new index.jsp, login.jsp, register.jsp and WEB-INF/web.xml are retained.
 Admin, staff and customer placeholder pages and their assets were copied across.
+
+### Tailscale SQL hostname update (2026-11-26)
+The server's current MagicDNS name is bunnny.tail1f20d2.ts.net (100.90.157.31), TCP port 1433. The former hung211 hostname no longer resolves. Update the server hostname in your ignored application-local.properties or DB_URL, then restart Tomcat. Direct JDBC against the new hostname was verified with a read-only query. Local configuration files are not distributed by Git.
