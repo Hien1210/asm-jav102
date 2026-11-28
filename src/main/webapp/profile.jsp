@@ -16,11 +16,24 @@
         rel="stylesheet" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css?v=16" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/login.css?v=2" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/profile.css?v=4" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/profile.css?v=workspace-20261128" />
+    <c:if test="${sessionScope.currentUser.role == 'STAFF'}"><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/staff.css?v=workspace-20261128"></c:if>
+    <c:if test="${sessionScope.currentUser.role == 'ADMIN'}"><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=workspace-20261128"></c:if>
+    <c:if test="${sessionScope.currentUser.role == 'STAFF' or sessionScope.currentUser.role == 'ADMIN'}"><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128-popup1"></c:if>
 </head>
 
-<body data-ctx="${pageContext.request.contextPath}" data-user-id="${sessionScope.loggedInUserId}">
+<body class="${sessionScope.currentUser.role == 'STAFF' || sessionScope.currentUser.role == 'ADMIN' ? 'workspace-profile' : ''}" data-ctx="${pageContext.request.contextPath}" data-user-id="${sessionScope.loggedInUserId}">
 
+    <c:choose>
+        <c:when test="${sessionScope.currentUser.role == 'STAFF'}">
+            <c:set var="staffPage" value="profile"/>
+            <%@ include file="/WEB-INF/includes/staffHeader.jspf" %>
+        </c:when>
+        <c:when test="${sessionScope.currentUser.role == 'ADMIN'}">
+            <c:set var="adminPage" value="profile"/><c:set var="adminTitle" value="Hồ sơ cá nhân"/>
+            <%@ include file="/WEB-INF/views/admin/shell-start.jspf" %>
+        </c:when>
+        <c:otherwise>
     <header class="site-header">
         <div class="header-inner">
             <a href="${pageContext.request.contextPath}/home" class="brand-wrap" aria-label="Pet care — Trang chủ">
@@ -170,6 +183,8 @@
             </div>
         </div>
     </header>
+        </c:otherwise>
+    </c:choose>
 
     <c:set var="roleCssClass" value="pf-role-customer" />
     <c:if test="${sessionScope.currentUser.role == 'STAFF'}">
@@ -181,7 +196,7 @@
 
     <c:set var="hasDebt" value="${not empty profileRemainingRaw and profileRemainingRaw gt 0}" />
 
-    <main class="pf-stage ${roleCssClass}">
+    <main id="${sessionScope.currentUser.role == 'ADMIN' ? 'main-content' : 'staff-main'}" class="pf-stage ${roleCssClass}">
         <div class="pf-container">
 
             <!-- 1. ARCHITECTURAL IDENTITY COVER CARD -->
@@ -593,7 +608,7 @@
                                                     <polyline points="12 7 12 12 15 15"></polyline>
                                                 </svg>
                                             </span>
-                                            <span>Lịch làm việc 14 ngày</span>
+                                            <span>Lịch làm việc cá nhân</span>
                                         </span>
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                             <polyline points="9 18 15 12 9 6"></polyline>
@@ -696,7 +711,7 @@
                                     </svg>
                                     <span>Chuẩn mã hóa</span>
                                 </span>
-                                <span class="pf-trust-val">BCrypt 256-bit</span>
+                                <span class="pf-trust-val">BCrypt</span>
                             </div>
                             <div class="pf-trust-row">
                                 <span class="pf-trust-key">
@@ -905,7 +920,7 @@
                                     </p>
                                 </div>
                             </div>
-                            <span class="pf-chip">BCrypt 256-bit</span>
+                            <span class="pf-chip">BCrypt</span>
                         </div>
 
                         <form action="${pageContext.request.contextPath}/profile" method="post" class="pf-form" id="profilePasswordForm">
@@ -1127,7 +1142,7 @@
                                 </span>
                                 <span class="pf-shortcut-body">
                                     <span class="pf-shortcut-title-row"><strong>Lịch làm việc</strong></span>
-                                    <p>Theo dõi ca trực và khung giờ làm việc trong 14 ngày tới</p>
+                                    <p>Theo dõi ca trực theo tuần hoặc khoảng ngày</p>
                                 </span>
                                 <svg class="pf-shortcut-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
                                     <polyline points="9 18 15 12 9 6"></polyline>
@@ -1389,6 +1404,7 @@
         </div>
     </main>
 
+    <c:if test="${sessionScope.currentUser.role != 'STAFF' and sessionScope.currentUser.role != 'ADMIN'}">
     <footer class="site-footer">
         <div class="container">
             <div class="footer-grid">
@@ -1446,6 +1462,8 @@
             </div>
         </div>
     </footer>
+    </c:if>
+    <c:if test="${sessionScope.currentUser.role == 'ADMIN'}"><%@ include file="/WEB-INF/views/admin/shell-end.jspf" %></c:if>
 
     <script>
         (function () {

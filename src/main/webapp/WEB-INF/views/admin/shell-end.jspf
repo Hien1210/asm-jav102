@@ -2,4 +2,5 @@
         <footer class="workspace-footer"><span>PetCare Administration</span><span>Chăm sóc tốt hơn, mỗi ngày.</span></footer>
     </div>
 </div>
-<script src="${pageContext.request.contextPath}/assets/js/admin.js" defer></script>
+<script src="${pageContext.request.contextPath}/assets/js/admin.js?v=popup1" defer></script>
+<script src="${pageContext.request.contextPath}/assets/js/workspace-dialog.js?v=1" defer></script>

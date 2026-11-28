@@ -13,7 +13,7 @@
 </svg>
 <div class="admin-shell">
     <aside class="sidebar" id="admin-sidebar">
-        <a class="brand" href="${pageContext.request.contextPath}/admin/tai-khoan"><span class="brand-mark"><svg><use href="#i-paw"/></svg></span><span>petcare<span class="brand-dot">.</span><small>KHÔNG GIAN QUẢN TRỊ</small></span></a>
+        <%@ include file="/WEB-INF/includes/workspaceBrand.jspf" %>
         <p class="nav-caption">QUẢN LÝ HỆ THỐNG</p>
         <nav class="side-nav" aria-label="Quản trị">
             <a href="${pageContext.request.contextPath}/admin/lich-hen" ${adminPage == 'lich-hen' ? 'aria-current="page"' : ''}><svg><use href="#i-calendar"/></svg>Lịch hẹn</a>
@@ -24,13 +24,14 @@
             <a href="${pageContext.request.contextPath}/admin/phong" ${adminPage == 'phong' ? 'aria-current="page"' : ''}><svg><use href="#i-room"/></svg>Phòng lưu trú</a>
             <a href="${pageContext.request.contextPath}/admin/ca-lam-viec" ${adminPage == 'ca-lam-viec' ? 'aria-current="page"' : ''}><svg><use href="#i-calendar"/></svg>Ca làm việc</a>
             <a href="${pageContext.request.contextPath}/admin/thu-cung" ${adminPage == 'thu-cung' ? 'aria-current="page"' : ''}><svg><use href="#i-paw"/></svg>Thú cưng</a>
+            <a href="${pageContext.request.contextPath}/profile" ${adminPage == 'profile' ? 'aria-current="page"' : ''}><svg><use href="#i-users"/></svg>Hồ sơ cá nhân</a>
         </nav>
         <div class="sidebar-note"><svg><use href="#i-paw"/></svg><strong>Chăm sóc từ những điều nhỏ.</strong><p>Mỗi thao tác của bạn giúp PetCare vận hành tốt hơn mỗi ngày.</p></div>
         <a class="back-home" href="${pageContext.request.contextPath}/home">Về website PetCare <svg><use href="#i-arrow"/></svg></a>
-        <div class="sidebar-footer"><span class="status-dot"></span>PetCare · Trang quản trị</div>
+        <div class="sidebar-footer"><a href="${pageContext.request.contextPath}/logout">Đăng xuất</a></div>
     </aside>
     <div class="admin-workspace">
         <header class="workspace-header">
             <div class="breadcrumb"><svg><use href="#i-grid"/></svg><span>Quản trị</span><span class="separator">/</span><strong><c:out value="${adminTitle}"/></strong></div>
-            <div class="admin-identity"><span class="avatar">QT</span><span><strong><c:out value="${sessionScope.currentUser.fullName}" default="Quản trị viên"/></strong><small>Quản trị viên</small></span></div>
+            <a class="admin-identity" href="${pageContext.request.contextPath}/profile"><span class="avatar">QT</span><span><strong><c:out value="${sessionScope.currentUser.fullName}" default="Quản trị viên"/></strong><small>Quản trị viên</small></span></a>
         </header>

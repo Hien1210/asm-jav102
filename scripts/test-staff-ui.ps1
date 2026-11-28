@@ -30,7 +30,9 @@ try {
     }
     Check 'Protected view is inaccessible' ((GetPage '/WEB-INF/views/staff/lichLamViec.jsp').StatusCode -eq 404)
     $page=GetPage '/staff/lich-hen'
-    Check 'Assigned service lines rendered' ($page.Content.Contains('QA Bông') -and $page.Content.Contains('QA Lucky'))
+    $fixtureDate=[TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::UtcNow,'SE Asia Standard Time').AddDays(1).ToString('yyyy-MM-dd')
+    $page=GetPage "/staff/lich-hen?date=$fixtureDate"
+    Check 'Assigned service lines rendered for selected day' ($page.Content.Contains('QA Bông') -and $page.Content.Contains('QA Lucky'))
     foreach($route in @('/staff/lich-hen','/staff/dat-lich-tai-quay')) {
         Check "Missing CSRF rejected $route" ((PostForm $route @{action='timKhach'}).StatusCode -eq 403)
         Check "Wrong CSRF rejected $route" ((PostForm $route @{csrfToken='wrong';action='timKhach'}).StatusCode -eq 403)

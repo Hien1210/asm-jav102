@@ -1,0 +1,5 @@
+<%@ page pageEncoding="UTF-8" %>
+<a class="workspace-brand" href="${pageContext.request.contextPath}${sessionScope.currentUser.role == 'ADMIN' ? '/admin/tai-khoan' : '/staff/lich-hen'}">
+    <span class="workspace-brand-mark"><img src="${pageContext.request.contextPath}/assets/images/staff-figma/shifts-imgContainer23.svg" alt=""></span>
+    <span>Pet Care<small>${sessionScope.currentUser.role == 'ADMIN' ? 'ADMIN PORTAL' : 'STAFF PORTAL'}</small></span>
+</a>

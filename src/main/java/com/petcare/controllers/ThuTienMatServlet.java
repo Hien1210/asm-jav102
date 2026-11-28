@@ -1,6 +1,9 @@
 package com.petcare.controllers;
 
 import com.petcare.daos.PaymentDAOImpl;
+import com.petcare.daos.StaffWorkspaceDAO;
+import com.petcare.utils.DateUtil;
+import java.math.BigDecimal;
 import com.petcare.utils.SessionUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -42,6 +45,20 @@ public class ThuTienMatServlet extends HttpServlet {
             session.removeAttribute("cashReceipt");
         }
         response.setHeader("Cache-Control", "no-store");
+        try {
+            StaffWorkspaceDAO workspace=new StaffWorkspaceDAO();
+            Integer selected=(Integer)request.getAttribute("appointmentId");
+            var rows=workspace.pendingCash(selected);
+            var history=workspace.cashHistory(DateUtil.todayVn());
+            request.setAttribute("pendingCashRows",rows);
+            request.setAttribute("cashHistory",history);
+            request.setAttribute("cashPendingTotal",rows.stream().map(r->(BigDecimal)r.get("amount")).reduce(BigDecimal.ZERO,BigDecimal::add));
+            request.setAttribute("cashPaidTotal",history.stream().map(r->(BigDecimal)r.get("amount")).reduce(BigDecimal.ZERO,BigDecimal::add));
+            request.setAttribute("cashLoaded",true);
+        } catch(SQLException e) {
+            log("Could not load cash workspace",e);
+            request.setAttribute("cashWorkspaceError","Không tải được tổng quan thu tiền. Vui lòng thử lại.");
+        }
         request.getRequestDispatcher("/WEB-INF/views/staff/thuTienMat.jsp").forward(request, response);
     }
 

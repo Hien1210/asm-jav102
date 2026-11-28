@@ -495,7 +495,7 @@ public class AppointmentDAOImpl implements AppointmentDAO {
         String sql = "SELECT s.appointment_id, s.service_id, s.staff_id, s.scheduled_start, s.scheduled_end, "
                 + "s.price_at_booking, s.line_status, svc.name AS service_name, svc.category AS service_category, "
                 + "u.full_name AS staff_name, a.status AS appointment_status, "
-                + "cust.full_name AS customer_name, cust.phone AS customer_phone, p.name AS pet_name "
+                + "cust.full_name AS customer_name, cust.phone AS customer_phone, p.name AS pet_name, p.species AS pet_species,p.breed AS pet_breed,p.medical_notes "
                 + "FROM dbo.AppointmentServices s "
                 + "JOIN dbo.Appointments a ON a.appointment_id = s.appointment_id "
                 + "JOIN dbo.Services svc ON svc.service_id = s.service_id "
@@ -528,6 +528,9 @@ public class AppointmentDAOImpl implements AppointmentDAO {
                     line.setCustomerName(rs.getString("customer_name"));
                     line.setCustomerPhone(rs.getString("customer_phone"));
                     line.setPetName(rs.getString("pet_name"));
+                    line.setPetSpecies(rs.getString("pet_species"));
+                    line.setPetBreed(rs.getString("pet_breed"));
+                    line.setMedicalNotes(rs.getString("medical_notes"));
                     lines.add(line);
                 }
             }

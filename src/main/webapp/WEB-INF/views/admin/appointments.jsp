@@ -4,7 +4,8 @@
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <fmt:setLocale value="vi_VN"/>
 <c:set var="adminPage" value="lich-hen"/><c:set var="adminTitle" value="Lịch hẹn"/>
-<!doctype html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Quản lý lịch hẹn | PetCare</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css"></head><body>
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Quản lý lịch hẹn | PetCare</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css"><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128-popup1">
+</head><body>
 <%@ include file="shell-start.jspf" %>
 <main id="main-content">
     <div class="page-heading"><div><p class="eyebrow">VẬN HÀNH HỆ THỐNG</p><h1>Lịch hẹn</h1><p class="sub">Theo dõi lịch chăm sóc và lưu trú trên toàn hệ thống.</p></div><a class="button" href="${pageContext.request.contextPath}/staff/dat-lich-tai-quay">＋ Tạo lịch tại quầy</a></div>

@@ -3,7 +3,8 @@
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <fmt:setLocale value="vi_VN"/><c:set var="adminPage" value="bao-cao"/><c:set var="adminTitle" value="Báo cáo hệ thống"/>
-<!doctype html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Báo cáo hệ thống | PetCare</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css"></head><body>
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Báo cáo hệ thống | PetCare</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css"><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128-popup1">
+</head><body>
 <%@ include file="shell-start.jspf" %>
 <main id="main-content">
     <div class="page-heading"><div><p class="eyebrow">TỔNG QUAN HOẠT ĐỘNG</p><h1>Báo cáo hệ thống</h1><p class="sub">Theo dõi lịch hẹn và dòng tiền đã xác nhận theo kỳ.</p></div><c:if test="${not empty report}"><c:url var="csvUrl" value="/admin/bao-cao"><c:param name="from" value="${fromDate}"/><c:param name="to" value="${toDate}"/><c:param name="format" value="csv"/></c:url><a class="button" href="${fn:escapeXml(csvUrl)}">Xuất CSV</a></c:if></div>

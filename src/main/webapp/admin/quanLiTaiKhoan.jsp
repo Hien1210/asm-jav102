@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Quản lý tài khoản | PetCare</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/workspace.css?v=20261128-popup1">
 </head>
 <body data-ctx="${pageContext.request.contextPath}" data-user-id="${sessionScope.loggedInUserId}">
 <c:set var="adminPage" value="tai-khoan"/>
@@ -29,7 +30,8 @@
             <div class="overview-card"><div><small>Tổng số tài khoản</small><strong>${fn:length(accounts)}</strong></div><span class="overview-icon"><svg aria-hidden="true"><use href="#i-users"/></svg></span></div>
             <div class="overview-card"><div><small>Đang hoạt động</small><strong>${activeAccounts}</strong></div><span class="overview-icon"><svg aria-hidden="true"><use href="#i-spark"/></svg></span></div>
         </div>
-        <details class="card create-account" id="editor" ${not empty errorMessage ? 'open' : ''}>
+        <template id="popup-error-context" data-action="${fn:escapeXml(param.action)}" data-record="${fn:escapeXml(param.userId)}" data-error="${not empty errorMessage}" data-full-name="${fn:escapeXml(param.fullName)}" data-email="${fn:escapeXml(param.email)}" data-phone="${fn:escapeXml(param.phone)}" data-role="${fn:escapeXml(param.role)}"></template>
+        <details class="card create-account" id="editor" data-popup-editor data-popup-title="Tạo tài khoản mới" ${not empty errorMessage ? 'open' : ''}>
             <summary class="create-summary"><span><strong>Tạo tài khoản mới</strong><small>Thêm thành viên và thiết lập vai trò truy cập</small></span><span aria-hidden="true">＋</span></summary>
             <div class="account-create">
             <form method="post" action="${pageContext.request.contextPath}/admin/tai-khoan">
@@ -108,7 +110,7 @@
                                         ${acc.active ? 'Khóa' : 'Mở khóa'}
                                     </button>
                                 </form>
-                                <details>
+                                <details data-popup-editor data-popup-title="Sửa tài khoản · ${fn:escapeXml(acc.fullName)}">
                                     <summary>Sửa</summary>
                                     <div class="edit-panel">
                                         <form method="post" action="${pageContext.request.contextPath}/admin/tai-khoan">
@@ -127,7 +129,7 @@
                                         </form>
                                     </div>
                                 </details>
-                                <details>
+                                <details data-popup-editor data-popup-title="Đặt lại mật khẩu · ${fn:escapeXml(acc.fullName)}">
                                     <summary>Đổi mật khẩu</summary>
                                     <div class="edit-panel">
                                         <form method="post" action="${pageContext.request.contextPath}/admin/tai-khoan">
